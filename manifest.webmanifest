@@ -1,7 +1,7 @@
 {
   "name": "Gwent Classic — Definitive Edition",
   "short_name": "Gwent Definitive",
-  "description": "Engine-backed Gwent Classic reconstruction and expansion.",
+  "description": "Classic Witcher 3-style Gwent rebuilt as a deterministic touch-first web game.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -9,11 +9,8 @@
   "background_color": "#080706",
   "theme_color": "#080706",
   "icons": [
-    {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    }
+    {"src":"icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"},
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}
   ]
 }

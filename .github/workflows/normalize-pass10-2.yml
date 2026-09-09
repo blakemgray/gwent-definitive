@@ -1,0 +1,34 @@
+name: Normalize Pass 10.2 Source
+
+on:
+  push:
+    branches: [ pass-10-2-hardening ]
+    paths: [ scripts/normalize_pass10_2.py ]
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: pass-10-2-hardening
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Materialize normalized source
+        run: python scripts/normalize_pass10_2.py
+      - name: Remove migration scaffolding
+        run: |
+          rm -rf .deploy
+          rm scripts/normalize_pass10_2.py
+          rm .github/workflows/normalize-pass10-2.yml
+      - name: Commit normalized source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Normalize Pass 10.2 production source"
+          git push origin HEAD:pass-10-2-hardening
