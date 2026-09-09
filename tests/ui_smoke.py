@@ -15,7 +15,8 @@ with sync_playwright() as p:
     page.on('pageerror',lambda e: errors.append(str(e)))
     page.goto(BASE,wait_until='networkidle')
     assert page.locator('#main-screen.active').count()==1
-    assert page.locator('[data-nav="profile-screen"]').is_hidden(), 'developer entry visible by default'
+    dev_entry=page.locator('#main-screen [data-nav="profile-screen"]')
+    assert dev_entry.count()==1 and dev_entry.is_hidden(), 'developer entry visible by default'
     page.locator('[data-nav="play-screen"]').click()
     assert page.locator('#play-screen.active').count()==1
     page.locator('#quick-start').click()
@@ -45,7 +46,7 @@ with sync_playwright() as p:
     page.locator('#match-menu').click(); page.set_viewport_size({"width":393,"height":852})
     page.locator('[data-nav="settings-screen"]').click(); page.locator('#developer-mode').check()
     page.locator('[data-nav="main-screen"]').click()
-    assert page.locator('[data-nav="profile-screen"]').is_visible(),'developer entry should appear when enabled'
+    assert dev_entry.is_visible(),'developer entry should appear when enabled'
     assert not errors,errors
     browser.close()
 print('ui-smoke: navigation, save/restore, developer gating, 6-row geometry passed')
