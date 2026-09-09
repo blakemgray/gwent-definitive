@@ -1,0 +1,98 @@
+rrentPlayerId==='p1'?'NO LEGAL PLAY':'WAIT FOR YOUR TURN'}</button>`;
+    root.innerHTML=`<div class="shade" data-close-overlay></div><aside class="side-panel" id="card-inspector"><button class="panel-x" data-close-overlay>×</button><div class="inspector-grid">${img?`<img class="inspect-art" src="${img}" alt="${esc(d?.name)}">`:''}<div class="inspect-copy"><div class="eyebrow">${esc(d?.faction)} · ${esc(d?.row || d?.type)}</div><h2>${esc(d?.name)}</h2><span class="badge">${esc(d?.abilities.join(' · ') || 'UNIT')}</span><p>${esc(descriptionFor(d))}</p><div class="actions">${actionHtml}</div></div></div></aside>`;
+    root.querySelectorAll('[data-play-index]').forEach(btn=>btn.addEventListener('click',()=>playAction(actions[Number(btn.dataset.playIndex)])));
+    root.querySelectorAll('[data-close-overlay]').forEach(x=>x.onclick=closeOverlay);
+  }
+
+  function actionLabel(a,d){
+    if(d.abilities.includes('spy')) return 'PLAY SPY';
+    if(d.abilities.includes('decoy')){ const t=findInst(a.targetIid); return `DECOY → ${t?displayName(t.inst):'UNIT'}`; }
+    if(d.type==='weather') return 'APPLY WEATHER';
+    if(d.abilities.includes('scorch')) return 'PLAY SCORCH';
+    if(d.abilities.includes('horn')) return `HORN → ${String(a.row).toUpperCase()}`;
+    return `PLAY ${String(a.row||'').toUpperCase()}`;
+  }
+
+  function descriptionFor(d){
+    if(d.abilities.includes('spy')) return 'Played on the opponent side. Draw two cards from your deck.';
+    if(d.abilities.includes('bond')) return 'Tight Bond multiplies identical Tight Bond units in the same row.';
+    if(d.abilities.includes('medic')) return 'Revive one eligible non-Hero unit from your graveyard.';
+    if(d.abilities.includes('decoy')) return 'Swap with an eligible unit on your battlefield and return that unit to your hand.';
+    if(d.abilities.includes('scorch')) return 'Destroy the strongest non-Hero unit or tied units on the battlefield.';
+    if(d.type==='weather') return 'Applies the canonical weather effect to the corresponding row for both players.';
+    if(d.abilities.includes('hero')) return 'Hero: immune to weather and most special-card effects.';
+    return 'Canonical Witcher 3 Gwent unit.';
+  }
+
+  function playAction(action){
+    try{
+      const d=def(findInst(action.iid).inst.cardId);
+      let next=G.playCard(state,action);
+      ui.selectedIid=null;
+      commit(next, `${d.name.toUpperCase()} · ENGINE RESOLVED`);
+    }catch(e){ console.error(e); toast('ENGINE REJECTED ACTION'); }
+  }
+
+  function renderMedicChoice(root){
+    const choice=state.pendingChoice; const candidates=choice.candidateIids.map(iid=>findInst(iid)).filter(Boolean);
+    root.innerHTML=`<div class="shade"></div><aside class="side-panel"><div class="eyebrow">MEDIC · ENGINE CHOICE</div><h2>Choose a unit to revive</h2><p class="sub">Only legal non-Hero units from your graveyard are exposed by the engine.</p><div class="choice-list">${candidates.map(c=>{const d=def(c.inst.cardId),img=assetFor(c.inst.cardId);return `<div class="choice-card">${img?`<img src="${img}" alt="${esc(d.name)}">`:''}<span><b>${esc(d.name)}</b><small class="sub"> ${d.strength} · ${esc(d.row)}</small></span><button class="btn primary" data-medic="${c.inst.iid}">REVIVE</button></div>`}).join('')}</div></aside>`;
+    root.querySelectorAll('[data-medic]').forEach(b=>b.addEventListener('click',()=>{
+      try{ const next=G.resolveChoice(state,{type:'RESOLVE_MEDIC',targetIid:b.dataset.medic}); commit(next,'MEDIC REVIVE · ENGINE RESOLVED'); }
+      catch(e){console.error(e);toast('INVALID MEDIC TARGET');}
+    }));
+  }
+
+  function openLeader(){
+    if(!state) return;
+    const root=$('#overlay-root'), p=state.players.p1, d=def(p.leaderId);
+    const ready=G.leaderAvailable(state,'p1') && state.currentPlayerId==='p1' && !p.passed && !state.pendingChoice && !state.winner;
+    root.innerHTML=`<div class="shade" data-close-overlay></div><aside class="side-panel"><button class="panel-x" data-close-overlay>×</button><div class="eyebrow">LEADER · NORTHERN REALMS</div><div class="inspector-grid"><img class="inspect-art" src="${assetFor(p.leaderId)}" alt="${esc(d?.name||'Leader')}"><div class="inspect-copy"><h2>${esc(d?.name||'Leader')}</h2><span class="badge">LEADER ABILITY</span><p>Double the strength of your Siege row unless that row already contains a row Special Card.</p><div class="actions"><button id="activate-leader" class="btn primary" ${ready?'':'disabled'}>${p.leaderUsed?'LEADER USED':p.leaderDisabled?'LEADER BLOCKED':ready?'ACTIVATE LEADER':'WAIT FOR YOUR TURN'}</button></div></div></div></aside>`;
+    root.querySelectorAll('[data-close-overlay]').forEach(x=>x.onclick=closeOverlay);
+    const b=$('#activate-leader'); if(b && ready)b.onclick=()=>{try{commit(G.activateLeader(state,{playerId:'p1'}),'FOLTEST · SIEGE HORN ACTIVATED');}catch(e){console.error(e);toast('LEADER ACTION REJECTED');}};
+  }
+
+  function renderRulesMatrix(){
+    const cov=G.abilityCoverage(); const el=$('#rules-matrix'); if(!el)return;
+    const groups=[
+      ['Core battlefield','Weather / Clear · Hero immunity · Agile · Morale · Tight Bond · Horn'],
+      ['Card actions','Spy · Medic · Muster · Decoy · Scorch + row Scorch'],
+      ['Skellige systems','Mardroeme · Berserker transforms · Storm · Kambi / Hemdall'],
+      ['Lifecycle','Avenger / Bovine Defense Force · active weather/special slots · canonical auto-pass'],
+      ['Faction perks','Northern Realms · Nilfgaard · Monsters · Scoia\'tael · Skellige'],
+      ['Leader families','Foltest 5/5 · Emhyr 5/5 · Eredin 5/5 · Francesca 5/5 · Crach · King Bran']
+    ];
+    el.innerHTML=groups.map(([a,b])=>`<div class="panel rule-row"><span><b>${esc(a)}</b><small>${esc(b)}</small></span><span class="badge">COVERED</span></div>`).join('') + `<div class="panel rule-row"><span><b>Catalog token audit</b><small>${cov.supported.length} supported · ${cov.unsupported.length} unsupported</small></span><span class="badge">${cov.unsupported.length?'REVIEW':'44 / 44'}</span></div>`;
+  }
+
+  function passPlayer(){
+    if(!state || state.currentPlayerId!=='p1') return;
+    try{ commit(G.pass(state,{playerId:'p1'}),'YOU PASSED'); }
+    catch(e){console.error(e);} }
+
+  function commit(next,label){
+    state = history.commit(next);
+    renderMatch();
+    if(label) toast(label);
+    maybeAutoBot();
+  }
+
+  function maybeAutoBot(){
+    clearTimeout(ui.botTimer);
+    const toggle=$('#auto-bot');
+    if(!toggle || !toggle.checked || ui.lab || !state || state.winner || state.pendingChoice || state.currentPlayerId!=='p2') return;
+    ui.botTimer=setTimeout(()=>botMove(true),220);
+  }
+
+  function actionContext(a){
+    const f = findInst(a.iid); const d=f?def(f.inst.cardId):null;
+    return {inst:f?.inst, def:d};
+  }
+
+  function evaluateAction(a){
+    const {inst, def:d}=actionContext(a); if(!d) return -999;
+    const opp='p1', self='p2';
+    let score = d.strength || 0;
+    if(a.type==='PASS'){
+      const lead = total(self) - total(opp);
+      if(lead>0) return 18 + lead;
+      return -3
