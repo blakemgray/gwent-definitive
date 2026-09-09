@@ -17,21 +17,21 @@ with sync_playwright() as p:
     assert page.locator('#main-screen.active').count()==1
     dev_entry=page.locator('#main-screen [data-nav="profile-screen"]')
     assert dev_entry.count()==1 and dev_entry.is_hidden(), 'developer entry visible by default'
-    page.locator('[data-nav="play-screen"]').click()
+    page.locator('#main-screen [data-nav="play-screen"]').click()
     assert page.locator('#play-screen.active').count()==1
-    page.locator('#quick-start').click()
+    page.locator('#play-screen #quick-start').click()
     assert page.locator('#mulligan-screen.active').count()==1
-    assert page.locator('[data-mulligan]').count()==10
-    page.locator('#finish-mulligan').click()
+    assert page.locator('#mulligan-screen [data-mulligan]').count()==10
+    page.locator('#mulligan-screen #finish-mulligan').click()
     page.set_viewport_size({"width":852,"height":393})
     page.wait_for_timeout(100)
     assert page.locator('#match-screen.active').count()==1
-    lanes=page.locator('.lane')
+    lanes=page.locator('#match-screen .lane')
     assert lanes.count()==6
     got=[(lanes.nth(i).get_attribute('data-pid'),lanes.nth(i).get_attribute('data-row')) for i in range(6)]
     assert got==[('p2','siege'),('p2','ranged'),('p2','close'),('p1','close'),('p1','ranged'),('p1','siege')],got
     for expected in contract['combat_rows']:
-        loc=page.locator(f'.lane[data-pid="{expected["player"]}"][data-row="{expected["row"]}"]')
+        loc=page.locator(f'#match-screen .lane[data-pid="{expected["player"]}"][data-row="{expected["row"]}"]')
         box=loc.bounding_box(); assert box
         for key,actual,exp in [('x',box['x'],expected['x']),('y',box['y'],expected['y']),('w',box['width'],expected['w']),('h',box['height'],expected['h'])]:
             assert abs(actual-exp)<=contract['geometry_tolerance_px'],f'{expected["player"]}/{expected["row"]} {key}: {actual} vs {exp}'
@@ -39,13 +39,13 @@ with sync_playwright() as p:
     assert saved and json.loads(saved)['schema']==1
     page.reload(wait_until='domcontentloaded')
     page.set_viewport_size({"width":393,"height":852})
-    assert page.locator('#continue-match').is_visible(),'continue match should be visible after reload'
-    page.locator('#continue-match').click(); page.set_viewport_size({"width":852,"height":393}); page.wait_for_timeout(50)
+    assert page.locator('#main-screen #continue-match').is_visible(),'continue match should be visible after reload'
+    page.locator('#main-screen #continue-match').click(); page.set_viewport_size({"width":852,"height":393}); page.wait_for_timeout(50)
     assert page.locator('#match-screen.active').count()==1
     page.evaluate("localStorage.removeItem('gwent-definitive-match-v1')")
-    page.locator('#match-menu').click(); page.set_viewport_size({"width":393,"height":852})
-    page.locator('[data-nav="settings-screen"]').click(); page.locator('#developer-mode').check()
-    page.locator('[data-nav="main-screen"]').click()
+    page.locator('#match-screen #match-menu').click(); page.set_viewport_size({"width":393,"height":852})
+    page.locator('#main-screen [data-nav="settings-screen"]').click(); page.locator('#settings-screen #developer-mode').check()
+    page.locator('#settings-screen [data-nav="main-screen"]').click()
     assert dev_entry.is_visible(),'developer entry should appear when enabled'
     assert not errors,errors
     browser.close()
