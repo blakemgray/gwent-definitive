@@ -1,0 +1,19 @@
+{
+  "name": "Gwent Classic — Definitive Edition",
+  "short_name": "Gwent Definitive",
+  "description": "Engine-backed Gwent Classic reconstruction and expansion.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#080706",
+  "theme_color": "#080706",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
