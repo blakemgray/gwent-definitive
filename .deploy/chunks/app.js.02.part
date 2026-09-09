@@ -1,0 +1,100 @@
+-label">ROUND ${state.round}</span>
+      <span class="total" id="player-total">${total('p1')}</span><span>${hearts(p1.health)}</span><span class="name-hide">N. REALMS</span><span class="faction-dot realms">NR</span>`;
+
+    const rowModel=[['p2','siege','SIEGE'],['p2','ranged','RANGED'],['p2','close','CLOSE'],['weather',null,'WEATHER'],['p1','close','CLOSE'],['p1','ranged','RANGED'],['p1','siege','SIEGE']];
+    $('#board-geometry').innerHTML = rowModel.map(r=>r[0]==='weather'?renderGeometryWeather():renderGeometryLane(r[0],r[1])).join('');
+    $('#board').innerHTML = [
+      renderLane('p2','siege','SIEGE'),renderLane('p2','ranged','RANGED'),renderLane('p2','close','CLOSE'),
+      renderWeatherBand(),
+      renderLane('p1','close','CLOSE'),renderLane('p1','ranged','RANGED'),renderLane('p1','siege','SIEGE')
+    ].join('');
+
+    $('#counts').innerHTML = `<span>DECK <b id="deck-count">${p1.deck.length}</b></span><span>GRAVE <b id="grave-count">${p1.grave.length}</b></span><span>HAND <b id="hand-count">${p1.hand.length}</b></span>`;
+    $('#hand').innerHTML = p1.passed ? `<div class="sub" style="font-size:9px;align-self:center">PASSED · NO FURTHER ACTIONS THIS ROUND</div>` : p1.hand.map(renderHandCard).join('');
+
+    const badge=$('#class-badge'); badge.textContent=classificationLabel(); badge.className='badge compact-hide '+(state.classification==='classic'?'':state.classification);
+    $('#pass-button').disabled = state.currentPlayerId!=='p1' || p1.passed || !!state.winner || !!state.pendingChoice;
+    const leader=$('#leader-button');
+    leader.innerHTML = `<img src="${assetFor(p1.leaderId)}" alt="Leader"><span class="leader-status" id="leader-status"></span>`;
+    const leaderReady=G.leaderAvailable(state,'p1') && state.currentPlayerId==='p1' && !p1.passed && !state.pendingChoice && !state.winner;
+    leader.disabled=!leaderReady; leader.classList.toggle('available',leaderReady); leader.classList.toggle('spent',p1.leaderUsed||p1.leaderDisabled);
+    $('#leader-status').textContent=p1.leaderDisabled?'BLOCKED':p1.leaderUsed?'USED':leaderReady?'READY':'WAIT';
+    $('#bot-move').classList.toggle('hidden', state.currentPlayerId!=='p2' || !!state.winner || !!state.pendingChoice);
+    $('#bot-move').textContent = p1.passed ? 'BOT RESOLVE' : 'BOT MOVE';
+    renderAssistPanels();
+    renderOverlay();
+    if(state.winner) renderResult();
+  }
+
+
+  function renderGeometryLane(pid,row){
+    return `<div class="geometry-lane ${pid==='p1'?'player-side':'opponent-side'}" data-geometry-pid="${pid}" data-geometry-row="${row}"><div class="geometry-label-well"></div><div class="geometry-special-well"></div><div class="geometry-unit-tray"></div><div class="geometry-score-well"></div></div>`;
+  }
+  function renderGeometryWeather(){
+    return `<div class="geometry-weather" data-geometry-weather><span class="geometry-weather-core"></span></div>`;
+  }
+
+  function renderLane(pid,row,label){
+    const cards=state.players[pid].board[row];
+    const weathered=state.weather[row]?'weathered':'';
+    const special=renderSpecial(pid,row);
+    return `<div class="lane ${weathered}" data-pid="${pid}" data-row="${row}"><div class="rlabel">${label}</div><div class="special-slot-wrap">${special}</div><div class="units">${cards.map(inst=>renderUnit(pid,row,inst)).join('')}</div><div class="rscore">${score(pid,row)}</div></div>`;
+  }
+
+  function renderSpecial(pid,row){
+    const board = state.players[pid].board;
+    if(board.special?.[row]){
+      const inst = board.special[row]; const img=assetFor(inst.cardId); const d=def(inst.cardId);
+      return `<div class="special-slot active" title="${esc(d?.name||'Special')}">${img?`<img src="${img}" alt="${esc(d?.name||'Special')}">`:`<span>SP</span>`}</div>`;
+    }
+    if(board.leaderHorn?.[row]) return `<div class="special-slot active" title="Leader Horn"><span>LH</span></div>`;
+    return `<div class="special-slot" title="Row special slot"></div>`;
+  }
+
+  function renderWeatherBand(){
+    const any=Object.values(state.weather).some(Boolean);
+    const active=(state.weatherCards||[]).map(w=>w.inst).filter(Boolean);
+    const label = any ? weatherText() : 'NO ACTIVE WEATHER';
+    return `<div class="weather ${any?'active':''}"><span>${label}</span>${active.length?`<div class="weather-cards">${active.map(inst=>renderWeatherPill(inst)).join('')}</div>`:''}</div>`;
+  }
+
+  function renderWeatherPill(inst){ const d=def(inst.cardId), img=assetFor(inst.cardId); return `<div class="weather-pill">${img?`<img src="${img}" alt="${esc(d.name)}">`:''}<span>${esc(d.name)}</span></div>`; }
+
+  function renderUnit(pid,row,inst){
+    const d=def(inst.cardId); const power=G.helpers.effectiveCardPower(state,pid,row,inst); const img=assetFor(inst.cardId);
+    const mark=d?.abilities.includes('hero')?'★':(d?.abilities.includes('spy')?'◆':'');
+    const changed = d && power !== d.strength;
+    return `<button class="unit" data-inspect-board="${inst.iid}" title="${esc(d?.name)}">${img?`<img src="${img}" alt="${esc(d?.name)}">`:''}${changed?`<span class="u-score modified-power">${power}</span>`:''}<span class="u-mark">${mark}</span></button>`;
+  }
+
+  function renderHandCard(inst){
+    const d=def(inst.cardId); const img=assetFor(inst.cardId);
+    return `<button class="hand-card" data-card-iid="${inst.iid}" aria-label="${esc(d?.name)}">${img?`<img src="${img}" alt="${esc(d?.name)}">`:''}<span class="hc-name">${esc(d?.name)}</span></button>`;
+  }
+
+  function weatherText(){
+    const on=[]; if(state.weather.close) on.push('BITING FROST'); if(state.weather.ranged) on.push('IMPE NETRABLE FOG'); if(state.weather.siege) on.push('TORRENTIAL RAIN');
+    return on.length ? on.join(' · ') : 'NO ACTIVE WEATHER';
+  }
+
+  function findInst(iid){
+    for(const pid of ['p1','p2']){
+      const p=state.players[pid];
+      for(const zone of ['hand','deck','grave']){ const x=p[zone].find(c=>c.iid===iid); if(x) return {pid,zone,inst:x}; }
+      for(const row of G.ROWS){ const x=p.board[row].find(c=>c.iid===iid); if(x) return {pid,zone:'board',row,inst:x}; }
+      for(const row of G.ROWS){ const x=p.board.special[row]; if(x && x.iid===iid) return {pid,zone:'special',row,inst:x}; }
+    }
+    return null;
+  }
+
+  function selectCard(iid){ ui.selectedIid=iid; renderOverlay(); }
+  function closeOverlay(){ ui.selectedIid=null; $('#overlay-root').innerHTML=''; }
+
+  function renderOverlay(){
+    const root=$('#overlay-root');
+    if(state.pendingChoice){ renderMedicChoice(root); return; }
+    if(!ui.selectedIid){ root.innerHTML=''; return; }
+    const found=findInst(ui.selectedIid); if(!found){ui.selectedIid=null;root.innerHTML='';return;}
+    const d=def(found.inst.cardId); const img=assetFor(found.inst.cardId);
+    const actions = found.zone==='hand' ? G.legalActions(state,'p1').filter(a=>a.iid===found.inst.iid) : [];
+    const actionHtml = actions.length ? actions.map((a,i)=>`<button class="btn primary" data-play-index="${i}">${esc(actionLabel(a,d))}</button>`).join('') : `<button class="btn" disabled>${state.cu

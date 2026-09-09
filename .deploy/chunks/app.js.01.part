@@ -1,0 +1,94 @@
+h.max(0,n)) + '○'.repeat(Math.max(0,2-n)); }
+  function assetFor(cardId){ return ASSET[cardId] || ''; }
+  function def(cardId){ return G.CARD_DB[cardId]; }
+  function displayName(inst){ return def(inst.cardId)?.name || inst.cardId; }
+  function classificationLabel(){ return (state?.classification || 'classic').toUpperCase(); }
+  function playerPreset(){ return PRESETS.player.find(p=>p.id===ui.setup.playerPreset) || PRESETS.player[0]; }
+  function botPreset(){ return PRESETS.bot.find(p=>p.id===ui.setup.botPreset) || PRESETS.bot[0]; }
+
+  function quickStart(){
+    ui.setup.playerPreset='nr_siege_spy'; ui.setup.botPreset='monsters_midrange'; ui.setup.firstPlayerId='p1';
+    ui.setup.mode='classic'; ui.setup.difficulty=ui.settings.defaultDifficulty; ui.setup.seed=20260910;
+    prepareMulliganState();
+  }
+
+  function prepareMulliganState(lab=false){
+    ui.lab=lab;
+    const pp=playerPreset(), bp=botPreset();
+    ui.selectedIid=null; ui.revealOpponent=false; ui.showIntent=false; ui.mulliganUsed=0;
+    ui.preMatchState = G.createMatch({
+      p1Faction:pp.faction,p2Faction:bp.faction,p1LeaderId:pp.leaderId,p2LeaderId:bp.leaderId,
+      p1Deck:pp.deck,p2Deck:bp.deck,handSize:10,seed:Number(ui.setup.seed)||20260910,firstPlayerId:ui.setup.firstPlayerId
+    });
+    if(lab) ui.preMatchState = G.sandboxSetTurn(ui.preMatchState,'p1');
+    go('mulligan-screen');
+    renderMulliganScreen();
+    toast(lab ? 'MECHANICS LAB · REVIEW HAND THEN ENTER' : 'MATCH PREPARED · REVIEW OPENING HAND');
+  }
+
+  function finalizeMatchFromPrepared(){
+    state = deepClone(ui.preMatchState);
+    history = new G.HistorySession(state);
+    go('match-screen');
+    renderMatch();
+    toast(ui.lab ? 'MECHANICS LAB READY' : 'MATCH STARTED');
+    maybeAutoBot();
+  }
+
+  function swapMulligan(iid){
+    if(!ui.preMatchState || ui.mulliganUsed>=2) return;
+    const s = deepClone(ui.preMatchState), p = s.players.p1;
+    const idx = p.hand.findIndex(c=>c.iid===iid);
+    if(idx<0 || !p.deck.length) return;
+    const outgoing = p.hand.splice(idx,1)[0];
+    const incoming = p.deck.shift();
+    p.hand.push(incoming);
+    p.deck.push(outgoing);
+    ui.preMatchState = s;
+    ui.mulliganUsed += 1;
+    renderMulliganScreen();
+    toast(`${displayName(outgoing).toUpperCase()} · MULLIGANED`);
+  }
+
+  function renderMulliganScreen(){
+    if(!ui.preMatchState) return;
+    const p=ui.preMatchState.players.p1;
+    $('#mulligan-count').textContent = `${ui.mulliganUsed} / 2 USED`;
+    $('#mulligan-meta').innerHTML = `${esc(playerPreset().name)} · <b>${ui.setup.difficulty.toUpperCase()}</b> · Seed <b>${esc(ui.setup.seed)}</b> · Deck <b>${p.deck.length}</b> remaining after draw`;
+    $('#mulligan-hand').innerHTML = p.hand.map(inst=>{
+      const d=def(inst.cardId), img=assetFor(inst.cardId);
+      return `<div class="mulligan-card"><img src="${img}" alt="${esc(d.name)}"><div><h4>${esc(d.name)}</h4><p>${esc((d.abilities||[]).join(' · ') || d.row || d.type)}</p><p>${d.strength==null?'—':d.strength} power · ${esc(d.faction||'neutral')}</p><button class="btn ${ui.mulliganUsed<2?'':'ghost'}" data-mulligan="${inst.iid}" ${ui.mulliganUsed<2?'':'disabled'}>MULLIGAN</button></div></div>`;
+    }).join('');
+  }
+
+  function renderSetupScreen(){
+    const playerCards = PRESETS.player.map(p=>renderOptionChip('playerPreset', p.id, p.name, p.summary, ui.setup.playerPreset===p.id)).join('');
+    const botCards = PRESETS.bot.map(p=>renderOptionChip('botPreset', p.id, p.name, p.summary, ui.setup.botPreset===p.id)).join('');
+    const diffCards = PRESETS.difficulties.map(p=>renderOptionChip('difficulty', p.id, p.name, p.summary, ui.setup.difficulty===p.id)).join('');
+    const firstCards = [
+      renderOptionChip('firstPlayerId','p1','You start','Take initiative and test proactive lines.',ui.setup.firstPlayerId==='p1'),
+      renderOptionChip('firstPlayerId','p2','Bot starts','Stress response play and passing logic.',ui.setup.firstPlayerId==='p2')
+    ].join('');
+    $('#setup-body').innerHTML = `
+      <div class="panel setup-panel"><div class="selector-title"><div><div class="eyebrow">PLAYER DECK PRESET</div><h3>${esc(playerPreset().name)}</h3></div><span class="badge">${esc(playerPreset().deck.length)} CARD SLICE</span></div><div class="selector-group"><div class="option-row">${playerCards}</div></div></div>
+      <div class="panel setup-panel"><div class="selector-title"><div><div class="eyebrow">OPPONENT ARCHETYPE</div><h3>${esc(botPreset().name)}</h3></div><span class="badge">INTEGRATION BOT</span></div><div class="selector-group"><div class="option-row">${botCards}</div></div></div>
+      <div class="panel setup-panel"><div class="selector-title"><div><div class="eyebrow">DIFFICULTY LAYER</div><h3>${esc((PRESETS.difficulties.find(d=>d.id===ui.setup.difficulty)||{}).name||'')}</h3></div><span class="badge">HEURISTIC</span></div><div class="selector-group"><div class="option-row">${diffCards}</div></div></div>
+      <div class="panel setup-panel"><div class="selector-title"><div><div class="eyebrow">MATCH PARAMETERS</div><h3>Initiative and seed</h3></div><span class="badge">PRE-BATTLE FLOW</span></div><div class="selector-group"><div class="option-row">${firstCards}</div><div class="setup-summary"><div class="setup-kv"><b>Seed</b><input id="seed-input" class="seed-input" type="number" value="${esc(ui.setup.seed)}"></div><div class="setup-kv"><b>Resulting leader</b>${esc(def(playerPreset().leaderId)?.name || playerPreset().leaderId)}</div><div class="setup-kv"><b>Bot leader</b>${esc(def(botPreset().leaderId)?.name || botPreset().leaderId)}</div><div class="setup-kv"><b>Recommended mode</b>${ui.setup.mode.toUpperCase()}</div></div></div><div class="setup-actions"><button id="setup-reset" class="btn">RESET RECOMMENDED</button><button id="setup-prepare" class="btn primary">PREPARE OPENING HAND</button></div></div>`;
+    const seedInput = $('#seed-input'); if(seedInput) seedInput.addEventListener('change', e=>ui.setup.seed = Number(e.target.value)||20260910);
+    $('#setup-reset').onclick = ()=>{ ui.setup={playerPreset:'nr_siege_spy', botPreset:'monsters_midrange', difficulty:ui.settings.defaultDifficulty, firstPlayerId:'p1', seed:20260910, mode:'classic'}; renderSetupScreen(); };
+    $('#setup-prepare').onclick = ()=>prepareMulliganState(false);
+  }
+
+  function renderOptionChip(group, value, title, desc, active){
+    return `<button class="option-chip ${active?'active':''}" data-setup-group="${group}" data-setup-value="${value}"><strong>${esc(title)}</strong><small>${esc(desc)}</small></button>`;
+  }
+
+  function score(pid,row){ return G.rowScore(state,pid,row); }
+  function total(pid){ return G.totalScore(state,pid); }
+
+  function renderMatch(){
+    if(!state) return;
+    const p1=state.players.p1,p2=state.players.p2;
+    $('#matchline').innerHTML = `
+      <span class="faction-dot monsters">M</span><span class="name-hide">MONSTERS</span><span>${hearts(p2.health)}</span><span class="total" id="opp-total">${total('p2')}</span>
+      <span class="round

@@ -23,12 +23,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Assemble production site
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site/src
+          cp index.html manifest.webmanifest sw.js icon.svg .nojekyll _site/
+          cat .deploy/chunks/styles.css.*.part > _site/styles.css
+          cat .deploy/chunks/app.js.*.part > _site/app.js
+          cat .deploy/chunks/cards-catalog.js.*.part > _site/src/cards-catalog.js
+          cat .deploy/chunks/gwent-engine.js.*.part > _site/src/gwent-engine.js
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
