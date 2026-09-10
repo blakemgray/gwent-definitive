@@ -10,6 +10,7 @@
       this.serial=0;
       this.active=null;
       this.lastCompleted=null;
+      this.errorCount=0;
       this.listeners=new Set();
       this._boundCancel=(reason)=>this.cancel(reason);
       if(root?.document){
@@ -24,7 +25,8 @@
     registerAnimation(animation){
       if(!animation||!this.active)return animation;
       this.active.animations.add(animation);
-      const done=()=>this.active?.animations?.delete(animation);
+      const token=this.active;
+      const done=()=>token.animations.delete(animation);
       try{animation.finished?.then(done,done);}catch(_){/* disposable presentation */}
       return animation;
     }
@@ -45,7 +47,14 @@
         }
         return result;
       }catch(err){
-        if(err?.name!=='AbortError') throw err;
+        if(err?.name==='AbortError')return undefined;
+        this.errorCount++;
+        try{controller.abort('presentation_error');}catch(_){controller.abort();}
+        for(const anim of token.animations){try{anim.cancel();}catch(_){}}
+        const error={name:String(err?.name||'Error'),message:String(err?.message||err||'Presentation failure')};
+        this.lastCompleted={id,meta:token.meta,durationMs:(performance?.now?.()||Date.now())-token.startedAt,cancelled:true,reason:'presentation_error',error};
+        this.emit('error',this.lastCompleted);
+        console.error('Presentation transaction failed; authoritative game state retained.',err);
         return undefined;
       }finally{
         if(this.active?.id===id){
