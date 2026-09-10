@@ -74,9 +74,11 @@ body.presentation-busy #match-screen .hand-card{pointer-events:none}
 
 /* A toast describes the action that just finished. Once the player begins a
    fresh card intent it is stale context and yields immediately — no cross-fade
-   into the next decision state. */
-body.dm-has-selection #match-screen .state-toast.show,
-body.dm-dragging #match-screen .state-toast.show{
+   into the next decision state. The rule intentionally matches the toast even
+   after JS removes .show so the browser cannot animate one stale frame before
+   the selection/drag state becomes visually authoritative. */
+body.dm-has-selection #match-screen .state-toast,
+body.dm-dragging #match-screen .state-toast{
   opacity:0!important;
   pointer-events:none!important;
   transition:none!important;
