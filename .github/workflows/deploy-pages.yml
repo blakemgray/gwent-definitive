@@ -35,7 +35,7 @@ jobs:
       - name: Install browser QA tooling
         run: |
           python -m pip install -r requirements-ci.txt
-          python -m playwright install --with-deps chromium
+          python -m playwright install --with-deps chromium webkit
       - name: Start static test server
         run: |
           python -m http.server 4173 >/tmp/gwent-http.log 2>&1 &
@@ -46,10 +46,26 @@ jobs:
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
         run: python tests/ui_smoke.py
-      - name: Direct manipulation, overlap, parity, interruption, reduced-motion, and touch gate
+      - name: Direct manipulation baseline, overlap, parity, interruption, reduced-motion, and touch gate
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
         run: python tests/direct_manipulation_ui_v4.py
+      - name: Destination-family tap/drag parity gate
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+        run: python tests/direct_manipulation_destinations.py
+      - name: Presentation-aware bot turn gate
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+        run: python tests/presentation_turn_gate_ui.py
+      - name: 256-trial physical interaction stress gate
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+        run: python tests/direct_manipulation_stress.py
+      - name: WebKit / iPhone-targeted interaction gate
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+        run: python tests/direct_manipulation_webkit.py
       - name: Archive Pass 10.3 battlefield visual QA
         if: always()
         uses: actions/upload-artifact@v4
@@ -82,7 +98,7 @@ jobs:
           rm -rf _site
           mkdir -p _site/src _site/icons
           cp index.html app.js styles.css battlefield-ux.css direct-manipulation.css manifest.webmanifest sw.js icon.svg .nojekyll _site/
-          cp src/cards-catalog.js src/gwent-engine.js src/asset-resolver.js src/storage.js src/battlefield-ux.js src/motion-tokens.js src/presentation-queue.js src/presentation-events.js src/flip-layout.js src/gesture-controller.js _site/src/
+          cp src/cards-catalog.js src/gwent-engine.js src/asset-resolver.js src/storage.js src/battlefield-ux.js src/motion-tokens.js src/presentation-queue.js src/interaction-turn-gate.js src/presentation-events.js src/flip-layout.js src/gesture-controller.js _site/src/
           cp icons/apple-touch-icon.png icons/icon-192.png icons/icon-512.png _site/icons/
       - name: Configure Pages
         uses: actions/configure-pages@v5
