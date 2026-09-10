@@ -99,47 +99,42 @@ with sync_playwright() as p:
         rail=lanes.nth(i).locator('.units').bounding_box(); assert rail
         assert rail['width']<=limits['unit_rail_width_max']+1,rail
 
-    # Default ten-card hand: every edge protected and the whole pack centered.
     assert page.locator('#hand .hand-card').count()==10
     assert_pack(page,'#hand','.hand-card',limits['hand_pack_center_tolerance_px'],'opening hand')
     page.screenshot(path=str(qa_dir/'01_opening_battlefield.png'))
 
-    # Sparse-to-swarm density matrix. These are the row states that exposed the old left bias/cutoff behavior.
     for idx,count in enumerate(contract['stress_row_card_counts'],start=2):
         set_row_count(page,'p1','close',count)
-        assert page.locator('#match-screen .lane[data-pid="p1"][data-row="close"] .unit').count()==count
-        assert_pack(page,'#match-screen .lane[data-pid="p1"][data-row="close"] .units','.unit',limits['card_pack_center_tolerance_px'],f'{count}-card row')
+        selector='#match-screen .lane[data-pid="p1"][data-row="close"] .units'
+        assert page.locator(selector+' .unit').count()==count
+        assert_pack(page,selector,'.unit',limits['card_pack_center_tolerance_px'],f'{count}-card row')
         page.screenshot(path=str(qa_dir/f'{idx:02d}_row_{count:02d}_cards.png'))
 
-    # Six-row occupied state validates scan hierarchy rather than a single hero screenshot.
     set_balanced_state(page)
-    for i in range(6):
-        assert lanes.nth(i).locator('.unit').count()>0
-        rail=lanes.nth(i).locator('.units')
-        assert_pack(page,f'#match-screen .lane:nth-of-type({i+1}) .units','.unit',limits['card_pack_center_tolerance_px'],f'balanced row {i}')
+    balanced=[('p2','siege'),('p2','ranged'),('p2','close'),('p1','close'),('p1','ranged'),('p1','siege')]
+    for i,(pid,row) in enumerate(balanced):
+        selector=f'#match-screen .lane[data-pid="{pid}"][data-row="{row}"] .units'
+        assert page.locator(selector+' .unit').count()>0
+        assert_pack(page,selector,'.unit',limits['card_pack_center_tolerance_px'],f'balanced {pid} {row}')
     page.screenshot(path=str(qa_dir/'07_all_six_rows_balanced.png'))
 
-    # Weather belongs to affected rows and summary band simultaneously.
     page.evaluate("""()=>{const a=window.__GWENT_PASS10__;const s=a.getState();s.weather={close:true,ranged:true,siege:true};a.setStateForQA(s)}""")
     page.wait_for_timeout(100)
     assert page.locator('#match-screen .lane.weathered').count()==6
     page.screenshot(path=str(qa_dir/'08_all_weather.png'))
 
-    # Persistent pass state must survive outside transient toast messaging.
     page.evaluate("""()=>{const a=window.__GWENT_PASS10__;const s=a.getState();s.players.p2.passed=true;s.currentPlayerId='p1';a.setStateForQA(s)}""")
     page.wait_for_timeout(100)
     assert page.locator('#matchline [data-combatant="p2"] .pass-chip').is_visible()
     assert 'YOUR TURN' in page.locator('#matchline .turn-pill').inner_text()
     page.screenshot(path=str(qa_dir/'09_opponent_passed.png'))
 
-    # Late-game three-card hand must remain centered instead of sticking to an edge.
     page.evaluate("""()=>{const a=window.__GWENT_PASS10__;const s=a.getState();s.players.p1.hand=s.players.p1.hand.slice(0,3);a.setStateForQA(s)}""")
     page.wait_for_timeout(100)
     assert page.locator('#hand .hand-card').count()==3
     assert_pack(page,'#hand','.hand-card',limits['hand_pack_center_tolerance_px'],'three-card hand')
     page.screenshot(path=str(qa_dir/'10_three_card_hand.png'))
 
-    # Inspector is deliberately narrower than the old 56–64vw panel so battlefield context remains visible.
     page.locator('#hand .hand-card').first.click()
     page.wait_for_timeout(80)
     inspector=page.locator('#card-inspector').bounding_box(); assert inspector
@@ -147,7 +142,6 @@ with sync_playwright() as p:
     page.screenshot(path=str(qa_dir/'11_context_preserving_inspector.png'))
     page.locator('#overlay-root [data-close-overlay]').first.click()
 
-    # Save/restore remains intact after the structural re-parenting of leader and counts.
     saved=page.evaluate("localStorage.getItem('gwent-definitive-match-v1')")
     assert saved and json.loads(saved)['schema']==1
     page.reload(wait_until='domcontentloaded')
@@ -159,7 +153,6 @@ with sync_playwright() as p:
     assert page.locator('#player-left #leader-button').count()==1
     assert page.locator('#player-left #counts').count()==1
 
-    # Developer controls stay gated.
     page.evaluate("localStorage.removeItem('gwent-definitive-match-v1')")
     page.locator('#match-screen #match-menu').click(); page.set_viewport_size({'width':393,'height':852})
     page.locator('#main-screen [data-nav="settings-screen"]').click(); page.locator('#settings-screen #developer-mode').check()
