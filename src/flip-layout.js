@@ -5,6 +5,7 @@
 })(typeof self!=='undefined'?self:this,function(root){
   'use strict';
 
+  let animationErrors=0;
   function keyFor(el){
     if(!el)return null;
     if(el.dataset?.cardIid)return `iid:${el.dataset.cardIid}`;
@@ -31,6 +32,18 @@
     });
     return out;
   }
+  function trackAnimation(el,frames,options,Queue,animations){
+    try{
+      const anim=el.animate(frames,options);
+      Queue?.registerAnimation?.(anim);
+      animations.push(anim.finished.catch(()=>{}));
+      return anim;
+    }catch(err){
+      animationErrors++;
+      console.error('FLIP animation skipped; final compositor geometry retained.',err);
+      return null;
+    }
+  }
   function animate(before,opts={}){
     const Motion=root.GwentMotionTokens;
     const Queue=root.GwentPresentationQueue;
@@ -47,18 +60,16 @@
       const sx=last.width?first.width/last.width:1,sy=last.height?first.height/last.height:1;
       if(Math.abs(dx)<.35&&Math.abs(dy)<.35&&Math.abs(sx-1)<.01&&Math.abs(sy-1)<.01)continue;
       if(reduced){
-        const anim=el.animate([{opacity:.84},{opacity:1}],{duration:Math.min(duration,90),easing:'ease-out'});
-        Queue?.registerAnimation?.(anim); animations.push(anim.finished.catch(()=>{}));
+        trackAnimation(el,[{opacity:.84},{opacity:1}],{duration:Math.min(duration,90),easing:'ease-out'},Queue,animations);
       }else{
-        const anim=el.animate([
+        trackAnimation(el,[
           {transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})`},
           {transform:'translate(0px,0px) scale(1,1)'}
-        ],{duration,easing,fill:'both'});
-        Queue?.registerAnimation?.(anim); animations.push(anim.finished.catch(()=>{}));
+        ],{duration,easing,fill:'both'},Queue,animations);
       }
     }
     return Promise.all(animations);
   }
 
-  return Object.freeze({version:'10.4A.0',keyFor,box,capture,animate});
+  return Object.freeze({version:'10.4A.0',keyFor,box,capture,animate,get animationErrors(){return animationErrors;}});
 });
