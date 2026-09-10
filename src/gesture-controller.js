@@ -32,8 +32,9 @@
     dragRaf:0,
     suppressedClick:null,
     lastTransaction:null,
+    lastSettlement:null,
     lastCancelReason:null,
-    stats:{selections:0,tapCommits:0,dragCommits:0,invalidDrops:0,cancels:0,inspections:0,pointerFrames:0,maxPointerLagPx:0,transactions:0,errors:0,suppressedClicks:0}
+    stats:{selections:0,tapCommits:0,dragCommits:0,invalidDrops:0,cancels:0,inspections:0,pointerFrames:0,maxPointerLagPx:0,transactions:0,errors:0,suppressedClicks:0,toastDismissals:0}
   };
 
   function attr(value){return String(value).replace(/\\/g,'\\\\').replace(/"/g,'\\"');}
@@ -52,6 +53,14 @@
         const inst=state.players[pid]?.board?.[row]?.find(c=>c.iid===iid);
         if(inst)return G.CARD_DB[inst.cardId]||null;
       }
+      for(const row of G.ROWS){
+        const inst=state.players[pid]?.board?.special?.[row];
+        if(inst?.iid===iid)return G.CARD_DB[inst.cardId]||null;
+      }
+    }
+    for(const entry of state.weatherCards||[]){
+      const inst=entry?.inst;
+      if(inst?.iid===iid)return G.CARD_DB[inst.cardId]||null;
     }
     return null;
   }
@@ -91,6 +100,37 @@
     if(dest.kind==='weather')return 'weather zone';
     return 'play zone';
   }
+  function plainRect(rect){
+    if(!rect)return null;
+    return {x:Number(rect.x),y:Number(rect.y),width:Number(rect.width),height:Number(rect.height)};
+  }
+  function centeredRect(container,width,height){
+    if(!container)return null;
+    const w=Math.max(18,Math.min(width||32,container.width||32));
+    const h=Math.max(24,height||44);
+    return {x:container.x+(container.width-w)/2,y:container.y+(container.height-h)/2,width:w,height:h};
+  }
+  function destinationAnchor(dest,sourceRect){
+    const el=destinationElement(dest);
+    if(!el)return null;
+    const rect=plainRect(el.getBoundingClientRect());
+    if(!rect)return null;
+    if(dest?.kind==='target'||dest?.kind==='special')return {el:null,rect};
+    let container=rect;
+    if(dest?.kind==='row'){
+      const units=el.querySelector?.('.units');
+      const unitRect=units?plainRect(units.getBoundingClientRect()):null;
+      if(unitRect?.width&&unitRect?.height)container=unitRect;
+    }
+    const width=Math.min(sourceRect?.width||32,42);
+    const height=Math.min(sourceRect?.height||44,58);
+    return {el:null,rect:centeredRect(container,width,height)};
+  }
+  function snapshotDestination(action,state,sourceRect){
+    const dest=normalizeDestination(action,state);
+    const anchor=destinationAnchor(dest,sourceRect);
+    return {dest:dest?{...dest}:null,rect:anchor?.rect?plainRect(anchor.rect):null};
+  }
 
   function announce(text){
     const live=$('#dm-live');
@@ -101,6 +141,15 @@
     const live=document.createElement('div');
     live.id='dm-live';live.className='dm-sr-only';live.setAttribute('aria-live','polite');live.setAttribute('aria-atomic','true');
     document.body.appendChild(live);
+  }
+  function dismissStaleToast(){
+    const toast=$('#toast');
+    if(toast?.classList.contains('show')){
+      toast.classList.remove('show');
+      runtime.stats.toastDismissals++;
+      return true;
+    }
+    return false;
   }
 
   function armSyntheticClickSuppression(x,y,ms=180){
@@ -175,6 +224,7 @@
     if(announceIt)announce('Card selection cancelled.');
   }
   function selectIid(iid,opts={}){
+    dismissStaleToast();
     const state=getState();
     const actions=actionsFor(iid,state);
     const card=$(`#match-screen .hand-card[data-card-iid="${attr(iid)}"]`);
@@ -196,6 +246,7 @@
     return true;
   }
   function inspectIid(iid,suppressPoint=null){
+    dismissStaleToast();
     clearCandidate();
     abortDrag('inspect',true);
     cancelSelection('inspect');
@@ -289,15 +340,15 @@
     return true;
   }
 
-  function settleRectForAction(action,tx){
+  function settleRectForAction(action,tx,intent,sourceRect){
     const iid=action?.iid;
     const exact=iid?$(`#match-screen [data-inspect-board="${attr(iid)}"]`):null;
-    if(exact)return {el:exact,rect:exact.getBoundingClientRect()};
-    const dest=normalizeDestination(action,getState());
-    const el=destinationElement(dest);
-    if(el)return {el:null,rect:el.getBoundingClientRect()};
-    const board=$('#board')?.getBoundingClientRect();
-    return board?{el:null,rect:{x:board.x+board.width/2-15,y:board.y+board.height/2-20,width:30,height:40}}:null;
+    if(exact)return {el:exact,rect:plainRect(exact.getBoundingClientRect()),resolvedBy:'final-card'};
+    const semantic=destinationAnchor(intent?.dest,sourceRect);
+    if(semantic?.rect)return {el:null,rect:plainRect(semantic.rect),resolvedBy:'semantic-destination'};
+    if(intent?.rect)return {el:null,rect:plainRect(intent.rect),resolvedBy:'precommit-snapshot'};
+    const board=plainRect($('#board')?.getBoundingClientRect());
+    return board?{el:null,rect:centeredRect(board,Math.min(sourceRect?.width||30,42),Math.min(sourceRect?.height||40,58)),resolvedBy:'board-fallback'}:null;
   }
   function rebaseProxy(proxy){
     if(!proxy)return null;
@@ -342,6 +393,7 @@
     const sourceRect=sourceVisual?.rect||sourceCard?.getBoundingClientRect();
     const proxy=sourceVisual?.proxy||((sourceCard&&sourceRect)?makeProxy(sourceCard,sourceRect,'dm-flight-proxy'):null);
     const rebased=sourceVisual?.proxy?rebaseProxy(proxy):sourceRect;
+    const destinationIntent=snapshotDestination(action,before,sourceRect);
     const beforeRects=Flip.capture();
     clearCandidate();
     if(runtime.drag)cleanupDragVisuals({keepProxy:true});
@@ -360,7 +412,13 @@
     await Queue.run(tx,async(signal)=>{
       await nextFrame();
       window.GwentBattlefieldUX?.reconcile?.();
-      const target=settleRectForAction(action,tx);
+      const target=settleRectForAction(action,tx,destinationIntent,sourceRect);
+      runtime.lastSettlement={
+        actionKey:actionKey(action),
+        destination:destinationIntent?.dest?{...destinationIntent.dest}:null,
+        resolvedBy:target?.resolvedBy||'none',
+        rect:target?.rect?plainRect(target.rect):null
+      };
       const flip=Flip.animate(beforeRects,{exclude:[iid],duration:Motion.duration('routineNormal'),easing:Motion.EASING.direct});
       const flight=proxy&&rebased?animateFlight(proxy,rebased,target,signal):Promise.resolve();
       await Promise.all([flip,flight]);
@@ -403,6 +461,7 @@
   function onPointerDown(e){
     const card=e.target.closest?.('#match-screen .hand-card[data-card-iid]');
     if(!card||Queue.busy||e.isPrimary===false||(e.pointerType==='mouse'&&e.button!==0))return;
+    dismissStaleToast();
     clearCandidate();
     const iid=card.dataset.cardIid;
     const rect=card.getBoundingClientRect();
@@ -529,6 +588,7 @@
     get mode(){return runtime.mode;},
     get selectedIid(){return runtime.selectedIid;},
     get lastTransaction(){return runtime.lastTransaction?JSON.parse(JSON.stringify(runtime.lastTransaction)):null;},
+    get lastSettlement(){return runtime.lastSettlement?JSON.parse(JSON.stringify(runtime.lastSettlement)):null;},
     get stats(){return JSON.parse(JSON.stringify(runtime.stats));},
     setMode,
     select:(iid)=>selectIid(iid),
