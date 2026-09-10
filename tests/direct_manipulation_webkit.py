@@ -32,10 +32,13 @@ def touch_tap(page,locator):
 
 def drag(page,iid,a):
     card=page.locator(f'#hand [data-card-iid="{iid}"]');b=card.bounding_box();assert b
-    t=target(page,a);tb=t.bounding_box();assert tb
-    sx,sy=b['x']+b['width']/2,b['y']+b['height']*.48;tx,ty=tb['x']+tb['width']/2,tb['y']+tb['height']/2
+    sx,sy=b['x']+b['width']/2,b['y']+b['height']*.48
     page.mouse.move(sx,sy);page.mouse.down();page.mouse.move(sx+12,sy-2,steps=2);page.wait_for_timeout(45)
     assert page.locator('.dm-drag-proxy').count()==1
+    assert page.evaluate('iid=>window.GwentDirectManipulation.selectedIid===iid',iid)
+    # Legal targets are created by selection/beginDrag, not pre-rendered by the UI.
+    t=target(page,a);tb=t.bounding_box();assert tb
+    tx,ty=tb['x']+tb['width']/2,tb['y']+tb['height']/2
     page.mouse.move(tx,ty,steps=7);page.wait_for_timeout(45);assert page.locator('.dm-active-target').count()==1
     page.mouse.up();wait_idle(page)
 
