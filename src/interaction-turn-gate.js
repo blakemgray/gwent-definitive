@@ -31,8 +31,8 @@
 
     // The legacy match controller schedules the bot synchronously from commit().
     // Momentarily disable that scheduler while preserving the persisted setting.
-    // The bot is re-armed only after the presentation transaction completes or
-    // is explicitly cancelled and the committed engine state has reconciled.
+    // The bot is re-armed only after the presentation transaction completes,
+    // is cancelled, or presentation itself fails and reconciles to engine state.
     toggle.checked=false;
     try{
       const result=originalPlayAction(action);
@@ -51,7 +51,7 @@
   };
 
   Queue.subscribe((type)=>{
-    if((type==='complete'||type==='cancel')&&pending)release(type);
+    if((type==='complete'||type==='cancel'||type==='error')&&pending)release(type);
   });
 
   window.GwentInteractionTurnGate={
