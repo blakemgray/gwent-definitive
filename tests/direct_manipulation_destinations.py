@@ -82,14 +82,18 @@ def drag_commit(page,iid,action,shot=None):
 def assert_parity(page,name,baseline,action,expected_dest,shot_prefix=None):
     iid=action['iid']
     reset(page,baseline)
+    # Destination semantics are a pre-commit intent. Capture and verify while the
+    # source card is still in hand; weather/special cards legitimately move into
+    # storage shapes that are not part of cardDefForIid's source lookup afterward.
+    dest=page.evaluate('a=>window.GwentDirectManipulation.normalizeDestination(a)',action)
+    assert dest is not None,f'{name}: destination missing before commit'
+    for k,v in expected_dest.items():assert dest.get(k)==v,f'{name}: destination {k} expected {v}, got {dest}'
     tap_state,tap_tx=tap_commit(page,iid,action,f'{shot_prefix}_tap_selected.png' if shot_prefix else None)
     reset(page,baseline)
     drag_state,drag_tx=drag_commit(page,iid,action,f'{shot_prefix}_drag_target.png' if shot_prefix else None)
     assert tap_state==drag_state,f'{name}: tap/drag engine-state mismatch'
     assert tap_tx['action']==drag_tx['action']==action,f'{name}: transaction action mismatch'
     assert tap_tx['inputMethod']=='tap' and drag_tx['inputMethod']=='drag'
-    dest=page.evaluate('a=>window.GwentDirectManipulation.normalizeDestination(a)',action)
-    for k,v in expected_dest.items():assert dest.get(k)==v,f'{name}: destination {k} expected {v}, got {dest}'
     return {'name':name,'destination':dest,'events':[e['type'] for e in drag_tx['events']]}
 
 
