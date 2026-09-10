@@ -39,6 +39,10 @@ def base_scenario(page,one_card=False):
       if(!one)s.players.p1.hand.push({iid:'qa-life-filler',cardId:'realms_blue_stripes'});
       s.players.p2.hand=[{iid:'qa-life-p2',cardId:'monsters_cockatrice'}];
       s.players.p2.passed=!!one;
+      // autoPass is correctly suppressed while an active leader remains playable.
+      // The one-card lifecycle case therefore spends the leader first so the tested
+      // card is genuinely the final legal action before automatic round resolution.
+      if(one)s.players.p1.leaderUsed=true;
       return s;
     }""",one_card)
 
@@ -69,9 +73,11 @@ with sync_playwright() as p:
     page.evaluate("document.querySelector('#auto-bot').checked=false")
     page.evaluate('window.GwentDirectManipulation.reduced(true)')
 
-    # Last-card play: engine auto-pass + round resolution can remove the just-played
-    # unit before presentation reads the new DOM. Tap and drag must still agree and
-    # the flight must use snapshotted row intent rather than board-center guessing.
+    # Last-card play: with the active leader already spent, this is genuinely the
+    # player's final legal action. Engine auto-pass + round resolution can remove
+    # the just-played unit before presentation reads the new DOM. Tap and drag must
+    # still agree and the flight must use snapshotted row intent rather than a
+    # board-center guess.
     base=base_scenario(page,True);reset(page,base);a=action(page);assert a
     tap(page,a);tap_state=state(page);tap_settle=page.evaluate('window.GwentDirectManipulation.lastSettlement')
     assert tap_state['round']>=2 or tap_state['winner'] is not None,tap_state['round']
@@ -111,4 +117,4 @@ with sync_playwright() as p:
     assert not errors,errors
     browser.close()
 
-print('direct-manipulation-lifecycle: last-card auto-pass/round-resolution tap-drag parity + visibility interruption + persisted Continue Match restore all passed')
+print('direct-manipulation-lifecycle: true last-legal-action auto-pass/round-resolution tap-drag parity + visibility interruption + persisted Continue Match restore all passed')
