@@ -66,6 +66,10 @@ jobs:
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
         run: python tests/interaction_polish_ui.py
+      - name: Last-card, visibility interruption, and save-restore lifecycle gate
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+        run: python tests/direct_manipulation_lifecycle.py
       - name: WebKit / iPhone-targeted interaction gate
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
