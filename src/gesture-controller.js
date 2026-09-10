@@ -30,10 +30,10 @@
     candidate:null,
     drag:null,
     dragRaf:0,
-    suppressClickUntil:0,
+    suppressedClick:null,
     lastTransaction:null,
     lastCancelReason:null,
-    stats:{selections:0,tapCommits:0,dragCommits:0,invalidDrops:0,cancels:0,inspections:0,pointerFrames:0,maxPointerLagPx:0,transactions:0,errors:0}
+    stats:{selections:0,tapCommits:0,dragCommits:0,invalidDrops:0,cancels:0,inspections:0,pointerFrames:0,maxPointerLagPx:0,transactions:0,errors:0,suppressedClicks:0}
   };
 
   function attr(value){return String(value).replace(/\\/g,'\\\\').replace(/"/g,'\\"');}
@@ -101,6 +101,22 @@
     const live=document.createElement('div');
     live.id='dm-live';live.className='dm-sr-only';live.setAttribute('aria-live','polite');live.setAttribute('aria-atomic','true');
     document.body.appendChild(live);
+  }
+
+  function armSyntheticClickSuppression(x,y,ms=180){
+    if(!Number.isFinite(x)||!Number.isFinite(y)){runtime.suppressedClick=null;return;}
+    runtime.suppressedClick={x,y,until:Date.now()+ms};
+  }
+  function shouldSuppressSyntheticClick(e){
+    const guard=runtime.suppressedClick;
+    if(!guard)return false;
+    if(Date.now()>guard.until){runtime.suppressedClick=null;return false;}
+    const x=Number(e.clientX),y=Number(e.clientY);
+    if(!Number.isFinite(x)||!Number.isFinite(y))return false;
+    if(Math.hypot(x-guard.x,y-guard.y)>24)return false;
+    runtime.suppressedClick=null;
+    runtime.stats.suppressedClicks++;
+    return true;
   }
 
   function clearTargetDecorations(){
@@ -179,11 +195,11 @@
     }
     return true;
   }
-  function inspectIid(iid){
+  function inspectIid(iid,suppressPoint=null){
     clearCandidate();
     abortDrag('inspect',true);
     cancelSelection('inspect');
-    runtime.suppressClickUntil=Date.now()+350;
+    if(suppressPoint)armSyntheticClickSuppression(suppressPoint.x,suppressPoint.y,220);
     runtime.stats.inspections++;
     api.selectCard(iid);
   }
@@ -357,7 +373,7 @@
 
   async function returnInvalidDrag(reason='invalid_drop'){
     const d=runtime.drag;if(!d)return;
-    runtime.stats.invalidDrops++;runtime.lastCancelReason=reason;runtime.phase='returning';runtime.suppressClickUntil=Date.now()+350;
+    runtime.stats.invalidDrops++;runtime.lastCancelReason=reason;runtime.phase='returning';
     activeTarget(null);
     const current=rebaseProxy(d.proxy);
     d.card?.classList.remove('dm-source-placeholder');
@@ -393,7 +409,7 @@
     runtime.phase='pointer_down';card.classList.add('dm-pressing');
     const candidate={pointerId:e.pointerId,iid,card,startX:e.clientX,startY:e.clientY,rect,longTimer:0};
     candidate.longTimer=setTimeout(()=>{
-      if(runtime.candidate===candidate&&!runtime.drag){inspectIid(iid);runtime.candidate=null;}
+      if(runtime.candidate===candidate&&!runtime.drag){inspectIid(iid,{x:candidate.startX,y:candidate.startY});runtime.candidate=null;}
     },LONG_PRESS_MS);
     runtime.candidate=candidate;
   }
@@ -411,7 +427,7 @@
   }
   function onPointerUp(e){
     if(runtime.drag&&runtime.drag.pointerId===e.pointerId){
-      e.preventDefault();e.stopPropagation();runtime.suppressClickUntil=Date.now()+420;
+      e.preventDefault();e.stopPropagation();armSyntheticClickSuppression(e.clientX,e.clientY,180);
       scheduleDragFrame(e.clientX,e.clientY);if(runtime.dragRaf){cancelAnimationFrame(runtime.dragRaf);runtime.dragRaf=0;renderDragFrame();}
       const d=runtime.drag,target=d.activeTarget;
       if(target)commitAction(target.action,'drag',{proxy:d.proxy,rect:d.proxy.getBoundingClientRect()});
@@ -421,13 +437,13 @@
     const c=runtime.candidate;if(c&&c.pointerId===e.pointerId)clearCandidate();
   }
   function onPointerCancel(e){
-    if(runtime.drag&&runtime.drag.pointerId===e.pointerId){e.preventDefault();runtime.suppressClickUntil=Date.now()+300;abortDrag('pointercancel',true);announce('Drag cancelled.');}
+    if(runtime.drag&&runtime.drag.pointerId===e.pointerId){e.preventDefault();armSyntheticClickSuppression(e.clientX,e.clientY,120);abortDrag('pointercancel',true);announce('Drag cancelled.');}
     clearCandidate();
   }
 
   function onClickCapture(e){
     const inMatch=e.target.closest?.('#match-screen');
-    if(inMatch&&Date.now()<runtime.suppressClickUntil){e.preventDefault();e.stopImmediatePropagation();return;}
+    if(inMatch&&shouldSuppressSyntheticClick(e)){e.preventDefault();e.stopImmediatePropagation();return;}
     if(inMatch&&Queue.busy){e.preventDefault();e.stopImmediatePropagation();return;}
     const hand=e.target.closest?.('#match-screen .hand-card[data-card-iid]');
     if(hand){
@@ -516,7 +532,7 @@
     get stats(){return JSON.parse(JSON.stringify(runtime.stats));},
     setMode,
     select:(iid)=>selectIid(iid),
-    cancel:(reason='qa')=>{Queue.cancel(reason);if(runtime.drag)abortDrag(reason,true);clearCandidate();cancelSelection(reason);window.GwentBattlefieldUX?.reconcile?.();},
+    cancel:(reason='qa')=>{Queue.cancel(reason);if(runtime.drag)abortDrag(reason,true);clearCandidate();cancelSelection(reason);runtime.suppressedClick=null;window.GwentBattlefieldUX?.reconcile?.();},
     actionsFor:(iid)=>actionsFor(iid).map(a=>JSON.parse(JSON.stringify(a))),
     normalizeDestination:(action)=>normalizeDestination(action),
     actionKey,
