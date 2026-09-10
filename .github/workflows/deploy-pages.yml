@@ -42,10 +42,18 @@ jobs:
           for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
           cat /tmp/gwent-http.log
           exit 1
-      - name: Mobile interaction and geometry gate
+      - name: Mobile interaction, density, centering, and geometry gate
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
         run: python tests/ui_smoke.py
+      - name: Archive Pass 10.3 battlefield visual QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass10-3-battlefield-visual-qa
+          path: qa/pass10_3
+          if-no-files-found: warn
+          retention-days: 30
 
   deploy:
     if: github.event_name != 'pull_request'
@@ -61,8 +69,8 @@ jobs:
         run: |
           rm -rf _site
           mkdir -p _site/src _site/icons
-          cp index.html app.js styles.css manifest.webmanifest sw.js icon.svg .nojekyll _site/
-          cp src/cards-catalog.js src/gwent-engine.js src/asset-resolver.js src/storage.js _site/src/
+          cp index.html app.js styles.css battlefield-ux.css manifest.webmanifest sw.js icon.svg .nojekyll _site/
+          cp src/cards-catalog.js src/gwent-engine.js src/asset-resolver.js src/storage.js src/battlefield-ux.js _site/src/
           cp icons/apple-touch-icon.png icons/icon-192.png icons/icon-512.png _site/icons/
       - name: Configure Pages
         uses: actions/configure-pages@v5
