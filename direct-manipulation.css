@@ -72,6 +72,16 @@
 body.dm-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 body.presentation-busy #match-screen .hand-card{pointer-events:none}
 
+/* A toast describes the action that just finished. Once the player begins a
+   fresh card intent it becomes stale context and must not visually compete
+   with the selected card or its destinations. */
+body.dm-has-selection #match-screen .state-toast.show,
+body.dm-dragging #match-screen .state-toast.show{
+  opacity:0!important;
+  pointer-events:none!important;
+  transition:opacity 70ms linear!important;
+}
+
 /* Legal intent is shape + text + luminance, never color alone. */
 #match-screen .dm-legal-target{
   position:relative;
