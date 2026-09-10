@@ -36,6 +36,10 @@ ok(/touch-action:none/.test(css),'touch ownership must be scoped to cards');
 ok(!/body\s*\{[^}]*touch-action\s*:\s*none/s.test(css),'touch-action none must not be global');
 ok(/dm-source-placeholder/.test(css),'source placeholder visual state required');
 ok(/dm-legal-target::after/.test(css),'legal destinations require non-color text/shape cue');
+ok(/#match-screen \.hand-card img\s*\{[^}]*pointer-events:none/s.test(css),'card art must not intercept the pointer stream');
+ok(/-webkit-user-drag:none/.test(css),'native image dragging must be explicitly suppressed');
+ok(/armSyntheticClickSuppression/.test(gesture)&&/shouldSuppressSyntheticClick/.test(gesture),'post-drag click suppression must be spatially scoped');
+ok(!/suppressClickUntil/.test(gesture),'global time-only click suppression must not return');
 
 // Motion tokens and reduced-motion scaling.
 eq(Motion.duration('routineNormal'),240,'routine motion baseline');
