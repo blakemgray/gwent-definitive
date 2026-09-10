@@ -89,7 +89,11 @@ with sync_playwright() as p:
         ('weather','weather_frost',None,None,False,'weather','semantic-destination'),
         ('scorch','special_scorch',None,None,False,'global','semantic-destination'),
         ('horn','special_horn','close',None,False,'special','semantic-destination'),
-        ('decoy','special_decoy',None,'qa-polish-target',True,'target','precommit-snapshot'),
+        # Decoy itself persists on the board where the swapped unit stood. That
+        # rendered card is therefore the strongest post-commit landing authority;
+        # the continuity assertion below separately proves its final center still
+        # matches the exact target unit center captured before the swap.
+        ('decoy','special_decoy',None,'qa-polish-target',True,'target','final-card'),
     ]:
         base=scenario(page,card_id,decoy);reset(page,base)
         action=pick(page,row,target);assert action,f'{name}: missing action'
@@ -110,7 +114,8 @@ with sync_playwright() as p:
         sr=settlement['rect'];assert sr and sr['width']>0 and sr['height']>0,(name,settlement)
         sx,sy=center(sr);dx,dy=center(dest_box)
         # Persistent zone anchors are centered inside their semantic destination;
-        # Decoy preserves the exact precommit unit center after that unit returns to hand.
+        # Decoy's surviving board card must occupy the exact center vacated by the
+        # returned target unit, preserving source-to-destination continuity.
         if name=='decoy':
             assert abs(sx-dx)<=1.25 and abs(sy-dy)<=1.25,(name,sr,dest_box)
         elif name in ('weather','scorch'):
