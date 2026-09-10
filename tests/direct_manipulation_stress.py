@@ -35,10 +35,14 @@ def tap(page,iid,a):
 
 def drag(page,iid,a):
     card=page.locator(f'#hand [data-card-iid="{iid}"]');b=card.bounding_box();assert b
-    target=page.locator(f'[data-dm-action-key="{action_key(page,a)}"]');tb=target.bounding_box();assert tb
-    sx,sy=b['x']+b['width']/2,b['y']+b['height']*.50;tx,ty=tb['x']+tb['width']/2,tb['y']+tb['height']/2
+    sx,sy=b['x']+b['width']/2,b['y']+b['height']*.50
+    # Legal destination DOM markers are intentionally materialized by the same
+    # selection path the player enters when drag crosses the activation threshold.
     page.mouse.move(sx,sy);page.mouse.down();page.mouse.move(sx+10,sy-1,steps=2);page.wait_for_timeout(12)
     assert page.locator('.dm-drag-proxy').count()==1
+    assert page.evaluate('iid=>window.GwentDirectManipulation.selectedIid===iid',iid)
+    target=page.locator(f'[data-dm-action-key="{action_key(page,a)}"]');tb=target.bounding_box();assert tb
+    tx,ty=tb['x']+tb['width']/2,tb['y']+tb['height']/2
     page.mouse.move(tx,ty,steps=5);page.wait_for_timeout(15);assert page.locator('.dm-active-target').count()==1
     page.mouse.up();wait_idle(page)
     return page.evaluate('window.__GWENT_PASS10__.getState()')
@@ -61,7 +65,13 @@ with sync_playwright() as p:
         s['currentPlayerId']='p1';s['winner']=None;s['pendingChoice']=None;s['pendingResume']=None
         s['players']['p1']['passed']=False;s['players']['p2']['passed']=True
         s['weather']={'close':False,'ranged':False,'siege':False};s['weatherCards']=[]
-        s['players']['p1']['hand']=[{'iid':'qa-stress-card','cardId':card_id}]
+        # Keep a second legal card in hand so playing the stress subject cannot
+        # trigger canonical empty-hand auto-pass and round cleanup. This isolates
+        # interaction/compositor behavior from round-resolution behavior.
+        s['players']['p1']['hand']=[
+            {'iid':'qa-stress-card','cardId':card_id},
+            {'iid':'qa-stress-filler','cardId':'realms_blue_stripes'}
+        ]
         # Densities intentionally reach beyond ordinary game rows to stress the compositor.
         densities={}
         for row in Grows:
