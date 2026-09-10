@@ -261,13 +261,21 @@
   }
   function expandedContains(rect,x,y,pad=7){return x>=rect.left-pad&&x<=rect.right+pad&&y>=rect.top-pad&&y<=rect.bottom+pad;}
   function targetAt(x,y){
+    const top=document.elementFromPoint?.(x,y);
+    const directEl=top?.closest?.('.dm-legal-target');
+    if(directEl){
+      const direct=runtime.targets.find(t=>t.el===directEl);
+      if(direct)return direct;
+    }
     const hits=[];
     for(const t of runtime.targets){
       const r=t.el?.getBoundingClientRect();
-      if(!r||!r.width||!r.height)continue;
-      if(expandedContains(r,x,y)){hits.push({t,area:r.width*r.height});}
+      if(!r||!r.width||!r.height||!expandedContains(r,x,y,7))continue;
+      const cx=r.left+r.width/2,cy=r.top+r.height/2;
+      const dist=Math.hypot((x-cx)/Math.max(1,r.width),(y-cy)/Math.max(1,r.height));
+      hits.push({t,dist,area:r.width*r.height});
     }
-    hits.sort((a,b)=>a.area-b.area);
+    hits.sort((a,b)=>a.dist-b.dist||a.area-b.area);
     return hits[0]?.t||null;
   }
 
@@ -410,6 +418,8 @@
     runtime.lastTransaction=tx;runtime.stats.transactions++;
     if(inputMethod==='drag')runtime.stats.dragCommits++;else runtime.stats.tapCommits++;
     await Queue.run(tx,async(signal)=>{
+      const safetyCleanup=()=>{try{proxy?.remove();}catch(_){}};
+      Queue.registerCleanup(safetyCleanup);
       await nextFrame();
       window.GwentBattlefieldUX?.reconcile?.();
       const target=settleRectForAction(action,tx,destinationIntent,sourceRect);
@@ -434,12 +444,12 @@
     runtime.stats.invalidDrops++;runtime.lastCancelReason=reason;runtime.phase='returning';
     activeTarget(null);
     const current=rebaseProxy(d.proxy);
-    d.card?.classList.remove('dm-source-placeholder');
     try{d.card?.releasePointerCapture?.(d.pointerId);}catch(_){ }
     document.body.classList.remove('dm-dragging');
     runtime.drag=null;
     await Queue.run({kind:'invalid_drop',iid:d.iid,reason},async(signal)=>{
-      const cleanup=()=>d.proxy?.remove();Queue.registerCleanup(cleanup);
+      const cleanup=()=>{try{d.proxy?.remove();}catch(_){}d.card?.classList.remove('dm-source-placeholder');};
+      Queue.registerCleanup(cleanup);
       if(signal.aborted){cleanup();return;}
       if(Motion.reduced()){
         const a=d.proxy.animate([{opacity:.8},{opacity:0}],{duration:Motion.duration('microNormal'),easing:Motion.EASING.fade});Queue.registerAnimation(a);await animationDone(a);
@@ -455,6 +465,7 @@
       }
       cleanup();
     });
+    d.card?.classList.remove('dm-source-placeholder');
     cancelSelection(reason,true);runtime.phase='idle';window.GwentBattlefieldUX?.reconcile?.();
   }
 
