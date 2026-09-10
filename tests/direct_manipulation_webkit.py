@@ -27,6 +27,16 @@ def first_ordinary(page):
 def target(page,a):
     key=page.evaluate('a=>window.GwentDirectManipulation.actionKey(a)',a);loc=page.locator(f'[data-dm-action-key="{key}"]');assert loc.count()==1;return loc
 
+def wait_active_target(page,a):
+    # The drag controller promotes the spatial hit inside requestAnimationFrame.
+    # Wait on that exact observable state rather than assuming WebKit services rAF
+    # within an arbitrary wall-clock delay under CI load.
+    key=page.evaluate('a=>window.GwentDirectManipulation.actionKey(a)',a)
+    active=page.locator(f'[data-dm-action-key="{key}"].dm-active-target')
+    active.wait_for(state='visible',timeout=1000)
+    assert active.count()==1
+    assert page.locator('.dm-active-target').count()==1
+
 def touch_tap(page,locator):
     b=locator.bounding_box();assert b;page.touchscreen.tap(b['x']+b['width']/2,b['y']+b['height']/2)
 
@@ -39,7 +49,7 @@ def drag(page,iid,a):
     # Legal targets are created by selection/beginDrag, not pre-rendered by the UI.
     t=target(page,a);tb=t.bounding_box();assert tb
     tx,ty=tb['x']+tb['width']/2,tb['y']+tb['height']/2
-    page.mouse.move(tx,ty,steps=7);page.wait_for_timeout(45);assert page.locator('.dm-active-target').count()==1
+    page.mouse.move(tx,ty,steps=7);wait_active_target(page,a)
     page.mouse.up();wait_idle(page)
 
 with sync_playwright() as p:
