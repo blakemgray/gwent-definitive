@@ -1,34 +1,54 @@
 {
-  "contract_version": "1.0",
-  "canonical_build": "Pass 9 match interface",
-  "canonical_viewport": {"width": 852,"height": 393},
-  "authority_rule": "HTML/DOM geometry is authoritative. Artwork may decorate it but may never define or alter functional geometry.",
-  "zones": {
-    "top_bar": {"x":0,"y":0,"w":852,"h":44},
-    "board_ui": {"x":0,"y":44,"w":852,"h":282},
-    "bottom_bar": {"x":0,"y":326,"w":852,"h":67},
-    "weather": {"x":8,"y":175.984,"w":836,"h":18},
-    "leader": {"x":10,"y":269,"w":38,"h":55},
-    "hand": {"x":141.938,"y":330,"w":555.344,"h":59},
-    "counts": {"x":8,"y":369,"w":125.938,"h":20},
-    "pass_button": {"x":776,"y":350,"w":68,"h":38}
-  },
-  "combat_rows": [
-    {"player":"p2","row":"siege","x":8,"y":46.0,"w":836,"h":41.328},
-    {"player":"p2","row":"ranged","x":8,"y":89.328,"w":836,"h":41.328},
-    {"player":"p2","row":"close","x":8,"y":132.656,"w":836,"h":41.328},
-    {"player":"p1","row":"close","x":8,"y":195.984,"w":836,"h":41.344},
-    {"player":"p1","row":"ranged","x":8,"y":239.328,"w":836,"h":41.328},
-    {"player":"p1","row":"siege","x":8,"y":282.656,"w":836,"h":41.328}
+  "contract_version": "2.0",
+  "canonical_build": "Pass 10.3 Battlefield UX",
+  "canonical_viewport": {"width": 852, "height": 393},
+  "authority_rule": "Functional geometry is deterministic. Row territory, visual card rail, and card compositor are separate concerns. Artwork may decorate them but may not define them.",
+  "information_hierarchy": [
+    "turn_and_match_state",
+    "total_score",
+    "row_score",
+    "cards",
+    "hand",
+    "weather_and_row_specials",
+    "round_and_lives",
+    "leader_state",
+    "deck_grave_hand_counts",
+    "developer_controls"
   ],
   "required_structure": {
-    "opponent_rows":["siege","ranged","close"],
-    "player_rows":["close","ranged","siege"],
-    "combat_row_count":6,
-    "player_combat_row_count":3,
-    "opponent_combat_row_count":3,
-    "weather_band_count":1,
-    "row_special_slot_count":6
+    "opponent_rows": ["siege", "ranged", "close"],
+    "player_rows": ["close", "ranged", "siege"],
+    "combat_row_count": 6,
+    "player_combat_row_count": 3,
+    "opponent_combat_row_count": 3,
+    "weather_band_count": 1,
+    "row_special_slot_count": 6
   },
-  "geometry_tolerance_px":2
+  "canonical_limits": {
+    "board_width_target": 640,
+    "board_width_tolerance_px": 2,
+    "board_center_tolerance_px": 2,
+    "unit_rail_width_max": 460,
+    "unit_rail_center_tolerance_px": 2,
+    "combat_row_height_min": 38,
+    "combat_row_height_max": 45,
+    "weather_height_min": 14,
+    "weather_height_max": 18,
+    "card_edge_tolerance_px": 1.5,
+    "card_pack_center_tolerance_px": 1.5,
+    "hand_pack_center_tolerance_px": 1.5,
+    "minimum_board_card_exposure_px": 9,
+    "minimum_hand_card_exposure_px": 17
+  },
+  "stress_row_card_counts": [1, 2, 4, 8, 12],
+  "principles": {
+    "no_cutoff_cards": true,
+    "center_sparse_rows": true,
+    "compress_only_when_required": true,
+    "preserve_first_and_last_card_edges": true,
+    "persistent_pass_state": true,
+    "persistent_turn_state": true,
+    "weather_reinforced_on_affected_rows": true,
+    "inspector_preserves_battlefield_context": true
+  }
 }

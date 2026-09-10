@@ -1,0 +1,293 @@
+/* Pass 10.3 — Battlefield UX Architecture
+   Functional geometry remains deterministic. This layer deliberately separates
+   row territory from the centered card rail and prioritizes score, turn state,
+   cards, hand, modifiers, then tertiary metadata. */
+
+:root{
+  --battle-grid-width:min(calc(100% - 96px),640px);
+  --battle-grid-rows:repeat(3,minmax(0,1fr)) 16px repeat(3,minmax(0,1fr));
+  --battle-grid-gap:2px;
+  --battle-grid-pad-y-top:3px;
+  --battle-grid-pad-y-bottom:3px;
+  --battle-grid-pad-x:0px;
+  --battle-label-col:52px;
+  --battle-special-col:30px;
+  --battle-score-col:44px;
+  --battle-unit-rail-max:460px;
+}
+
+#match-screen .battle-shell{
+  grid-template-rows:38px minmax(0,1fr) calc(72px + env(safe-area-inset-bottom));
+  background-image:
+    radial-gradient(ellipse at 50% 48%,rgba(141,84,34,.25),transparent 40%),
+    radial-gradient(ellipse at 50% 100%,rgba(181,122,52,.10),transparent 35%),
+    linear-gradient(90deg,rgba(8,6,4,.98),rgba(48,27,14,.92) 18%,rgba(72,39,17,.88) 50%,rgba(48,27,14,.92) 82%,rgba(8,6,4,.98)),
+    repeating-linear-gradient(0deg,rgba(239,199,135,.018) 0 1px,transparent 1px 7px);
+}
+#match-screen .battle-shell::before{
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.55),transparent 14%,transparent 86%,rgba(0,0,0,.55)),
+    linear-gradient(rgba(0,0,0,.38),transparent 14%,transparent 85%,rgba(0,0,0,.48));
+}
+
+/* Persistent match hierarchy */
+#match-screen .battle-top{
+  min-height:38px;
+  padding:max(2px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 2px max(10px,env(safe-area-inset-left));
+  grid-template-columns:36px minmax(0,1fr) auto;
+  gap:7px;
+  background:linear-gradient(180deg,rgba(8,7,5,.96),rgba(8,7,5,.68));
+  border-bottom:1px solid rgba(231,198,140,.16);
+}
+#match-screen .battle-icon{
+  width:34px;height:34px;border-radius:9px;
+}
+#match-screen .matchline{
+  width:min(100%,690px);
+  margin:auto;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  gap:8px;
+  align-items:center;
+  font-size:8px;
+  letter-spacing:.06em;
+}
+.combatant{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.combatant.player{justify-content:flex-end;text-align:right}
+.combatant-copy{min-width:0;display:grid;line-height:1.08}
+.combatant-copy b{font:700 9px Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.combatant-copy small{font-size:6.5px;color:#a99b84;white-space:nowrap}
+.faction-crest{
+  flex:0 0 auto;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  border:1px solid rgba(255,255,255,.22);font-size:6px;font-weight:900;box-shadow:0 2px 8px rgba(0,0,0,.4)
+}
+.faction-crest.monsters{background:linear-gradient(#6e342d,#3d1d19)}
+.faction-crest.realms{background:linear-gradient(#2f6ca8,#193f69)}
+.faction-crest.nilfgaard{background:linear-gradient(#b59448,#59451f);color:#111}
+.faction-crest.scoiatael{background:linear-gradient(#63794f,#35422c)}
+.faction-crest.skellige{background:linear-gradient(#765082,#402c48)}
+.combat-total{font:700 21px Georgia,serif;color:#f0d59b;min-width:24px;text-align:center;line-height:1}
+.combat-lives{font-size:8px;color:#dbcaa9;letter-spacing:0}
+.leader-chip,.pass-chip{
+  height:17px;padding:0 5px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid rgba(217,177,112,.25);background:rgba(28,21,14,.78);font-size:6px;color:#d9c39d;white-space:nowrap
+}
+.leader-chip.spent{opacity:.48;filter:saturate(.3)}
+.pass-chip{border-color:rgba(178,78,68,.48);color:#f0b1a9;background:rgba(93,37,31,.36)}
+.match-center{display:grid;place-items:center;gap:1px;min-width:72px}
+.match-center small{font-size:6px;letter-spacing:.15em;color:#a99b84}
+.turn-pill{
+  min-width:68px;height:19px;padding:0 8px;border-radius:999px;display:grid;place-items:center;
+  border:1px solid rgba(220,182,115,.34);background:rgba(45,34,20,.86);font-size:7px;font-weight:850;letter-spacing:.11em;color:#f1dfbd
+}
+.turn-pill.player-turn{border-color:rgba(116,155,91,.6);background:rgba(61,82,46,.45);color:#d8edc1}
+.turn-pill.opponent-turn{border-color:rgba(164,91,78,.48);background:rgba(92,46,39,.38);color:#edc6bf}
+.turn-pill.choice-turn{border-color:rgba(191,151,72,.6);color:#f1d697}
+
+/* V2 battlefield: row territory is 640px max; the visual unit rail is 460px max. */
+#match-screen .board-ui,#match-screen .board-geometry-layer{
+  width:var(--battle-grid-width);
+  grid-template-rows:var(--battle-grid-rows);
+  gap:var(--battle-grid-gap);
+  padding:var(--battle-grid-pad-y-top) 0 var(--battle-grid-pad-y-bottom);
+  overflow:visible;
+}
+#match-screen .geometry-lane{
+  grid-template-columns:var(--battle-label-col) var(--battle-special-col) minmax(0,1fr) var(--battle-score-col);
+  border:0;background:transparent;box-shadow:none;overflow:visible;
+}
+#match-screen .geometry-label-well,#match-screen .geometry-score-well{
+  height:78%;align-self:center;border-radius:7px;
+  border:1px solid rgba(217,174,107,.13);
+  background:linear-gradient(180deg,rgba(28,19,12,.45),rgba(13,10,7,.36));
+}
+#match-screen .geometry-label-well{border-right-color:rgba(217,174,107,.20)}
+#match-screen .geometry-score-well{border-left-color:rgba(217,174,107,.24)}
+#match-screen .geometry-special-well{width:21px;height:21px}
+#match-screen .geometry-unit-tray{
+  width:min(100%,var(--battle-unit-rail-max));
+  justify-self:center;
+  height:calc(100% - 5px);
+  margin:0;
+  border-radius:8px;
+  border:1px solid rgba(219,177,112,.22);
+  background:
+    linear-gradient(180deg,rgba(149,80,31,.13),rgba(29,18,10,.17)),
+    linear-gradient(90deg,rgba(0,0,0,.20),transparent 12%,transparent 88%,rgba(0,0,0,.20));
+  box-shadow:inset 0 1px rgba(245,211,157,.04),inset 0 -5px 14px rgba(0,0,0,.16),0 3px 9px rgba(0,0,0,.10);
+}
+#match-screen .geometry-lane.player-side .geometry-unit-tray{border-color:rgba(99,139,177,.34);box-shadow:inset 0 0 16px rgba(45,93,136,.07),0 3px 9px rgba(0,0,0,.10)}
+#match-screen .geometry-lane.opponent-side .geometry-unit-tray{border-color:rgba(158,90,73,.30);box-shadow:inset 0 0 16px rgba(121,55,42,.06),0 3px 9px rgba(0,0,0,.10)}
+
+#match-screen .lane{
+  grid-template-columns:var(--battle-label-col) var(--battle-special-col) minmax(0,1fr) var(--battle-score-col);
+  overflow:visible;
+  background:transparent!important;
+  border:0!important;
+}
+#match-screen .lane.weathered .units::before{
+  content:"";position:absolute;inset:1px -3px;border-radius:7px;pointer-events:none;
+  background:linear-gradient(90deg,rgba(102,143,174,.18),rgba(60,94,122,.06),rgba(102,143,174,.14));
+  box-shadow:inset 0 0 14px rgba(134,176,208,.11)
+}
+#match-screen .rlabel{
+  height:78%;align-self:center;border-radius:7px;display:grid;place-items:center;
+  font-size:8px;line-height:1;letter-spacing:.12em;font-weight:800;color:#d9c8a8;
+  text-shadow:0 1px 2px #000;
+}
+#match-screen .rlabel::before{display:block;font-size:10px;line-height:9px;color:#b99762;letter-spacing:0}
+#match-screen .lane[data-row="close"] .rlabel::before{content:"⚔"}
+#match-screen .lane[data-row="ranged"] .rlabel::before{content:"➶"}
+#match-screen .lane[data-row="siege"] .rlabel::before{content:"▰"}
+#match-screen .lane.weathered[data-row="close"] .rlabel::after{content:"FROST"}
+#match-screen .lane.weathered[data-row="ranged"] .rlabel::after{content:"FOG"}
+#match-screen .lane.weathered[data-row="siege"] .rlabel::after{content:"RAIN"}
+#match-screen .lane.weathered .rlabel::after{font-size:5px;color:#b9d7eb;letter-spacing:.08em}
+#match-screen .special-slot{width:21px;height:21px}
+#match-screen .units{
+  position:relative;
+  width:min(100%,var(--battle-unit-rail-max));
+  height:calc(100% - 3px);
+  min-width:0;
+  justify-self:center;
+  padding:0;
+  overflow:visible;
+}
+#match-screen .unit{
+  position:absolute;
+  margin:0;
+  min-width:0;
+  max-width:none;
+  height:auto;
+  aspect-ratio:auto;
+  border-radius:5px;
+  transition:transform .13s ease,filter .13s ease,box-shadow .13s ease;
+  transform-origin:50% 75%;
+}
+#match-screen .unit:focus-visible,#match-screen .unit:hover{
+  z-index:80!important;
+  transform:translateY(-2px) scale(1.11);
+  outline:1px solid rgba(239,210,151,.72);
+  box-shadow:0 8px 16px rgba(0,0,0,.58);
+}
+#match-screen .units.overlap-pack .unit{box-shadow:0 4px 9px rgba(0,0,0,.40)}
+#match-screen .rscore{
+  height:78%;align-self:center;border-radius:7px;display:grid;place-items:center;
+  grid-template-rows:1fr auto;padding:3px 0 2px;
+  font:700 18px Georgia,serif;color:#f1d797;text-shadow:0 1px 3px #000;
+}
+#match-screen .rscore::after{
+  content:attr(data-count) "C";
+  font:700 5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  letter-spacing:.08em;color:#9f917b;
+}
+
+/* Weather is summary; affected rows carry the stronger cue. */
+#match-screen .geometry-weather{
+  width:min(100%,380px);justify-self:center;
+  border-color:rgba(203,155,88,.20);background:rgba(26,18,11,.34);
+}
+#match-screen .weather{
+  width:min(100%,380px);justify-self:center;min-width:0;
+  gap:6px;padding:0 7px;font-size:6.5px;letter-spacing:.08em;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;
+}
+#match-screen .weather-cards{min-width:0;overflow:hidden}
+#match-screen .weather-pill{height:13px;padding:0 5px;font-size:5.5px}
+#match-screen .weather-pill img{width:9px;height:13px}
+
+/* Bottom hierarchy: leader + deck/grave counts | centered hand | classification + pass. */
+#match-screen .battle-bottom{
+  min-height:72px;
+  grid-template-columns:minmax(118px,auto) minmax(0,1fr) auto;
+  align-items:center;
+  gap:8px;
+  padding:3px max(10px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+  background:linear-gradient(180deg,rgba(8,7,6,.32),rgba(8,7,6,.96));
+  border-top:1px solid rgba(231,198,140,.16);
+}
+#match-screen .player-left{display:flex;align-items:center;gap:7px;min-width:0}
+#match-screen .leader-mini{
+  position:relative;left:auto;bottom:auto;z-index:7;
+  flex:0 0 auto;width:40px;height:57px;border-radius:6px;
+}
+#match-screen .leader-status{bottom:2px;left:50%;font-size:5px;background:rgba(5,5,4,.86)}
+#match-screen .counts{
+  display:grid;grid-template-columns:repeat(3,auto);gap:3px 7px;
+  padding:0;font-size:6px;line-height:1.05;color:#9f927d;
+}
+#match-screen .counts span{display:grid;gap:1px;text-align:center}
+#match-screen .counts b{font:700 11px Georgia,serif;color:#e2c993}
+#match-screen .hand{
+  position:relative;
+  width:min(100%,560px);
+  height:66px;
+  min-width:0;
+  justify-self:center;
+  overflow:visible;
+}
+#match-screen .hand-card{
+  position:absolute;margin:0;width:auto;height:auto;padding:0;
+  border-radius:6px;transition:transform .13s ease,filter .13s ease,box-shadow .13s ease;
+  transform-origin:50% 100%;
+}
+#match-screen .hand-card:hover,#match-screen .hand-card:focus-visible{
+  z-index:90!important;transform:translateY(-6px) scale(1.08);
+  outline:1px solid rgba(239,210,151,.74);box-shadow:0 10px 20px rgba(0,0,0,.62)
+}
+#match-screen .hc-name{font-size:6px;bottom:2px}
+#match-screen .player-meta{align-items:center;padding:0;gap:6px}
+#match-screen .passbtn{
+  min-width:82px;height:40px;padding:8px 10px;border-radius:10px;
+  letter-spacing:.05em;box-shadow:0 3px 11px rgba(0,0,0,.30)
+}
+#match-screen .passbtn:not(:disabled){border-color:#b9675e;background:linear-gradient(#84463e,#4b2722)}
+#match-screen .passbtn:disabled{opacity:.40}
+
+/* Keep tactical context visible while inspecting a card. */
+#match-screen .shade{background:rgba(4,4,3,.36);backdrop-filter:none}
+#match-screen .side-panel{
+  width:min(360px,42vw);
+  background:linear-gradient(180deg,rgba(27,25,21,.98),rgba(14,13,11,.99));
+  box-shadow:-14px 0 42px rgba(0,0,0,.46)
+}
+#match-screen .inspector-grid{grid-template-columns:112px 1fr;gap:11px;margin-top:25px}
+#match-screen .inspect-art{width:112px;border-radius:8px}
+#match-screen .inspect-copy h2{font-size:20px}
+#match-screen .inspect-copy p{font-size:8.5px}
+#match-screen .actions .btn{min-height:34px}
+
+/* Assisted panels stay peripheral rather than covering the card rails. */
+#match-screen .opp-hand-reveal{top:40px;max-width:500px}
+#match-screen .ai-intent{top:41px;width:205px}
+#match-screen .state-toast{top:41px}
+#match-screen .state-toast.show{top:44px}
+
+@media(max-width:760px) and (orientation:landscape){
+  :root{--battle-grid-width:min(calc(100% - 88px),610px);--battle-label-col:46px;--battle-special-col:27px;--battle-score-col:40px;--battle-unit-rail-max:430px}
+  #match-screen .combatant-copy small{display:none}
+  #match-screen .leader-chip{display:none}
+  #match-screen .combat-total{font-size:18px}
+  #match-screen .battle-bottom{grid-template-columns:minmax(102px,auto) minmax(0,1fr) auto;gap:5px}
+  #match-screen .leader-mini{width:36px;height:52px}
+  #match-screen .counts{gap:2px 5px}
+  #match-screen .hand{height:61px}
+  #match-screen .passbtn{min-width:70px}
+  #match-screen .side-panel{width:min(330px,48vw)}
+}
+
+@media(max-height:360px) and (orientation:landscape){
+  #match-screen .battle-shell{grid-template-rows:34px minmax(0,1fr) calc(62px + env(safe-area-inset-bottom))}
+  #match-screen .battle-top{min-height:34px}
+  #match-screen .battle-icon{width:30px;height:30px}
+  #match-screen .battle-bottom{min-height:62px}
+  #match-screen .hand{height:55px}
+  #match-screen .leader-mini{width:34px;height:49px}
+  #match-screen .rlabel{font-size:7px}
+  #match-screen .rscore{font-size:16px}
+}

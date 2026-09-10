@@ -1,7 +1,7 @@
 {
   "name": "gwent-definitive",
   "private": true,
-  "version": "10.2.0",
+  "version": "10.3.0",
   "scripts": {
     "test": "node tests/engine-regression.js && node tests/catalog-fuzz.js && node tests/pwa-validation.js"
   }

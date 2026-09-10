@@ -1,10 +1,10 @@
-const BUILD='10.2.0';
+const BUILD='10.3.0';
 const CORE=`gwent-definitive-core-${BUILD}`;
 const RUNTIME=`gwent-definitive-runtime-${BUILD}`;
 const PRECACHE=[
-  './','./index.html','./app.js','./styles.css','./manifest.webmanifest','./icon.svg',
+  './','./index.html','./app.js','./styles.css','./battlefield-ux.css','./manifest.webmanifest','./icon.svg',
   './icons/apple-touch-icon.png','./icons/icon-192.png','./icons/icon-512.png',
-  './src/cards-catalog.js','./src/gwent-engine.js','./src/asset-resolver.js','./src/storage.js'
+  './src/cards-catalog.js','./src/gwent-engine.js','./src/asset-resolver.js','./src/storage.js','./src/battlefield-ux.js'
 ];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CORE).then(cache=>cache.addAll(PRECACHE)).then(()=>self.skipWaiting()));

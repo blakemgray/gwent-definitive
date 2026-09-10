@@ -9,9 +9,10 @@ assert(fs.existsSync(path.join(root,'icons/apple-touch-icon.png')),'Apple touch 
 const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
 const precache=[...sw.matchAll(/'\.\/([^']*)'/g)].map(m=>m[1]).filter(Boolean);
 for(const rel of precache){if(rel==='')continue;assert(fs.existsSync(path.join(root,rel)),`service worker precache target missing: ${rel}`);}
-assert(sw.includes("const BUILD='10.2.0'"),'cache build version not pinned');
+assert(sw.includes("const BUILD='10.3.0'"),'cache build version not pinned');
 assert(sw.includes('raw.githubusercontent.com'),'card-art runtime caching missing');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert(html.includes('apple-touch-icon'),'apple-touch-icon link missing');
 assert(html.includes('src/storage.js')&&html.includes('src/asset-resolver.js'),'hardening modules not loaded');
+assert(html.includes('battlefield-ux.css')&&html.includes('src/battlefield-ux.js'),'Pass 10.3 battlefield modules not loaded');
 console.log(`pwa-validation: ${precache.length} precache paths valid`);
