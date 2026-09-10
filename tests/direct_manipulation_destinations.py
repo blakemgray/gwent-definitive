@@ -33,7 +33,10 @@ def make_scenario(page,card_id,decoy=False):
       }
       s.weather={close:false,ranged:false,siege:false};s.weatherCards=[];s.pendingChoice=null;s.pendingResume=null;s.winner=null;s.currentPlayerId='p1';
       s.players.p2.passed=true;
-      s.players.p1.hand=[{iid:'qa-direct-card',cardId}];
+      // Keep one legal filler in hand after the tested play. Otherwise the engine's
+      // canonical auto-pass can resolve the round and erase the destination before
+      // the presentation assertion observes it.
+      s.players.p1.hand=[{iid:'qa-direct-card',cardId},{iid:'qa-direct-filler',cardId:'realms_blue_stripes'}];
       if(decoy)s.players.p1.board.close=[{iid:'qa-decoy-target',cardId:'realms_keira'}];
       return s;
     }""",{'cardId':card_id,'decoy':decoy})
