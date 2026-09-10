@@ -82,7 +82,9 @@ with sync_playwright() as p:
     assert not page.evaluate('window.GwentInteractionTurnGate.pending')
     assert not page_errors,page_errors
     assert any('QA_INJECTED_PRESENTATION_FAILURE' in x or 'authoritative game state retained' in x for x in console_errors),console_errors
-    page.evaluate('Element.prototype.animate=window.__qaFailureAnimate')
+    # Restore inside a function so Playwright serializes a plain boolean result
+    # instead of trying to marshal a native Web API function (Illegal invocation).
+    page.evaluate("()=>{Element.prototype.animate=window.__qaFailureAnimate;return true;}")
     browser.close()
 
 print('presentation-failure-recovery: injected card-flight animation exception retained committed/saved engine state, cleaned transient UI, released turn gate, and resumed bot')
