@@ -3,6 +3,6 @@
   "private": true,
   "version": "10.3.0",
   "scripts": {
-    "test": "node tests/engine-regression.js && node tests/catalog-fuzz.js && node tests/pwa-validation.js"
+    "test": "node tests/engine-regression.js && node tests/catalog-fuzz.js && node tests/pwa-validation.js && node tests/interaction-motion-contract.js"
   }
 }

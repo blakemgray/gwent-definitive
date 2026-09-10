@@ -1,0 +1,270 @@
+{
+  "contract_version": "1.0",
+  "research_pass": "10.4R",
+  "runtime_baseline": "10.3",
+  "authority": {
+    "rule_engine": "deterministic engine state and semantic events are authoritative",
+    "layout": "Pass 10.3 battlefield compositor determines final card slots",
+    "presentation": "motion may interpolate between states but may not determine game outcomes or final geometry"
+  },
+  "principles": [
+    "motion explains cause and effect",
+    "direct manipulation is supported but never required",
+    "tap and drag dispatch the same validated GameAction",
+    "intent is reversible until commit",
+    "source-to-destination continuity is preserved",
+    "major effects are distinctive while routine actions remain fast",
+    "animation is interruption-safe and disposable",
+    "sound and haptics subscribe to semantic events",
+    "reduced motion preserves comprehension",
+    "final state always reconciles to engine state"
+  ],
+  "input": {
+    "default_mode": "hybrid",
+    "modes": ["hybrid", "tap", "drag"],
+    "primary_primitive": "Pointer Events",
+    "pointer_capture": true,
+    "native_html_drag_drop": false,
+    "drag_activation_distance_css_px": {"min": 7, "max": 10},
+    "global_touch_action_none": false,
+    "invalid_drop": "return_to_source",
+    "cancel_methods": ["tap_background", "tap_different_card", "invalid_drop", "escape_or_equivalent"]
+  },
+  "interaction_state_machine": [
+    "idle",
+    "pointer_down",
+    "press_candidate",
+    "selected",
+    "dragging",
+    "dragging_over_legal",
+    "dragging_over_invalid",
+    "committing",
+    "returning",
+    "idle"
+  ],
+  "motion_tokens_ms": {
+    "micro_fast": 80,
+    "micro_normal": 120,
+    "routine_fast": 180,
+    "routine_normal": 240,
+    "routine_slow": 320,
+    "ability_fast": 360,
+    "ability_normal": 480,
+    "ability_slow": 650,
+    "major_normal": 800,
+    "major_slow": 1100
+  },
+  "easing": {
+    "direct": "cubic-bezier(.2,.8,.2,1)",
+    "settle": "spring-like keyframes with small overshoot",
+    "impact": "fast-in slow-out emphasis",
+    "fade": "ease-out"
+  },
+  "technical_primitives": {
+    "live_drag": "requestAnimationFrame + transform",
+    "settling_and_effects": "Web Animations API / CSS transitions",
+    "layout_reflow": "FLIP transform interpolation",
+    "continuous_properties": ["transform", "opacity"],
+    "avoid_per_frame": ["left", "top", "width", "height"],
+    "particles": "bounded and optional; DOM/CSS/SVG first, canvas only after profiling"
+  },
+  "performance": {
+    "target_fps": 60,
+    "permanent_animation_loop": false,
+    "pointermove_policy": "minimal work; visual updates scheduled via rAF",
+    "background_visibility_policy": "cancel presentation and reconcile",
+    "rotation_resize_policy": "cancel presentation and reconcile",
+    "save_intermediate_animation_state": false
+  },
+  "selection": {
+    "lift_px": {"min": 8, "max": 14},
+    "scale": {"min": 1.06, "max": 1.10},
+    "legal_destinations_visible": true,
+    "first_tap_priority": "play_intent",
+    "full_inspector": "secondary interaction"
+  },
+  "drag": {
+    "source_placeholder": true,
+    "follow_finger": true,
+    "velocity_tilt": {"enabled": true, "max_degrees": 4},
+    "destination_highlight": "only legal destinations; strongest on active target",
+    "release_legal": "commit_and_settle_to_compositor_slot",
+    "release_invalid": "spring_back"
+  },
+  "presentation_transaction": {
+    "pipeline": [
+      "gesture",
+      "validate_action",
+      "commit_engine_state",
+      "semantic_event_bundle",
+      "motion_plan",
+      "presentation_queue",
+      "visual_audio_haptic_execution",
+      "final_dom_reconcile"
+    ],
+    "rules": [
+      "one presentation transaction per committed engine action",
+      "parallel and sequential phases allowed",
+      "block new input only when ambiguity would result",
+      "score counting does not block after board is stable",
+      "fast-forward allowed after engine result is committed",
+      "interruption cancels visuals and reconciles final state",
+      "undo restores engine state then uses concise reconcile motion"
+    ]
+  },
+  "effects": {
+    "ordinary_unit": {
+      "class": "routine",
+      "sequence": ["lift", "destination_hint", "travel", "row_flip_reflow", "settle", "row_score", "total_score", "turn_change"]
+    },
+    "spy": {
+      "class": "ability",
+      "signature": true,
+      "sequence": ["lift", "opponent_row_hint", "cross_centerline", "opponent_row_reflow", "opponent_score", "draw_one", "hand_reflow", "draw_two", "hand_reflow", "turn_change"]
+    },
+    "horn": {
+      "class": "ability",
+      "signature": true,
+      "sequence": ["travel_to_special_socket_or_leader_origin", "brass_pulse", "row_ripple", "unit_power_count_up", "row_score", "total_score", "persistent_horn_state"]
+    },
+    "tight_bond": {
+      "class": "ability",
+      "sequence": ["unit_land", "matching_unit_link_pulse", "group_power_update", "row_score", "settle"]
+    },
+    "muster": {
+      "class": "major",
+      "signature": true,
+      "sequence": ["initiator_land", "rally_pulse", "staggered_arrivals", "continuous_row_flip_reflow", "adaptive_score_ticks", "pack_settle"],
+      "stagger_ms": {"min": 70, "max": 110},
+      "large_swarm_policy": "first two distinct, middle accelerated/grouped, final distinct"
+    },
+    "scorch": {
+      "class": "major",
+      "signature": true,
+      "sequence": ["commit", "target_pre_emphasis", "ignition", "target_char_dissolve", "grave_transition", "survivor_flip_reflow", "row_score_down", "total_score_down", "scorch_card_resolve"],
+      "fullscreen_flame": false
+    },
+    "weather": {
+      "class": "ability",
+      "sequence": ["travel_to_weather_zone", "row_environmental_front", "unit_power_transition", "row_score", "persistent_row_treatment"],
+      "frost": "edge frost / cool desaturation",
+      "fog": "mild localized haze; never obscure card identity",
+      "rain": "subtle wet sheen / streak cue",
+      "clear": "short synchronized clearing reversal"
+    },
+    "medic": {
+      "class": "ability",
+      "sequence": ["medic_land", "grave_choice_context", "chosen_card_rise", "travel_to_row", "row_flip_reflow", "revived_on_play_effects", "score_update"]
+    },
+    "decoy": {
+      "class": "ability",
+      "sequence": ["target_hint", "target_unit_lift", "decoy_to_row", "unit_to_hand", "row_and_hand_reconcile", "score_update"]
+    },
+    "morale": {
+      "class": "ability",
+      "sequence": ["unit_land", "quiet_row_pulse", "eligible_power_increment", "row_score", "total_score"]
+    },
+    "hero": {
+      "class": "ability",
+      "sequence": ["material_landing", "brief_immunity_glint", "settle"]
+    },
+    "leader": {
+      "class": "ability",
+      "sequence": ["leader_origin_emphasis", "ability_target_choreography", "spent_state"]
+    },
+    "pass": {
+      "class": "ability",
+      "sequence": ["heavy_press_feedback", "persistent_pass_lock", "hand_deemphasis", "turn_change"],
+      "modal_confirmation_default": false
+    },
+    "round_resolution": {
+      "class": "major",
+      "target_duration_ms": {"min": 800, "max": 1200},
+      "sequence": ["resolving_state", "score_hold", "life_update", "grouped_row_clear", "retention_or_resurrection", "weather_clear", "next_round_establish", "round_indicator"]
+    },
+    "match_result": {
+      "class": "major",
+      "principle": "conclusive, restrained, non-casino presentation"
+    }
+  },
+  "audio_hooks": [
+    "UI_CARD_SELECT",
+    "CARD_COMMIT_CLOSE",
+    "CARD_COMMIT_RANGED",
+    "CARD_COMMIT_SIEGE",
+    "CARD_DRAW",
+    "CARD_DISCARD",
+    "SPY_TRIGGER",
+    "HORN_TRIGGER",
+    "BOND_TRIGGER",
+    "MUSTER_TRIGGER",
+    "MEDIC_TRIGGER",
+    "DECOY_TRIGGER",
+    "SCORCH_TRIGGER",
+    "WEATHER_FROST",
+    "WEATHER_FOG",
+    "WEATHER_RAIN",
+    "WEATHER_CLEAR",
+    "PASS",
+    "TURN_PLAYER",
+    "TURN_OPPONENT",
+    "ROUND_WIN",
+    "ROUND_LOSE",
+    "GAME_WIN",
+    "GAME_LOSE"
+  ],
+  "haptic_hooks": {
+    "web_policy": "capability-gated and optional",
+    "native_ios_policy": "map semantic hooks to UIKit/Core Haptics",
+    "events": {
+      "selection": "very_light",
+      "valid_destination": "optional_alignment_tick",
+      "card_commit": "light_impact",
+      "horn": "medium_impact",
+      "scorch": "sharp_heavy_impact",
+      "round_result": "success_or_warning_pattern"
+    }
+  },
+  "reduced_motion": {
+    "follow_system_default": true,
+    "card_flight": "short fade/scale source-to-destination",
+    "spring_back": "direct fade/settle",
+    "scorch": "target flash + dissolve",
+    "muster": "grouped fade-in with minimal stagger",
+    "row_reflow": "small transform or crossfade",
+    "weather": "static treatment fade",
+    "ambient_particles": false
+  },
+  "qa_requirements": {
+    "viewports": ["852x393 iPhone landscape canonical", "393x852 portrait menus"],
+    "input_modes": ["tap", "drag", "hybrid"],
+    "must_test": [
+      "ordinary placement",
+      "invalid drag return",
+      "spy crossover and two draws",
+      "horn",
+      "tight bond",
+      "muster 3-card and 8+-card swarm",
+      "scorch single and multi-target",
+      "all weather types and clear",
+      "medic",
+      "decoy",
+      "pass",
+      "round resolution",
+      "rotation during animation",
+      "visibility change during animation",
+      "reduced motion",
+      "save/restore after interrupted presentation"
+    ],
+    "release_blockers": [
+      "engine outcome depends on animation completion",
+      "drag and tap produce different rules outcomes",
+      "first or last card clips during animated reflow",
+      "legal destination cannot be distinguished without color",
+      "animation leaves DOM inconsistent with engine state",
+      "reduced-motion path omits gameplay information",
+      "major effect causes sustained frame jank on target iPhone",
+      "interaction requires native HTML drag-and-drop"
+    ]
+  }
+}
