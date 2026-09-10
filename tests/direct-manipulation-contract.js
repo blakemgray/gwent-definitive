@@ -4,8 +4,10 @@ const assert=require('assert');
 const ROOT=path.resolve(__dirname,'..');
 const contract=JSON.parse(fs.readFileSync(path.join(ROOT,'config/interaction-motion-contract.json'),'utf8'));
 const gesture=fs.readFileSync(path.join(ROOT,'src/gesture-controller.js'),'utf8');
+const turnGate=fs.readFileSync(path.join(ROOT,'src/interaction-turn-gate.js'),'utf8');
 const css=fs.readFileSync(path.join(ROOT,'direct-manipulation.css'),'utf8');
 const sw=fs.readFileSync(path.join(ROOT,'sw.js'),'utf8');
+const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 const Motion=require('../src/motion-tokens.js');
 const Events=require('../src/presentation-events.js');
 const Flip=require('../src/flip-layout.js');
@@ -41,6 +43,15 @@ ok(/-webkit-user-drag:none/.test(css),'native image dragging must be explicitly 
 ok(/armSyntheticClickSuppression/.test(gesture)&&/shouldSuppressSyntheticClick/.test(gesture),'post-drag click suppression must be spatially scoped');
 ok(!/suppressClickUntil/.test(gesture),'global time-only click suppression must not return');
 
+// Match-controller bridge: auto-bot may not mutate engine state during presentation.
+ok(/originalPlayAction=api\.playAction\.bind\(api\)/.test(turnGate),'turn gate must wrap the existing match-controller play path');
+ok(/toggle\.checked=false/.test(turnGate)&&/toggle\.checked=true/.test(turnGate),'legacy bot scheduler must be suppressed only during synchronous player commit');
+ok(/Queue\.subscribe/.test(turnGate),'bot release must subscribe to presentation lifecycle');
+ok(/type==='complete'\|\|type==='cancel'/.test(turnGate),'completion and interruption must both release deferred bot scheduling');
+ok(/queueMicrotask\(\(\)=>api\.maybeAutoBot\(\)\)/.test(turnGate),'bot must be re-armed after presentation transaction boundary');
+const queueIdx=html.indexOf('src/presentation-queue.js'),gateIdx=html.indexOf('src/interaction-turn-gate.js'),gestureIdx=html.indexOf('src/gesture-controller.js');
+ok(queueIdx>=0&&gateIdx>queueIdx&&gestureIdx>gateIdx,'turn gate must load after queue and before gesture controller');
+
 // Motion tokens and reduced-motion scaling.
 eq(Motion.duration('routineNormal'),240,'routine motion baseline');
 Motion.setReducedOverride(true);
@@ -57,7 +68,7 @@ eq(Queue.version,'10.4A.0','queue version');
 ok(typeof Queue.cancel==='function'&&typeof Queue.run==='function','queue must support interruption');
 
 // PWA must cache the entire direct-manipulation layer.
-for(const file of ['direct-manipulation.css','motion-tokens.js','presentation-queue.js','presentation-events.js','flip-layout.js','gesture-controller.js']){
+for(const file of ['direct-manipulation.css','motion-tokens.js','presentation-queue.js','interaction-turn-gate.js','presentation-events.js','flip-layout.js','gesture-controller.js']){
   ok(sw.includes(file),`service worker must precache ${file}`);
 }
 
