@@ -67,11 +67,13 @@ def tap_commit(page,iid,action,shot=None):
 
 def drag_commit(page,iid,action,shot=None):
     card=page.locator(f'#hand [data-card-iid="{iid}"]');box=card.bounding_box();assert box
-    loc=target_locator(page,action);tb=loc.bounding_box();assert tb
     sx,sy=box['x']+box['width']/2,box['y']+box['height']*.48
-    tx,ty=tb['x']+tb['width']/2,tb['y']+tb['height']/2
     page.mouse.move(sx,sy);page.mouse.down();page.mouse.move(sx+13,sy-2,steps=2);page.wait_for_timeout(28)
     assert page.locator('.dm-drag-proxy').count()==1
+    assert page.evaluate('iid=>window.GwentDirectManipulation.selectedIid===iid',iid)
+    loc=target_locator(page,action);assert loc.count()==1
+    tb=loc.bounding_box();assert tb
+    tx,ty=tb['x']+tb['width']/2,tb['y']+tb['height']/2
     page.mouse.move(tx,ty,steps=8);page.wait_for_timeout(38)
     assert page.locator('.dm-active-target').count()==1
     if shot:page.screenshot(path=str(QA/shot))
