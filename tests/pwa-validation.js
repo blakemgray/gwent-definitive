@@ -15,7 +15,7 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert(html.includes('apple-touch-icon'),'apple-touch-icon link missing');
 assert(html.includes('src/storage.js')&&html.includes('src/asset-resolver.js'),'hardening modules not loaded');
 assert(html.includes('battlefield-ux.css')&&html.includes('src/battlefield-ux.js'),'Pass 10.3 battlefield modules not loaded');
-for(const rel of ['direct-manipulation.css','src/motion-tokens.js','src/presentation-queue.js','src/presentation-events.js','src/flip-layout.js','src/gesture-controller.js']){
+for(const rel of ['direct-manipulation.css','src/motion-tokens.js','src/presentation-queue.js','src/interaction-turn-gate.js','src/presentation-events.js','src/flip-layout.js','src/gesture-controller.js']){
   assert(html.includes(rel),`Pass 10.4A runtime not loaded: ${rel}`);
   assert(sw.includes(rel.replace(/^src\//,''))||sw.includes(rel),`Pass 10.4A runtime not precached: ${rel}`);
 }
