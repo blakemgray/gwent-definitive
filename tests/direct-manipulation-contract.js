@@ -43,6 +43,18 @@ ok(/-webkit-user-drag:none/.test(css),'native image dragging must be explicitly 
 ok(/armSyntheticClickSuppression/.test(gesture)&&/shouldSuppressSyntheticClick/.test(gesture),'post-drag click suppression must be spatially scoped');
 ok(!/suppressClickUntil/.test(gesture),'global time-only click suppression must not return');
 ok(/body\.dm-has-selection #match-screen \.state-toast\.show/.test(css)&&/body\.dm-dragging #match-screen \.state-toast\.show/.test(css),'stale prior-action toast must yield to fresh selection/drag intent');
+ok(/function dismissStaleToast\(\)/.test(gesture)&&/toast\.classList\.remove\('show'\)/.test(gesture),'fresh interaction must permanently dismiss stale toast state, not only mask it with CSS');
+
+// Direct-manipulation continuity: destination intent is captured before engine mutation,
+// then final-card geometry wins where available and semantic/snapshot anchors cover
+// Weather, row-specials, Scorch, and exact-target swaps without board-center guessing.
+ok(/snapshotDestination\(action,before,sourceRect\)/.test(gesture),'destination intent must be snapshotted before engine commit');
+ok(/resolvedBy:'final-card'/.test(gesture),'settlement must prefer authoritative final card geometry');
+ok(/resolvedBy:'semantic-destination'/.test(gesture),'persistent semantic zones must be valid settlement anchors');
+ok(/resolvedBy:'precommit-snapshot'/.test(gesture),'disappearing exact targets must retain a precommit settlement anchor');
+ok(/get lastSettlement\(\)/.test(gesture),'settlement path must remain QA-observable');
+ok(/board\?\.special/.test(gesture)&&/state\.weatherCards/.test(gesture),'card definition lookup must include row-special and weather storage zones for post-commit feedback');
+ok(!/const dest=normalizeDestination\(action,getState\(\)\)/.test(gesture),'settlement must not rediscover destination semantics from already-mutated state');
 
 // Match-controller bridge: auto-bot may not mutate engine state during presentation.
 ok(/originalPlayAction=api\.playAction\.bind\(api\)/.test(turnGate),'turn gate must wrap the existing match-controller play path');
