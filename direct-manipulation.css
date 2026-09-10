@@ -1,0 +1,140 @@
+/* Pass 10.4A — Direct Manipulation
+   This layer describes intent, touch ownership, and motion. It does not own
+   battlefield geometry; Pass 10.3 remains the final-slot authority. */
+
+#match-screen .hand-card{
+  touch-action:none;
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+  will-change:transform;
+}
+
+#match-screen .hand-card.dm-pressing:not(.dm-selected){
+  transform:translateY(-2px) scale(.985)!important;
+  filter:brightness(1.05);
+}
+
+#match-screen .hand-card.dm-selected{
+  z-index:180!important;
+  transform:translateY(-11px) scale(1.08)!important;
+  outline:2px solid rgba(242,211,153,.88)!important;
+  outline-offset:2px;
+  box-shadow:0 16px 30px rgba(0,0,0,.72),0 0 0 4px rgba(195,143,71,.10)!important;
+  filter:brightness(1.08) saturate(1.04);
+}
+
+#match-screen .hand-card.dm-selected::before{
+  content:"SELECTED";
+  position:absolute;
+  left:50%;top:-15px;
+  transform:translateX(-50%);
+  padding:2px 5px;
+  border-radius:999px;
+  border:1px solid rgba(229,194,132,.48);
+  background:rgba(14,11,8,.94);
+  color:#f0d7a6;
+  font:800 5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  letter-spacing:.12em;
+  pointer-events:none;
+  white-space:nowrap;
+}
+
+#match-screen .hand-card.dm-source-placeholder{
+  opacity:.14!important;
+  filter:grayscale(.45) brightness(.72)!important;
+  outline:1px dashed rgba(224,193,137,.48)!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+
+.dm-drag-proxy,.dm-flight-proxy{
+  contain:layout paint style;
+  backface-visibility:hidden;
+  transform-origin:50% 70%;
+  box-shadow:0 18px 34px rgba(0,0,0,.72),0 2px 0 rgba(255,255,255,.10) inset!important;
+  border-radius:6px!important;
+  opacity:1;
+  will-change:transform,opacity;
+}
+.dm-drag-proxy img,.dm-flight-proxy img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}
+.dm-drag-proxy .hc-name,.dm-flight-proxy .hc-name{display:none}
+body.dm-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
+body.presentation-busy #match-screen .hand-card{pointer-events:none}
+
+/* Legal intent is shape + text + luminance, never color alone. */
+#match-screen .dm-legal-target{
+  position:relative;
+  outline:1px dashed rgba(233,204,151,.62);
+  outline-offset:-2px;
+  box-shadow:inset 0 0 0 1px rgba(238,208,154,.08),inset 0 0 18px rgba(196,145,77,.07);
+}
+#match-screen .dm-legal-target::after{
+  content:"◇ " attr(data-dm-label);
+  position:absolute;
+  z-index:130;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  min-width:34px;
+  padding:2px 5px;
+  border-radius:999px;
+  border:1px solid rgba(225,195,139,.38);
+  background:rgba(13,10,7,.78);
+  color:rgba(238,215,176,.86);
+  font:850 5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  letter-spacing:.10em;
+  line-height:1;
+  text-align:center;
+  pointer-events:none;
+  white-space:nowrap;
+  text-shadow:0 1px 2px #000;
+}
+#match-screen .lane.dm-legal-target .units{filter:brightness(1.03)}
+#match-screen .lane.dm-legal-target::after{top:50%;}
+#match-screen .special-slot-wrap.dm-legal-target::after{top:-9px;left:50%;}
+#match-screen .weather.dm-legal-target::after{top:50%;}
+#match-screen .unit.dm-legal-target::after{content:"◇ SWAP";top:-8px;}
+
+#match-screen .dm-legal-target:focus-visible,
+#match-screen .dm-active-target{
+  outline:2px solid rgba(247,220,164,.96)!important;
+  outline-offset:-2px;
+  box-shadow:inset 0 0 0 1px rgba(255,236,192,.18),inset 0 0 25px rgba(211,157,79,.18),0 0 14px rgba(213,162,88,.22)!important;
+}
+#match-screen .dm-active-target::after{
+  content:"◆ " attr(data-dm-label);
+  border-style:solid;
+  background:rgba(58,42,22,.95);
+  color:#fff0c9;
+  transform:translate(-50%,-50%) scale(1.08);
+}
+#match-screen .lane[data-pid="p2"].dm-legal-target{
+  box-shadow:inset 0 0 0 1px rgba(225,194,144,.08),inset 0 0 18px rgba(138,73,63,.10);
+}
+
+/* Keep the selected source and destination legible above 10.3 hover rules. */
+body.dm-has-selection #match-screen .hand-card:not(.dm-selected){filter:brightness(.82) saturate(.78)}
+body.dm-has-selection #match-screen .hand-card:not(.dm-selected):hover{transform:none}
+body.dm-dragging #match-screen .dm-legal-target{outline-style:solid}
+
+.dm-sr-only{
+  position:absolute!important;
+  width:1px!important;height:1px!important;
+  padding:0!important;margin:-1px!important;
+  overflow:hidden!important;clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;border:0!important;
+}
+
+.dm-setting-row select{min-width:150px}
+
+@media (prefers-reduced-motion: reduce){
+  #match-screen .hand-card,
+  #match-screen .unit,
+  #match-screen .dm-legal-target::after{
+    transition-duration:.01ms!important;
+  }
+  #match-screen .hand-card.dm-selected{
+    transform:translateY(-5px) scale(1.035)!important;
+  }
+  .dm-drag-proxy,.dm-flight-proxy{filter:none!important}
+}
