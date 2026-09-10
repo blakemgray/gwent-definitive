@@ -58,6 +58,10 @@ jobs:
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
         run: python tests/presentation_turn_gate_ui.py
+      - name: Disposable presentation-failure recovery gate
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+        run: python tests/presentation_failure_recovery.py
       - name: 256-trial physical interaction stress gate
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
