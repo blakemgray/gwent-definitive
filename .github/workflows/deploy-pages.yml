@@ -46,10 +46,10 @@ jobs:
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
         run: python tests/ui_smoke.py
-      - name: Direct manipulation, parity, interruption, and reduced-motion gate
+      - name: Direct manipulation, parity, interruption, reduced-motion, and touch gate
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
-        run: python tests/direct_manipulation_ui.py
+        run: python tests/direct_manipulation_ui_v2.py
       - name: Archive Pass 10.3 battlefield visual QA
         if: always()
         uses: actions/upload-artifact@v4
