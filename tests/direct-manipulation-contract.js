@@ -42,6 +42,7 @@ ok(/#match-screen \.hand-card img\s*\{[^}]*pointer-events:none/s.test(css),'card
 ok(/-webkit-user-drag:none/.test(css),'native image dragging must be explicitly suppressed');
 ok(/armSyntheticClickSuppression/.test(gesture)&&/shouldSuppressSyntheticClick/.test(gesture),'post-drag click suppression must be spatially scoped');
 ok(!/suppressClickUntil/.test(gesture),'global time-only click suppression must not return');
+ok(/body\.dm-has-selection #match-screen \.state-toast\.show/.test(css)&&/body\.dm-dragging #match-screen \.state-toast\.show/.test(css),'stale prior-action toast must yield to fresh selection/drag intent');
 
 // Match-controller bridge: auto-bot may not mutate engine state during presentation.
 ok(/originalPlayAction=api\.playAction\.bind\(api\)/.test(turnGate),'turn gate must wrap the existing match-controller play path');
