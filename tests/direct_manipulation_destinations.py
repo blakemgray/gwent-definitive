@@ -59,9 +59,22 @@ def target_locator(page,action):
     return page.locator(f'[data-dm-action-key="{key}"]')
 
 
+def prime_stale_toast(page):
+    page.evaluate("""()=>{const t=document.querySelector('#toast');t.textContent='PRIOR ACTION · ENGINE RESOLVED';t.classList.add('show');}""")
+    opacity=float(page.locator('#toast').evaluate('e=>getComputedStyle(e).opacity'))
+    assert opacity>0.99,f'QA precondition: stale toast was not visible ({opacity})'
+
+
+def assert_stale_toast_yielded(page,phase):
+    opacity=float(page.locator('#toast').evaluate('e=>getComputedStyle(e).opacity'))
+    assert opacity==0.0,f'{phase}: stale action toast still visually overlaps fresh intent ({opacity})'
+
+
 def tap_commit(page,iid,action,shot=None):
+    prime_stale_toast(page)
     page.locator(f'#hand [data-card-iid="{iid}"]').click()
     assert page.evaluate('iid=>window.GwentDirectManipulation.selectedIid===iid',iid)
+    assert_stale_toast_yielded(page,'tap selection')
     loc=target_locator(page,action);assert loc.count()==1
     if shot:page.screenshot(path=str(QA/shot))
     loc.click();wait_idle(page)
@@ -71,9 +84,11 @@ def tap_commit(page,iid,action,shot=None):
 def drag_commit(page,iid,action,shot=None):
     card=page.locator(f'#hand [data-card-iid="{iid}"]');box=card.bounding_box();assert box
     sx,sy=box['x']+box['width']/2,box['y']+box['height']*.48
+    prime_stale_toast(page)
     page.mouse.move(sx,sy);page.mouse.down();page.mouse.move(sx+13,sy-2,steps=2);page.wait_for_timeout(28)
     assert page.locator('.dm-drag-proxy').count()==1
     assert page.evaluate('iid=>window.GwentDirectManipulation.selectedIid===iid',iid)
+    assert_stale_toast_yielded(page,'drag activation')
     loc=target_locator(page,action);assert loc.count()==1
     tb=loc.bounding_box();assert tb
     tx,ty=tb['x']+tb['width']/2,tb['y']+tb['height']/2
@@ -155,4 +170,4 @@ with sync_playwright() as p:
     (QA/'destination_matrix.json').write_text(json.dumps(results,indent=2))
     ctx.close();browser.close()
 
-print(f'direct-manipulation-destinations: {len(results)} destination variants × tap/drag parity passed (row, opponent spy row, weather, global, 3 special sockets, exact target, agile rows)')
+print(f'direct-manipulation-destinations: {len(results)} destination variants × tap/drag parity + immediate stale-toast suppression passed')
