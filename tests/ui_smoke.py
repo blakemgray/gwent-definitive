@@ -135,8 +135,12 @@ with sync_playwright() as p:
     assert_pack(page,'#hand','.hand-card',limits['hand_pack_center_tolerance_px'],'three-card hand')
     page.screenshot(path=str(qa_dir/'10_three_card_hand.png'))
 
-    page.locator('#hand .hand-card').first.click()
-    page.wait_for_timeout(80)
+    # Pass 10.4A: first tap establishes play intent; second tap is the secondary inspector intent.
+    first=page.locator('#hand .hand-card').first
+    first.click();page.wait_for_timeout(35)
+    assert page.locator('#hand .hand-card.dm-selected').count()==1
+    assert page.locator('#card-inspector').count()==0
+    first.click();page.wait_for_timeout(80)
     inspector=page.locator('#card-inspector').bounding_box(); assert inspector
     assert inspector['width']<=852*.43,inspector
     page.screenshot(path=str(qa_dir/'11_context_preserving_inspector.png'))
@@ -156,9 +160,10 @@ with sync_playwright() as p:
     page.evaluate("localStorage.removeItem('gwent-definitive-match-v1')")
     page.locator('#match-screen #match-menu').click(); page.set_viewport_size({'width':393,'height':852})
     page.locator('#main-screen [data-nav="settings-screen"]').click(); page.locator('#settings-screen #developer-mode').check()
+    assert page.locator('#card-interaction-mode').count()==1
     page.locator('#settings-screen [data-nav="main-screen"]').click()
     assert dev_entry.is_visible(),'developer entry should appear when enabled'
     assert not errors,errors
     browser.close()
 
-print('ui-smoke: Pass 10.3 battlefield v2, density matrix, centering, pass state, inspector, save/restore passed')
+print('ui-smoke: Pass 10.3 battlefield v2 plus Pass 10.4A secondary-inspector behavior passed')

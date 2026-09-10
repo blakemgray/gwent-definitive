@@ -8,7 +8,7 @@
   function saveSettings(value){localStorage.setItem(SETTINGS_KEY,JSON.stringify(value||{}));}
   function writeMatch({state,setup,lab=false}){
     if(!state||state.winner){clearMatch();return null;}
-    const payload={schema:SAVE_SCHEMA,build:'10.2',savedAt:new Date().toISOString(),classification:state.classification||'classic',lab:!!lab,setup:setup||{},state};
+    const payload={schema:SAVE_SCHEMA,build:'10.4A',savedAt:new Date().toISOString(),classification:state.classification||'classic',lab:!!lab,setup:setup||{},state};
     localStorage.setItem(SAVE_KEY,JSON.stringify(payload));
     return payload;
   }
