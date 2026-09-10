@@ -62,6 +62,10 @@ jobs:
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
         run: python tests/direct_manipulation_stress.py
+      - name: Semantic landing continuity and durable feedback gate
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+        run: python tests/interaction_polish_ui.py
       - name: WebKit / iPhone-targeted interaction gate
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
