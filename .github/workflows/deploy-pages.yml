@@ -122,7 +122,7 @@ jobs:
           rm -rf _site
           mkdir -p _site/src _site/icons
           cp index.html app.js styles.css battlefield-ux.css direct-manipulation.css gameplay-choreography.css manifest.webmanifest sw.js icon.svg .nojekyll _site/
-          cp src/cards-catalog.js src/gwent-engine.js src/asset-resolver.js src/storage.js src/battlefield-ux.js src/motion-tokens.js src/presentation-queue.js src/interaction-turn-gate.js src/presentation-events.js src/gameplay-choreography.js src/flip-layout.js src/gesture-controller.js _site/src/
+          cp src/cards-catalog.js src/gwent-engine.js src/asset-resolver.js src/storage.js src/battlefield-ux.js src/motion-tokens.js src/presentation-queue.js src/interaction-turn-gate.js src/presentation-events.js src/gameplay-choreography.js src/choreography-external-gate.js src/flip-layout.js src/gesture-controller.js _site/src/
           cp icons/apple-touch-icon.png icons/icon-192.png icons/icon-512.png _site/icons/
       - name: Configure Pages
         uses: actions/configure-pages@v5
