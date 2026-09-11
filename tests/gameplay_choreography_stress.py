@@ -92,7 +92,7 @@ with sync_playwright() as p:
     # 4. HORN over active Tight Bond — row effect must precede score animation.
     def horn_state():
         s=empty_state(base);s['players']['p1']['board']['close']=[I('bond1',ids['bond']),I('bond2',ids['bond'])];s['players']['p1']['hand']=[I('horn',ids['horn']),I('hf',ids['ordinary'])];return s
-    s=horn_state();reset(page,s);shot(page,'35_horn_bond_pre.png');begin(page,'horn',lambda a:a.get('row')=='close');wait_stage(page,'horn');shot(page,'36_horn_mid.png');page.wait_for_function("document.body.dataset.gcStage==='score'",timeout=7000);assert page.locator('.gc-score-float').count()>=1;shot(page,'37_horn_score_after_effect.png');wait_idle(page);final=state(page);assert final['players']['p1']['board']['special']['close'];clean(page);shot(page,'38_horn_bond_final.png')
+    s=horn_state();reset(page,s);shot(page,'35_horn_bond_pre.png');begin(page,'horn',lambda a:a.get('row')=='close');wait_stage(page,'horn');shot(page,'36_horn_mid.png');page.wait_for_function("document.body.dataset.gcStage==='score'",timeout=7000);page.wait_for_function("document.querySelectorAll('.gc-snapshot-score').length>0",timeout=3000);assert visible_count(page,'.gc-snapshot-score')>=1;shot(page,'37_horn_score_after_effect.png');wait_idle(page);final=state(page);assert final['players']['p1']['board']['special']['close'];clean(page);shot(page,'38_horn_bond_final.png')
     s=horn_state();reset(page,s);begin(page,'horn',lambda a:a.get('row')=='close');wait_stage(page,'horn');frozen=state(page);cancel_final(page,frozen,'39_horn_interrupted_final.png')
     reduced_start(page);s=horn_state();reset(page,s);begin(page,'horn',lambda a:a.get('row')=='close');wait_stage(page,'horn');shot(page,'40_horn_reduced.png');wait_idle(page);reduced_end(page)
 
