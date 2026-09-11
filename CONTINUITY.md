@@ -13,15 +13,16 @@
 **Transition PR exact green head:** `19393f835d4f474cdafd2efb689ec2e6a696e273`  
 **Transition PR validation:** run #142 / `34637982426` — **success**  
 **Current completed production milestone:** **Pass 10.4C — Feel / Presentation Polish**  
-**Current active implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match — planning and audit only**  
-**Current active repository task:** **Repository-grounded Pass 11 audit and implementation/acceptance contract; gameplay code is frozen until the contract is established**  
+**Current active implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match — implementation/acceptance contract established; gameplay implementation not yet started**  
+**Current active repository task:** **11.1A — legal normal-match foundation is the next implementation slice**  
 **Current work branch:** `pass-11-golden-match`  
-**Current work PR:** pending at this checkpoint  
-**Estimated Pass 11 planning completion:** **20%**  
+**Current work PR:** #11 — `Pass 11: Golden Match`  
+**Estimated Pass 11 planning completion:** **100%**  
+**Estimated overall Pass 11 completion:** **5%**  
 **Default current-work model:** **GPT-5.6 Sol · High**; escalate only per `MODEL_ROUTING.md`  
 **Last updated:** 2026-09-11 America/New_York
 
-Pass 10.4C remains complete, merged, fully verified, visually approved, and deployed. Run #145 verified and deployed exact `main` head `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b`. The Pass 11 cycle is now open on `pass-11-golden-match`, created from that exact green head. This startup checkpoint is the branch's first change. No gameplay code has changed: work is limited to reconstructing the current normal-match path, auditing repository truth against Pass 11 requirements, and establishing the implementation/acceptance contract before implementation.
+Pass 10.4C remains complete, merged, fully verified, visually approved, and deployed. Run #145 verified and deployed exact `main` head `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b`. The Pass 11 cycle is open on `pass-11-golden-match`, created from that exact green head. PR #11 now contains the mandatory startup checkpoint and the repository-grounded `docs/PASS11_GOLDEN_MATCH_CONTRACT.md`. Planning is complete and coherent. No gameplay code has changed; the first authorized implementation slice is 11.1A — legal normal-match foundation.
 
 ---
 
@@ -467,19 +468,30 @@ Authoritative startup evidence:
 - run #145 / `34641027264` — exact-head full verification success and Pages deployment success;
 - work branch: `pass-11-golden-match`, created from that exact head;
 - current change scope: continuity checkpoint only;
-- current planning completion: **20%**;
+- current planning completion: **100%**;
+- estimated overall Pass 11 completion: **5%**;
+- Pass 11 contract commit: `c85b9264cae68f41f18d941b5134480d119dcf17`;
 - model recommendation: **GPT-5.6 Sol · High**.
 
 No evidence currently requires reopening Pass 10.3, 10.4A, 10.4B, or 10.4C. The installed-iPhone findings are Pass 11 requirements unless the repository audit proves a true regression in a closed responsibility.
 
-## Current planning gate
+## Planning gate result
 
-Before gameplay implementation:
+The repository-grounded audit and implementation/acceptance contract are complete in `docs/PASS11_GOLDEN_MATCH_CONTRACT.md`.
 
-1. audit the repository's current normal-match initialization, mulligan, turn, choice, scoring, round, faction/life, result, rematch, and persistence paths;
-2. audit battlefield readability, persistent card identity, predictive target clarity, forgiveness/ambiguity behavior, audio, haptics, and consequence pacing against live geometry and the canonical action path;
-3. define Pass 11 must-ship scope, explicit move-right scope, internal execution phases, and QA/release acceptance;
-4. record that contract in the repository and update this continuity record;
-5. begin gameplay changes only after the contract is coherent.
+Confirmed baseline gaps include:
 
-**Exact next action:** perform the repository-grounded Pass 11 audit without changing gameplay code, then write the implementation/acceptance contract and update this file with the resulting plan, gaps, and exact next implementation slice.
+- 16-card production presets with no runtime legality validation or production shuffle;
+- a Medic-only player choice renderer and no opponent choice resolver;
+- no end-to-end ordinary Instant Match browser gate;
+- current power hidden on unmodified battlefield cards;
+- uniform final-point hit testing without ambiguity-aware intent;
+- no predictive Decoy exposure or minimum neighbor-yield layer;
+- proxy/ghost continuity without complete temporal identity proof;
+- semantic audio events with no actual audio consumer or asset;
+- optional vibration attempts without delivery/unavailable diagnostics;
+- important consequence pacing still below the installed-device product target.
+
+The contract locks must-ship scope, explicit move-right scope, internal phases, model routing, machine/browser/temporal/live-device acceptance, and the release sequence. It preserves Pass 10.3 geometry authority and the canonical engine/action path.
+
+**Exact next action:** begin 11.1A on GPT-5.6 Sol · High by implementing reusable deck legality, two legal full-size Golden Match presets, deterministic production shuffle/opening draw, mulligan persistence/events, and focused engine + ordinary-UI tests without changing physical-card geometry.
