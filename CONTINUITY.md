@@ -7,20 +7,21 @@
 **Canonical hosted build:** `https://blakemgray.github.io/gwent-definitive/`  
 **Default branch:** `main`  
 **Current production runtime / Pass 10.4C merge:** `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d`  
-**Current verified transition-aligned main head:** `4d7d6e0b7dc95c25e02418001400e0da538c2a66`  
-**Latest exact-head main verification:** run #143 / `34638840306` — full verify **success**, Pages deploy **success**  
+**Current verified repository main head:** `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b`  
+**Latest exact-head main verification:** run #145 / `34641027264` — full verify **success**, Pages deploy **success**  
 **Transition PR:** #9 — `docs: prepare Pass 11 Work transition` — merged  
 **Transition PR exact green head:** `19393f835d4f474cdafd2efb689ec2e6a696e273`  
 **Transition PR validation:** run #142 / `34637982426` — **success**  
 **Current completed production milestone:** **Pass 10.4C — Feel / Presentation Polish**  
-**Current active implementation milestone:** **None — Pass 11 has not started**  
-**Current active repository task:** **None — pre-Work transition checkpoint is complete; this file is the terminal closeout stamp**  
-**Estimated transition-checkpoint completion:** **100%**  
-**Next implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
-**Default next-work model:** **GPT-5.6 Sol · High**; escalate only per `MODEL_ROUTING.md`  
+**Current active implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match — planning and audit only**  
+**Current active repository task:** **Repository-grounded Pass 11 audit and implementation/acceptance contract; gameplay code is frozen until the contract is established**  
+**Current work branch:** `pass-11-golden-match`  
+**Current work PR:** pending at this checkpoint  
+**Estimated Pass 11 planning completion:** **20%**  
+**Default current-work model:** **GPT-5.6 Sol · High**; escalate only per `MODEL_ROUTING.md`  
 **Last updated:** 2026-09-11 America/New_York
 
-Pass 10.4C remains complete, merged, fully verified, visually approved, and deployed. The pre-Work transition checkpoint is complete: live-play findings, revised Pass 11 intent, expanded QA doctrine, forward roadmap, and model-routing discipline are now repository-authoritative. PR #9 merged the transition package, and Run #143 re-proved the full matrix and Pages deployment on the resulting `main` head. This continuity-only closeout is the terminal repository-cleanup stamp for the transition; verify/deploy it once after merge, but do **not** create a recursive continuity commit solely to record that final verification.
+Pass 10.4C remains complete, merged, fully verified, visually approved, and deployed. Run #145 verified and deployed exact `main` head `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b`. The Pass 11 cycle is now open on `pass-11-golden-match`, created from that exact green head. This startup checkpoint is the branch's first change. No gameplay code has changed: work is limited to reconstructing the current normal-match path, auditing repository truth against Pass 11 requirements, and establishing the implementation/acceptance contract before implementation.
 
 ---
 
@@ -456,40 +457,29 @@ Legacy product root: `Gwent Definitive - blakemgray` — `1dDtOJP3wYTVfQiXP3bYUj
 
 ---
 
-# 11. Current handoff to ChatGPT Work
+# 11. Current Pass 11 work cycle
 
-**Pass 10.4C is closed, the pre-Work transition checkpoint is complete, and Pass 11 has not started.**
+**Pass 10.4C is closed. Pass 11 planning is active; gameplay implementation remains blocked on the implementation/acceptance contract.**
 
-Authoritative transition evidence:
+Authoritative startup evidence:
 
-- pre-transition main head: `388f90cf230492093a89ccb67a67bd929ad4a12d`;
-- pre-transition Run #141 / `34625822361` — full verify success, Pages deploy success;
-- transition PR #9 exact head: `19393f835d4f474cdafd2efb689ec2e6a696e273`;
-- transition PR Run #142 / `34637982426` — full verify success;
-- transition PR #9 merge/main SHA: `4d7d6e0b7dc95c25e02418001400e0da538c2a66`;
-- transition-aligned main Run #143 / `34638840306` — full verify success, Pages deploy success;
-- exact-head visual QA review: representative Run #142 Pass-10.4C artifact `10279156191` / `sha256:280f076f308313abdcb96beae5167396ac8d29136d1497bec949bb18b838fd00` — manually inspected, no new visual regression;
-- PR #9 changed documentation only; gameplay/runtime remained unchanged.
+- exact starting `main` head: `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b`;
+- run #145 / `34641027264` — exact-head full verification success and Pages deployment success;
+- work branch: `pass-11-golden-match`, created from that exact head;
+- current change scope: continuity checkpoint only;
+- current planning completion: **20%**;
+- model recommendation: **GPT-5.6 Sol · High**.
 
-No known regression requires reopening 10.3, 10.4A, 10.4B, or 10.4C. New live-play findings are forward Pass 11 requirements/QA findings unless current evidence proves a regression.
+No evidence currently requires reopening Pass 10.3, 10.4A, 10.4B, or 10.4C. The installed-iPhone findings are Pass 11 requirements unless the repository audit proves a true regression in a closed responsibility.
 
-## Work startup protocol
+## Current planning gate
 
-Start the next substantive cycle in **ChatGPT Work using GPT-5.6 Sol · High** unless the user explicitly chooses otherwise.
+Before gameplay implementation:
 
-Before implementation:
+1. audit the repository's current normal-match initialization, mulligan, turn, choice, scoring, round, faction/life, result, rematch, and persistence paths;
+2. audit battlefield readability, persistent card identity, predictive target clarity, forgiveness/ambiguity behavior, audio, haptics, and consequence pacing against live geometry and the canonical action path;
+3. define Pass 11 must-ship scope, explicit move-right scope, internal execution phases, and QA/release acceptance;
+4. record that contract in the repository and update this continuity record;
+5. begin gameplay changes only after the contract is coherent.
 
-1. read this file in full;
-2. read `FUTURE_CONTINUITY.md` in full;
-3. read `MODEL_ROUTING.md` in full;
-4. verify current `main` and latest CI/deployment state;
-5. report phase/completion/model recommendation/justification/escalation trigger/return trigger;
-6. create the Pass 11 work branch/PR from the then-current green `main`;
-7. update the actual branch `CONTINUITY.md` before gameplay implementation;
-8. reconstruct the current normal-match path and establish the detailed Pass 11 implementation/acceptance contract before changing gameplay code.
-
-GitHub is source/code/CI authority. Use connected TinyFish/Work browser capabilities for live player-facing QA where useful. Preserve the machine + temporal visual + live-browser + real-device proof model.
-
-**Terminal-closeout note:** this file is the final transition continuity stamp. Once the closeout PR containing this change is exact-head green, visually checked, merged, and its resulting `main` head is verified/deployed once, do **not** create another continuity-only commit solely to record that final verification. Repository/green-CI state outranks the intentionally non-recursive terminal stamp.
-
-**Exact next action:** after this terminal closeout is merged and verified, open ChatGPT Work on **GPT-5.6 Sol · High**, point it to `blakemgray/gwent-definitive`, require it to read `CONTINUITY.md` → `FUTURE_CONTINUITY.md` → `MODEL_ROUTING.md`, then begin the new Pass 11 cycle by updating `CONTINUITY.md` before implementation.
+**Exact next action:** perform the repository-grounded Pass 11 audit without changing gameplay code, then write the implementation/acceptance contract and update this file with the resulting plan, gaps, and exact next implementation slice.
