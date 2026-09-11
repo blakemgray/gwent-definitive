@@ -75,7 +75,7 @@ eq(Motion.duration('routineNormal'),240,'full motion restored');
 Motion.setReducedOverride(null);
 
 // Presentation modules load and expose their intended boundaries.
-eq(Events.version,'10.4A.0','presentation event adapter version');
+eq(Events.version,'10.4B.0','presentation event adapter version');
 eq(Flip.version,'10.4A.0','FLIP helper version');
 eq(Queue.version,'10.4A.0','queue version');
 ok(typeof Queue.cancel==='function'&&typeof Queue.run==='function','queue must support interruption');
