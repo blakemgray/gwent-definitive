@@ -8,13 +8,15 @@
 **Default branch:** `main`  
 **Current production runtime head / Pass 10.4B merge:** `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`  
 **Last verified green production workflow:** `Verify and Deploy Gwent Definitive` run ID `34607056878` / run #112 — verify **success**, Pages deploy **success**  
-**Last updated:** 2026-09-11 America/Indiana/Indianapolis  
+**Last updated:** 2026-09-11 11:12 America/New_York  
 **Current completed implementation milestone:** **Pass 10.4B — Signature Gameplay Choreography**  
-**Current active implementation milestone:** **None — Pass 10.4B is closed**  
-**Next planned implementation milestone:** **Pass 10.4C — Feel / Presentation Polish**  
-**Pass 11:** **Golden Match**, only after 10.4C completes the interaction/presentation layer established by 10.4A/B.
+**Current active implementation milestone:** **Pass 10.4C — Feel / Presentation Polish**  
+**Current active branch / PR:** `pass-10-4c-feel-presentation-polish` / **PR #8**  
+**Active code head before this continuity checkpoint:** `e5690f24b77653ce532d8812c696c248127273d2`  
+**Estimated Pass 10.4C completion:** **~70%** — visibility estimate only; never a reason to rush scope, QA, or visual review.  
+**Next planned implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match**, only after 10.4C is complete, merged, green, and deployed.
 
-This continuity refresh is documentation-only and follows the verified/deployed Pass 10.4B runtime merge. The exact latest `main` commit may therefore be a documentation descendant of the production runtime SHA above; inspect current Git history/CI before beginning the next pass.
+This continuity refresh is the mandatory start-of-work checkpoint for the active 10.4C pass. Production remains the fully green/deployed Pass 10.4B runtime on `main`; 10.4C is still an open PR and must not be described as production until merge + main verification + Pages deployment succeed.
 
 ---
 
@@ -35,6 +37,18 @@ When sources disagree, use this precedence:
 7. Chat memory or summaries.
 
 Do **not** silently rewrite classic Gwent rules or project doctrine from generic assumptions. If a rule/product decision is uncertain, inspect the current engine, Arun Sundaram source, pass contracts, and tests.
+
+### Start-of-task continuity rule
+
+For every new implementation task or resumed work cycle:
+
+1. Read the current `CONTINUITY.md` from the active branch first.
+2. **Write an actual checkpoint update to this file in GitHub before doing further implementation work.** A chat-only continuity summary does not satisfy this requirement.
+3. The checkpoint must state the active pass/task, branch/PR/head, latest meaningful CI evidence or blocker, exact next action, and an estimated completion percentage for the current task/pass.
+4. The percentage is for user visibility only and must never be used to compress scope, rush QA, skip visual review, or weaken a gate.
+5. Every user-facing progress report during implementation should include the current estimated completion percentage.
+6. Every user-facing work message should end with a concrete **Next action**.
+7. On completion/merge/deploy, update this file again with final SHAs, CI evidence, artifacts, visual findings, remaining debt, and handoff.
 
 Every pass must update this file before merge. At minimum record:
 
@@ -189,13 +203,13 @@ Architectural rules:
 - interruption/failure immediately reconciles to engine truth;
 - bot/opponent mutation must not occur inside unresolved player presentation.
 
-Important runtime files after Pass 10.4B:
+Important runtime files through active Pass 10.4C:
 
 - `src/gwent-engine.js` — deterministic classic-rules engine.
 - `src/cards-catalog.js` — full migrated 216-card catalog.
 - `src/storage.js` — persisted match-state abstraction.
 - `src/battlefield-ux.js` — Pass 10.3 compositor/reconciliation and final geometry authority.
-- `src/motion-tokens.js` — shared timing/easing/reduced-motion policy.
+- `src/motion-tokens.js` — shared timing/easing/reduced-motion policy; 10.4C is tuning these presentation timings without changing rules.
 - `src/presentation-queue.js` — serialized cancellable presentation transaction layer.
 - `src/interaction-turn-gate.js` — 10.4A bot mutation gate.
 - `src/presentation-events.js` — 10.4B semantic before/after + engine-delta presentation-event adapter; remains a semantic adapter, not a runtime bootstrapper.
@@ -203,12 +217,14 @@ Important runtime files after Pass 10.4B:
 - `src/choreography-external-gate.js` — 10.4B external action / Auto Bot gate plus synchronous 10.3 geometry reconciliation before post-action visual capture.
 - `src/flip-layout.js` — FLIP redistribution around 10.3 final geometry.
 - `src/gesture-controller.js` — 10.4A tap/drag canonical commit controller.
+- `src/presentation-feedback.js` — active 10.4C presentation-only semantic audio/optional-haptic feedback subscriber.
 - `app.js` — product shell/match integration.
 - `battlefield-ux.css` — battlefield treatment.
 - `direct-manipulation.css` — interaction-state visuals.
 - `gameplay-choreography.css` — 10.4B cues/effect-state visuals.
+- `feel-polish.css` — active 10.4C tactile visual override/polish layer.
 
-10.4B runtime modules are explicitly declared in `index.html` and explicitly precached/staged by the PWA/deploy graph. An earlier dynamic-loader shortcut inside `presentation-events.js` was rejected and removed because it blurred semantic-adapter and bootstrapping responsibilities.
+10.4B and active 10.4C runtime modules are explicitly declared in `index.html` and explicitly precached/staged by the PWA/deploy graph. Dynamic injection remains rejected because it blurs semantic/runtime boundaries.
 
 ---
 
@@ -309,7 +325,7 @@ Policy:
 - merge only after latest-head pass gate is green;
 - main push reruns verification;
 - Pages deploy only after verify succeeds;
-- update this continuity file in the pass before merge.
+- update this continuity file at the start of each work cycle and again before merge/after production verification.
 
 ### Historical production snapshot before Pass 10.4B
 
@@ -357,6 +373,32 @@ Production artifacts from Run #112:
 - Pages package: artifact `10266689673`
 
 The production runtime at `a6adca26...` is therefore the authoritative **green and deployed Pass 10.4B baseline**.
+
+### Active development snapshot — Pass 10.4C
+
+**Branch:** `pass-10-4c-feel-presentation-polish`  
+**PR:** `#8 — Pass 10.4C — Feel / Presentation Polish`  
+**Base:** `main` at `f625b2347c53baa4a7b72917f2e2188ff21b432c`  
+**Code head before mandatory continuity checkpoint:** `e5690f24b77653ce532d8812c696c248127273d2`  
+**Latest completed PR workflow on that code head:** run #127 / `34613229746` — overall **failure**, but every inherited 10.3/10.4A/10.4B gate **passed**; only the new 10.4C browser gate failed at its first release-identity/title assertion.
+
+Run #127 established that the active feel layer did not regress the green foundation:
+
+- static engine/catalog/PWA/motion/direct-manipulation/choreography/feel contracts green;
+- frozen 10.3 geometry green;
+- full 10.4A direct-manipulation/touch suite green;
+- destination-family parity green;
+- presentation-aware bot gating green;
+- presentation failure recovery green;
+- 256-trial physical stress / 512 committed interactions green;
+- semantic landing and lifecycle/save-restore green;
+- WebKit/iPhone green;
+- primary 10.4B choreography green;
+- all eight 10.4B adversarial scenarios green.
+
+The sole failure was `tests/feel_presentation_ui.py` line 70: expected visible `10.4C` milestone identity in `document.title`. Root cause is known: `src/choreography-external-gate.js` still owns a 10.4B-era `installVersionMarks()` path that can re-stamp title/build/profile text after 10.4C bootstrap. This is a release-identity ownership defect, not an engine, interaction, choreography, or feel regression.
+
+The 10.4C artifact was not produced because the new gate failed before creating `qa/pass10_4c` output. Do not treat Run #127 as visual acceptance evidence for 10.4C.
 
 ### Pass 10.4B release-candidate visual evidence
 
@@ -647,11 +689,72 @@ Production proof:
 
 Pass 10.4B is closed. Do not reopen it unless a regression is discovered against the green production baseline. The next implementation work belongs in **Pass 10.4C — Feel / Presentation Polish**.
 
+## Pass 10.4C — Feel / Presentation Polish
+
+**Status:** **ACTIVE / PR #8 OPEN / NOT MERGED.**  
+**Estimated completion:** **~70%** — visibility estimate only.  
+**Goal:** make the already-correct 10.4A/B interaction/choreography layer feel immediate, physical, coherent, accessible, and native-quality on iPhone/WebKit without changing classic rules or 10.3 final geometry.  
+**Branch:** `pass-10-4c-feel-presentation-polish`  
+**PR:** `#8 — Pass 10.4C — Feel / Presentation Polish`  
+**Base:** `main` at `f625b2347c53baa4a7b72917f2e2188ff21b432c`  
+**Code head before this continuity checkpoint:** `e5690f24b77653ce532d8812c696c248127273d2`
+
+### Locked 10.4C decisions
+
+- 10.4C is presentation/feel/accessibility/performance work, not a rules pass.
+- 10.3 final geometry remains frozen authority.
+- 10.4A canonical tap/drag action path remains authority.
+- 10.4B engine-first cause→effect choreography remains authority.
+- Prefer dedicated polish layers/subscribers over invasive rewrites of proven controller/choreography code.
+- Audio/haptics are semantic feedback hooks only; they never own legality/state.
+- Haptics remain capability-gated and opt-in on web.
+- Reduced motion must preserve mechanic information and tactile clarity rather than simply disable all motion.
+- Hosted-runner frame-rate numbers are evidence, not brittle pass/fail thresholds; correctness, persistent animation leaks, input latency contracts, and cleanup remain hard gates.
+- Final acceptance requires actual visual inspection of the 10.4C artifact, not CI alone.
+
+### Current 10.4C implementation
+
+- Motion-token timing/easing tuning for more physical, coherent interaction pacing.
+- Dedicated `feel-polish.css` tactile override layer for press, selection, drag, and legal-target treatment.
+- Dedicated `src/presentation-feedback.js` semantic feedback subscriber with persisted effects volume/mute settings.
+- Capability-gated optional web haptic mapping hooks.
+- Explicit 10.4C runtime/PWA/deploy graph in `index.html`, `sw.js`, validation, and workflow staging.
+- Static `tests/feel-presentation-contract.js` contract.
+- Browser `tests/feel_presentation_ui.py` gate covering feel, feedback, reduced motion, pacing, transient cleanup, duplicate-install protection, and timing evidence.
+- Generic baseline fixtures normalize to an ability-free Redanian Foot Soldier where signature abilities would contaminate a generic feel measurement.
+
+### Current QA / evidence
+
+Run #127 / `34613229746`, code head `e5690f24b77653ce532d8812c696c248127273d2`:
+
+- all static contracts green, including 46 10.4C feel assertions;
+- frozen 10.3 geometry green;
+- full 10.4A direct-manipulation/touch gate green;
+- destination parity green;
+- bot gating and presentation failure recovery green;
+- 256 physical stress trials / 512 committed interactions green;
+- semantic landing green;
+- lifecycle/save-restore green;
+- WebKit/iPhone green;
+- primary 10.4B choreography green;
+- all eight 10.4B adversarial scenarios green;
+- **only 10.4C-specific browser gate failed**, at its first title assertion before producing the 10.4C visual artifact.
+
+### Current blocker
+
+`src/choreography-external-gate.js` still includes 10.4B-era `installVersionMarks()` behavior that can re-stamp `document.title`, buildline, and profile status after 10.4C loads. This causes the 10.4C browser gate to observe Pass 10.4B identity even though the new feel runtime is installed. Treat this as release-identity ownership cleanup, not a reason to modify engine/rules/action/choreography semantics.
+
+### Exact next action
+
+Make 10.4C the final owner of visible milestone/version presentation without dismantling lower-layer 10.4A/10.4B runtime responsibilities, then rerun the complete PR #8 validation matrix. If green, inspect the newly produced 10.4C visual artifact before further feel tuning or merge decisions.
+
 ---
 
-# 12. Current product status after Pass 10.4B
+# 12. Current product status
 
-Production/main now has:
+Production/main currently remains the fully green/deployed **Pass 10.4B** baseline. The active 10.4C branch additionally contains presentation-only feel work that is not yet production.
+
+Production/main has:
 
 - hosted canonical JS/PWA infrastructure;
 - deterministic classic-rules engine;
@@ -666,7 +769,7 @@ Production/main now has:
 - semantic presentation transaction substrate;
 - FLIP redistribution;
 - iPhone/WebKit interaction coverage;
-- **10.4B authored mechanic/lifecycle choreography runtime**;
+- 10.4B authored mechanic/lifecycle choreography runtime;
 - expanded semantic before/after + engine-delta adapter;
 - presentation-only pre-state visual snapshots for causal readability;
 - explicit production/PWA 10.4B load graph;
@@ -679,9 +782,18 @@ Production/main now has:
 - adversarial signature/lifecycle QA proven green;
 - CI-protected Pages deployment.
 
+Active 10.4C branch additionally contains:
+
+- feel-polish CSS layer;
+- tuned shared motion tokens;
+- semantic audio/optional-haptic feedback subscriber;
+- persisted effects feedback preferences;
+- pass-specific static/browser QA and artifact pipeline;
+- explicit PWA/deploy staging for 10.4C runtime files.
+
 Major remaining work:
 
-- Pass 10.4C timing/feel/audio hooks/future haptics/accessibility/performance;
+- finish 10.4C release identity ownership, browser QA, visual tuning, continuity closeout, merge, and production verification;
 - unrestricted legal deck builder across all 216 cards;
 - polished faction/leader/deck selection;
 - complete production mulligan/effect-choice UX across unrestricted legal combinations;
@@ -693,11 +805,9 @@ Major remaining work:
 
 ---
 
-# 13. Next implementation pass — Pass 10.4C Feel / Presentation Polish
+# 13. Current implementation pass — Pass 10.4C Feel / Presentation Polish
 
-**Status:** planned / ready to begin when explicitly triggered.
-
-10.4C is the next pass. It must operate on the green production baseline established by 10.3 + 10.4A + 10.4B and must not rewrite classic rules or replace frozen battlefield geometry.
+**Status:** **ACTIVE / approximately 70% complete by current estimate.**
 
 Primary 10.4C focus:
 
@@ -713,7 +823,9 @@ Primary 10.4C focus:
 - performance/frame budget on iPhone/WebKit;
 - final presentation consistency across tap, drag, player, bot, lifecycle, and effect-choice paths.
 
-10.4C is a polish/feel/accessibility/performance pass, not a rules pass. The strongest acceptance evidence should include real visual inspection and timing/frame-budget evidence rather than only static green tests.
+Current implementation has established the dedicated polish/feedback substrate and passed every inherited regression gate on Run #127. The immediate blocker is release-identity ownership, after which the 10.4C-specific browser gate can produce its first authoritative visual/timing artifact.
+
+10.4C remains a polish/feel/accessibility/performance pass, not a rules pass. The strongest acceptance evidence must include real visual inspection and timing/frame-budget evidence rather than only static green tests.
 
 **Next pass after 10.4C:** **Pass 11 — Golden Match / Complete Normal Match.**
 
@@ -723,7 +835,7 @@ Primary 10.4C focus:
 
 `FUTURE_CONTINUITY.md` preserves intended future direction. The locked near-term sequence is now:
 
-1. **Pass 10.4C — Feel / Presentation Polish**;
+1. **Finish Pass 10.4C — Feel / Presentation Polish**;
 2. **Pass 11 — Golden Match**.
 
 Pass 10.4A and 10.4B are complete production foundations. Pass 11 must not begin until 10.4C finishes the interaction/presentation layer. Golden Match is the first full-game validation of legal decks, full round lifecycle, normal human interaction without developer shortcuts, real chained presentation, AI using the same choreography language, and strategic pacing with animation enabled.
@@ -748,12 +860,13 @@ Use Drive archives for historical/reference comparison only unless explicitly in
 
 # 16. Continuity update template
 
-For each future pass, maintain a ledger section with:
+For each future pass/task checkpoint, maintain or refresh the ledger with:
 
 ```md
 ## Pass X — Name
 
 **Status:** planned | active | blocked | complete | merged | superseded
+**Estimated completion:** ~N% (visibility only; never a schedule/quality pressure)
 **Goal:** ...
 **Branch:** `...`
 **PR:** `#...`
@@ -783,7 +896,7 @@ For each future pass, maintain a ledger section with:
 - ...
 ```
 
-Then update the top snapshot and current-status/active-pass sections.
+Then update the top snapshot and current-status/active-pass sections. During an active pass, write a GitHub continuity checkpoint **before more implementation work begins** whenever a new task/work cycle starts.
 
 ---
 
@@ -791,25 +904,34 @@ Then update the top snapshot and current-status/active-pass sections.
 
 For a new conversation, use:
 
-> Read `CONTINUITY.md` first, then `FUTURE_CONTINUITY.md`, inspect current `main`, inspect any active pass branch/PR, read the relevant pass contracts, and inspect latest CI. Continue from the exact handoff state. Update `CONTINUITY.md` as part of the pass before merge.
+> Read `CONTINUITY.md` first, then `FUTURE_CONTINUITY.md`, inspect current `main`, inspect any active pass branch/PR, read the relevant pass contracts, and inspect latest CI. Before making further implementation changes, write a current checkpoint back to `CONTINUITY.md` on the active branch. Continue from the exact handoff state. Every progress report should include the current estimated completion percentage and end with the exact next action.
 
 ---
 
 # 18. Current handoff
 
-**Pass 10.4B is complete, merged, verified, and deployed.**
+**Production Pass 10.4B is complete, merged, verified, and deployed. Pass 10.4C is active on PR #8 and not yet production.**
 
 Production runtime baseline:
 
 - merge/runtime SHA: `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`;
-- final PR head: `1623caed9c72a80d110e3ec4efdc3e2838d9ee3c`;
-- final PR run: #111 / `34606032376` — success;
+- final 10.4B PR head: `1623caed9c72a80d110e3ec4efdc3e2838d9ee3c`;
+- final 10.4B PR run: #111 / `34606032376` — success;
 - production run: #112 / `34607056878` — verify success, Pages deploy success;
 - production 10.4B QA artifact: `10266123499`;
 - canonical hosted build: https://blakemgray.github.io/gwent-definitive/.
 
-All inherited 10.3/10.4A regression gates, 256-trial interaction stress, lifecycle/save-restore, WebKit/iPhone, primary 10.4B choreography/reduced-motion/interruption, and the eight adversarial choreography scenarios are green on production. The last visual defect found during the pass—oversized external Medic→Muster transient geometry—was fixed before release and visually revalidated.
+Active 10.4C state before this continuity checkpoint:
 
-**Exact next implementation action:** begin **Pass 10.4C — Feel / Presentation Polish** when explicitly triggered. Start from current green `main`, preserve the 10.3 geometry authority, 10.4A canonical action path, and 10.4B engine-first choreography architecture. Focus on tactile timing, pacing, target/score/row feedback, audio/future-haptic semantics, reduced-motion quality, interruption feel, and iPhone performance/frame budget. Do not begin Pass 11 until 10.4C is complete.
+- branch: `pass-10-4c-feel-presentation-polish`;
+- PR: #8;
+- code head: `e5690f24b77653ce532d8812c696c248127273d2`;
+- estimated completion: ~70%;
+- latest completed workflow: run #127 / `34613229746`;
+- all inherited 10.3/10.4A/10.4B gates green on that run;
+- only the new 10.4C browser gate failed, at the release-identity/title assertion;
+- no authoritative 10.4C visual artifact exists yet because the gate stopped before artifact generation.
 
-Do not reopen Pass 10.4B unless current production evidence exposes a genuine regression.
+**Exact next implementation action:** make 10.4C the final owner of visible milestone/version presentation without changing engine rules, 10.3 geometry, 10.4A commit semantics, or 10.4B choreography; then rerun the complete PR #8 matrix. If that is green, inspect the new 10.4C artifact and continue visual/timing tuning as needed before merge.
+
+Do not begin Pass 11 until 10.4C is complete, merged, verified on `main`, and deployed.
