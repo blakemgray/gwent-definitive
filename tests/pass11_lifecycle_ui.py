@@ -48,6 +48,7 @@ with sync_playwright() as p:
     assert any(x['cardId']=='realms_keira' for x in resolved['players']['p1']['board']['ranged'])
     saved=page.evaluate('window.GwentStorage.readMatch()')
     assert saved['phase']=='match' and saved['state']==resolved
+    page.wait_for_function('!window.GwentPresentationQueue.busy')
 
     unknown=json.loads(json.dumps(resolved))
     unknown['currentPlayerId']='p1'
@@ -64,7 +65,7 @@ with sync_playwright() as p:
       window.__GWENT_PASS11__.setStateForQA(state);
       window.__GWENT_PASS11__.saveActiveMatch();
     }""")
-    page.evaluate('window.__GWENT_PASS11__.openMatchMenu()')
+    page.locator('#match-menu').click()
     assert page.locator('[data-match-menu="main"]').is_visible()
     page.locator('#match-restart-request').click()
     page.locator('[data-match-menu="confirm-restart"]').wait_for(state='visible')
