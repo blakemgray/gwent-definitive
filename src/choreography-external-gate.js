@@ -16,6 +16,12 @@
     queueMicrotask(()=>api.maybeAutoBot?.());
     return reason||true;
   }
+  function installVersionMarks(){
+    document.title='Gwent Classic — Definitive Edition · Pass 10.4B';
+    const build=document.querySelector('.buildline');if(build)build.textContent='BUILD 10.4B · SIGNATURE GAMEPLAY CHOREOGRAPHY · CI-GATED';
+    const profile=document.querySelector('#profile-screen h2');if(profile)profile.textContent='Pass 10.4B choreography status';
+    const eyebrow=document.querySelector('#profile-screen .eyebrow');if(eyebrow)eyebrow.textContent='PASS 10.4B';
+  }
 
   document.addEventListener('click',event=>{
     if(!isPlayerCommitControl(event.target)||Queue.busy)return;
@@ -36,4 +42,7 @@
     get stats(){return {deferrals,releases,pending:gated};},
     release:()=>release('manual')
   };
+  // Gesture-controller 10.4A stamps its own version during parser execution;
+  // defer this presentation-pass mark until the current script graph has settled.
+  setTimeout(installVersionMarks,0);
 })();
