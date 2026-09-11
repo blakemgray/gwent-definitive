@@ -13,16 +13,21 @@
 **Transition PR exact green head:** `19393f835d4f474cdafd2efb689ec2e6a696e273`  
 **Transition PR validation:** run #142 / `34637982426` — **success**  
 **Current completed production milestone:** **Pass 10.4C — Feel / Presentation Polish**  
-**Current active implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match — 11.1A closed / 11.1B next**  
-**Current active repository task:** **11.1B normal lifecycle and choice-broker foundation**  
+**Current active implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match — 11.1A closed / 11.1B stabilization active**  
+**Current active repository task:** **11.1B exact-head stabilization: diagnose preserved Medic→Muster adversarial gate failure**  
 **Current work branch:** `pass-11-golden-match`  
 **Current work PR:** #11 — `Pass 11: Golden Match`  
+**Current work head before resumed-cycle checkpoint:** `3a1ab389d94b5a6f0eb222a75df58efb85ee7da8`  
+**Latest exact-head workflow on that head:** run #159 / `34648516237` — **failure** in preserved Pass 10.4B adversarial `Medic→Muster` choreography gate after Pass 11 setup/lifecycle/direct-manipulation/WebKit/primary choreography gates passed  
 **Estimated Pass 11 planning completion:** **100%**  
-**Estimated overall Pass 11 completion:** **18%**  
+**Estimated overall Pass 11 implementation progress:** **26%**  
+**Estimated formally verified/closed Pass 11 progress:** **18%**  
 **Default current-work model:** **GPT-5.6 Sol · High**; escalate only per `MODEL_ROUTING.md`  
 **Last updated:** 2026-09-11 America/New_York
 
 Pass 10.4C remains complete, merged, fully verified, visually approved, and deployed. Run #145 verified and deployed exact `main` head `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b`. The Pass 11 cycle is open on `pass-11-golden-match`, created from that exact green head. PR #11 contains the mandatory startup checkpoint and the repository-grounded `docs/PASS11_GOLDEN_MATCH_CONTRACT.md`; planning is complete and gameplay implementation began only after that contract was established. Pass 11.1A is closed: code commit `84c9b77f6b6c648373125fb651eefa8da239d5d1`, continuity-aligned candidate `182684264502d772b2197b3abdc3bc7d4196543a`, and fixture-isolation repair `3b67c3d0591dca4d77d66c788630101e31be8a46`. Run #151 / `34644865929` passed the full workflow on that exact implementation head; its Pass 11 setup evidence was manually inspected and approved.
+
+The 11.1B lifecycle/choice/restart/rematch work is substantially implemented on later commits. The current exact PR head `3a1ab389d94b5a6f0eb222a75df58efb85ee7da8` passes the new Pass 11 legal setup/mulligan gate, the new Pass 11 choice/restart/terminal-save/rematch gate, direct-manipulation baseline/parity/stress/lifecycle gates, WebKit/iPhone interaction, bot/presentation failure recovery, and primary 10.4B choreography. Run #159 fails later in the preserved 10.4B adversarial choreography matrix at the nested Medic→Muster scenario. The current stabilization task is therefore to prove whether that failure is a genuine product regression or a synthetic/adversarial-fixture synchronization assumption, without weakening the preserved gate.
 
 ---
 
@@ -460,43 +465,24 @@ Legacy product root: `Gwent Definitive - blakemgray` — `1dDtOJP3wYTVfQiXP3bYUj
 
 # 11. Current Pass 11 work cycle
 
-**Pass 10.4C is closed. Pass 11 planning is complete; 11.1A is closed and 11.1B is the next bounded implementation slice.**
+**Pass 10.4C is closed. Pass 11 planning is complete; 11.1A is closed and 11.1B stabilization is active.**
 
 Authoritative startup evidence:
 
 - exact starting `main` head: `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b`;
 - run #145 / `34641027264` — exact-head full verification success and Pages deployment success;
 - work branch: `pass-11-golden-match`, created from that exact head;
-- current verified implementation head: `3b67c3d0591dca4d77d66c788630101e31be8a46`;
+- last fully green verified implementation head for closed 11.1A: `3b67c3d0591dca4d77d66c788630101e31be8a46`;
+- resumed-cycle pre-checkpoint head: `3a1ab389d94b5a6f0eb222a75df58efb85ee7da8`;
 - current planning completion: **100%**;
-- estimated overall Pass 11 completion: **18%**;
+- estimated implementation progress: **26%**;
+- estimated formally verified/closed progress: **18%**;
 - Pass 11 contract commit: `c85b9264cae68f41f18d941b5134480d119dcf17`;
 - model recommendation: **GPT-5.6 Sol · High**.
 
-No evidence currently requires reopening Pass 10.3, 10.4A, 10.4B, or 10.4C. The installed-iPhone findings are Pass 11 requirements unless the repository audit proves a true regression in a closed responsibility.
+### 11.1A — legal setup / mulligan foundation — CLOSED
 
-## Planning gate result
-
-The repository-grounded audit and implementation/acceptance contract are complete in `docs/PASS11_GOLDEN_MATCH_CONTRACT.md`.
-
-Confirmed baseline gaps include:
-
-- 16-card production presets with no runtime legality validation or production shuffle;
-- a Medic-only player choice renderer and no opponent choice resolver;
-- no end-to-end ordinary Instant Match browser gate;
-- current power hidden on unmodified battlefield cards;
-- uniform final-point hit testing without ambiguity-aware intent;
-- no predictive Decoy exposure or minimum neighbor-yield layer;
-- proxy/ghost continuity without complete temporal identity proof;
-- semantic audio events with no actual audio consumer or asset;
-- optional vibration attempts without delivery/unavailable diagnostics;
-- important consequence pacing still below the installed-device product target.
-
-The contract locks must-ship scope, explicit move-right scope, internal phases, model routing, machine/browser/temporal/live-device acceptance, and the release sequence. It preserves Pass 10.3 geometry authority and the canonical engine/action path.
-
-## 11.1A closed — legal normal-match foundation
-
-Implementation commit `84c9b77f6b6c648373125fb651eefa8da239d5d1` adds:
+Implemented and verified:
 
 - reusable deck validation for unit minimum, special/weather maximum, faction/leader eligibility, catalog identity, and copy availability;
 - explicit deterministic production shuffle while preserving ordered test fixtures;
@@ -519,6 +505,19 @@ The exact-run `pass11-legal-setup-qa` artifact is `10281992451`, digest `sha256:
 - artifact summary legality counts of 25 units / 6 specials for the player and 29 units / 7 specials for the opponent;
 - no browser page errors.
 
-This update is the deliberate terminal continuity-only closeout for 11.1A. Its succeeding exact-head workflow should be verified once without creating a recursive commit solely to record that documentation verification.
+### 11.1B — lifecycle / choice broker — ACTIVE STABILIZATION
 
-**Exact next action:** begin 11.1B — add a typed pending-choice router for all Golden Match-reachable choices, deterministic opponent choice resolution, durable terminal-result saves, player restart/rematch/menu flow, and an end-to-end normal-match engine/browser gate.
+Substantial implementation is present on the current branch, including typed pending-choice routing, deterministic opponent-choice handling, durable terminal-result save behavior, restart/rematch/menu paths, dedicated lifecycle contract/browser gates, and PWA/CI graph updates.
+
+Run #159 / `34648516237` on exact head `3a1ab389d94b5a6f0eb222a75df58efb85ee7da8` established the following boundary:
+
+- `npm test` passed, including `pass11-setup-contract` and `pass11-lifecycle-contract`;
+- Pass 11 legal setup/mulligan browser gate passed;
+- Pass 11 choice/restart/terminal-save/rematch browser gate passed;
+- direct manipulation, destination parity, presentation bot gate, presentation-failure recovery, 256-trial interaction stress, semantic landing, save/restore lifecycle, WebKit/iPhone, and primary 10.4B choreography gates passed;
+- the preserved 10.4B adversarial choreography matrix failed in the nested Medic→Muster scenario before the 10.4C feel gate could run;
+- generated Pass 11 setup/lifecycle artifacts still archived from the failed run but are not release proof while the exact head is red.
+
+The immediate question is whether the Medic→Muster failure is a genuine regression or a synthetic fixture/timing assumption. Do not weaken the gate. Trace engine `pendingChoice`, nested Medic→Muster choreography ownership, presentation queue state, and the adversarial fixture's transition ordering. If production semantics are correct and the test violates the established serialized presentation contract, repair the fixture to exercise the real contract. If production semantics are wrong, fix production.
+
+**Exact next action:** inspect the current exact-head Medic→Muster adversarial fixture and corresponding engine/presentation code, reproduce the failure path from source, classify regression vs. fixture assumption, make the smallest root-cause repair without weakening coverage, then rerun the complete workflow and visually inspect the latest exact-head artifacts if green.
