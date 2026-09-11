@@ -21,6 +21,25 @@
     destinationPulse:160
   });
 
+  // Reduced motion keeps semantic cues readable while collapsing secondary
+  // interpolation (score counting, reflow, and settle travel) aggressively.
+  // Nominal Pass 10.4A timings remain unchanged for normal-motion users.
+  const REDUCED_TOKENS=Object.freeze({
+    microFast:20,
+    microNormal:70,
+    routineFast:25,
+    routineNormal:50,
+    routineSlow:60,
+    abilityFast:70,
+    abilityNormal:80,
+    abilitySlow:90,
+    majorNormal:100,
+    majorSlow:110,
+    invalidReturn:50,
+    selectionLift:70,
+    destinationPulse:60
+  });
+
   const EASING=Object.freeze({
     direct:'cubic-bezier(.2,.8,.2,1)',
     settle:'cubic-bezier(.18,.89,.32,1.18)',
@@ -37,11 +56,11 @@
   function duration(name){
     const base=TOKENS[name]??TOKENS.routineNormal;
     if(!reduced()) return base;
-    if(base<=TOKENS.microNormal) return Math.min(base,70);
-    return Math.min(110,Math.max(70,Math.round(base*.28)));
+    if(Object.prototype.hasOwnProperty.call(REDUCED_TOKENS,name)) return REDUCED_TOKENS[name];
+    return Math.min(80,Math.max(20,Math.round(base*.2)));
   }
   function setReducedOverride(value){reducedOverride=value===null?null:!!value;}
   function media(){return {reduced:reduced(),systemReduced:systemReduced(),override:reducedOverride};}
 
-  return Object.freeze({version:'10.4A.0',TOKENS,EASING,duration,reduced,setReducedOverride,media});
+  return Object.freeze({version:'10.4A.0',TOKENS,REDUCED_TOKENS,EASING,duration,reduced,setReducedOverride,media});
 });
