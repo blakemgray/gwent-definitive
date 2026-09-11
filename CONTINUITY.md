@@ -1,7 +1,7 @@
 # Gwent Classic — Definitive Edition
 ## Canonical Running Project Continuity
 
-**Purpose:** permanent implemented-state handoff for this project. Recover the project from this file plus the repository, not chat memory.
+**Purpose:** permanent implemented-state handoff. Recover the project from this file plus the repository, not chat memory.
 
 **Repository:** `blakemgray/gwent-definitive`  
 **Canonical hosted build:** `https://blakemgray.github.io/gwent-definitive/`  
@@ -10,20 +10,19 @@
 **Last verified production workflow:** run #137 / `34621157464` — verify **success**, Pages deploy **success**  
 **Current completed production milestone:** **Pass 10.4C — Feel / Presentation Polish**  
 **Current active implementation milestone:** **None — Pass 10.4C is closed**  
-**Next planned implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
-**Final PR:** `#8 — Pass 10.4C — Feel / Presentation Polish`  
-**Final PR head:** `e6a357606c6d0e978ceabf93e2f456377b3f6ac2`  
-**Latest visually approved implementation artifact:** `10270749326`, digest `sha256:9d06882cc9f6d363ce4b5cbe494023f11e9058c57fbc2bd52e1839a335ac3990`  
-**Estimated Pass 10.4C completion:** **100%**  
+**Current active repository task:** **final 10.4C documentation cleanup / repository-green closeout**  
+**Main head before this checkpoint:** `94a749c1993a3e37a102bd8d246cb0eacfc9e9d4`  
+**Estimated repository-closeout completion:** **~25%** — visibility only; never a reason to rush or weaken QA  
+**Next implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
 **Last updated:** 2026-09-11 America/New_York
 
-Pass 10.4C is merged, fully verified on `main`, visually approved, and deployed. Do not reopen it unless a genuine regression is discovered against current production evidence.
+Pass 10.4C is already merged, fully verified on `main`, visually approved, and deployed. The current task changes documentation only: align README to production truth, then verify/deploy that final documentation head so the repository ends 10.4C completely green before Pass 11 begins.
 
 ---
 
 # 0. Mandatory continuity protocol
 
-This file is authoritative for implemented/current state. `FUTURE_CONTINUITY.md` is the forward-roadmap companion.
+This file is authoritative for implemented/current project state. `FUTURE_CONTINUITY.md` is the forward-roadmap companion.
 
 Source precedence:
 
@@ -40,12 +39,12 @@ Source precedence:
 For every new implementation task or resumed work cycle:
 
 1. Read the current branch's `CONTINUITY.md` first.
-2. **Write an actual checkpoint update to this file in GitHub before doing further implementation work.** Chat-only continuity does not count.
-3. Record active pass/task, branch/PR/head, latest meaningful CI evidence or blocker, exact next action, and an estimated completion percentage.
+2. **Write an actual checkpoint update to this file in GitHub before doing further work.** Chat-only continuity does not count.
+3. Record active pass/task, branch/PR/head, latest meaningful CI evidence or blocker, exact next action, and estimated completion percentage.
 4. Percentage is for visibility only; never compress scope, rush QA, skip visual review, or weaken a gate.
 5. Every user-facing progress report should include the current percentage.
 6. Every user-facing work message should end with a concrete **Next action**.
-7. On merge/deploy, update this file again with final SHAs, CI, artifacts, visual findings, remaining debt, and handoff.
+7. On merge/deploy or task completion, update this file again with final SHAs, CI, artifacts, visual findings, remaining debt, and handoff.
 
 ---
 
@@ -53,7 +52,7 @@ For every new implementation task or resumed work cycle:
 
 ## Mission
 
-Build the definitive modern implementation of **classic The Witcher 3 Gwent**, using Arun Sundaram's `asundr/gwent-classic` as the behavior/card/rules oracle while keeping the new runtime deterministic, testable, mobile-first, and engine/presentation separated.
+Build the definitive modern implementation of **classic The Witcher 3 Gwent**, using Arun Sundaram's `asundr/gwent-classic` as the behavior/card/rules oracle while keeping the runtime deterministic, testable, mobile-first, and engine/presentation separated.
 
 Match classifications remain `CLASSIC`, `ASSISTED`, `MODIFIED`, `SANDBOX`; statistics must not blur them together.
 
@@ -129,7 +128,7 @@ All active runtime modules are explicit in `index.html` and the PWA/deploy graph
 
 ---
 
-# 3. Engine/catalog baseline
+# 3. Engine / catalog baseline
 
 Established parity:
 
@@ -142,13 +141,13 @@ Engine supports ordinary play, Spy, Tight Bond, Muster, Medic + pending choice, 
 
 ---
 
-# 4. Deployment workflow
+# 4. Deployment workflow and current production
 
 Workflow: `.github/workflows/deploy-pages.yml`
 
 Policy: branch → PR → full static/browser/geometry/interaction/WebKit/pass-specific gates → visual inspection → latest-head green → merge → full `main` verification → Pages deploy → final continuity update.
 
-### Current production snapshot — Pass 10.4C
+## Current production snapshot — Pass 10.4C
 
 - PR #8 merged.
 - Final PR head: `e6a357606c6d0e978ceabf93e2f456377b3f6ac2`.
@@ -188,7 +187,7 @@ Locked foundation: tap/drag parity; Pointer Events; 8 px threshold; pointer capt
 ## Pass 10.4B — Signature Gameplay Choreography
 
 **Status:** complete / merged / green / deployed.  
-PR #7; implementation head `6a34c9ce1c6fe1ae43d47eb329187e70cd546535`; final PR head `1623caed9c72a80d110e3ec4efdc3e2838d9ee3c`; merge/runtime `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`.
+PR #7; final PR head `1623caed9c72a80d110e3ec4efdc3e2838d9ee3c`; merge/runtime `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`.
 
 Locked behavior: engine-first; choreography owns no rules state; cause before consequence; destructive identity before collapse; score after visible cause; same language for opponent actions; reduced-motion equivalents; external Auto-Bot gate; post-action snapshot only after synchronous 10.3 reconciliation.
 
@@ -234,9 +233,9 @@ Verified:
 - Medic signature presents `REVIVE`; nested Medic→Muster uses `MEDIC · UNIT REVIVED` and correct card-scale geometry;
 - representative Scorch, Muster, Spy, Horn, Weather/Clear, Decoy, Leader, round-resolution, reduced-motion, interruption, Monster-retention, and Skellige-return frames show no visual regression.
 
-Measured evidence from the approved candidate: pointer press ~25.7 ms; invalid return ~237.7 ms. These values are evidence only and are not used to justify skipping visual/accessibility review.
+Measured evidence from the approved candidate: pointer press ~25.7 ms; invalid return ~237.7 ms. These values are evidence only and do not justify skipping visual/accessibility review.
 
-### 10.4C handoff
+### 10.4C authority handoff
 
 Pass 10.4C is closed. Do not reopen it unless current production evidence exposes a genuine regression. The interaction/presentation stack is now:
 
@@ -244,8 +243,6 @@ Pass 10.4C is closed. Do not reopen it unless current production evidence expose
 - 10.4A — canonical direct manipulation/action path;
 - 10.4B — engine-first mechanic/lifecycle choreography;
 - 10.4C — tactile feel, feedback, reduced-motion polish, semantic audio/haptic hooks, copy cleanup, and presentation consistency.
-
-The next implementation work belongs in **Pass 11 — Golden Match / Complete Normal Match**.
 
 ---
 
@@ -263,7 +260,7 @@ Broader work after 10.4C includes Pass 11 Golden Match, unrestricted legal deck 
 
 **Next implementation milestone: Pass 11 — Golden Match / Complete Normal Match.**
 
-Pass 11 must validate one complete normal match with legal deck initialization, opening draw/mulligan, direct manipulation hand, all required choice dialogs, player/opponent turns, passing/exhaustion, scoring, rounds, factions/lives, best-of-three result, restart/rematch, and save integrity without developer shortcuts.
+Pass 11 must validate one complete normal match with legal deck initialization, opening draw/mulligan, direct-manipulation hand, all required choice dialogs, player/opponent turns, passing/exhaustion, scoring, rounds, factions/lives, best-of-three result, restart/rematch, and save integrity without developer shortcuts.
 
 Do not invent later pass numbers unless explicitly assigned.
 
@@ -278,9 +275,9 @@ Legacy product root: `Gwent Definitive - blakemgray` — `1dDtOJP3wYTVfQiXP3bYUj
 
 ---
 
-# 9. Current handoff
+# 9. Current handoff / active repository task
 
-**Pass 10.4C is complete, merged, fully verified, visually approved, and deployed.**
+**Pass 10.4C runtime is complete, merged, fully verified, visually approved, and deployed.**
 
 Production evidence:
 
@@ -292,4 +289,8 @@ Production evidence:
 
 No known runtime, rules, geometry, interaction, WebKit, choreography, reduced-motion, semantic-feedback, copy, or visual blocker remains for 10.4C.
 
-**Exact next action:** begin **Pass 11 — Golden Match / Complete Normal Match** when explicitly triggered. At the start of that task, update this file in GitHub first, then build from current green `main` while preserving 10.3/10.4A/10.4B/10.4C authority boundaries.
+### Active documentation-cleanup task
+
+The only remaining 10.4C repository-cleanup work is documentation alignment and a final docs-only green `main` head.
+
+**Exact next action:** update README from release-candidate wording to **complete / merged / green / deployed**, then run that final documentation head through the complete `main` workflow and Pages deployment. Once green, update this file with that final repository head/run and prepare **Pass 11 — Golden Match / Complete Normal Match**.
