@@ -13,7 +13,7 @@
 **Current active repository task:** **11.1B exact-head stabilization: diagnose preserved Medic→Muster adversarial gate failure**  
 **Current work branch:** `pass-11-golden-match`  
 **Current work PR:** #11 — `Pass 11: Golden Match`  
-**Resumed-cycle checkpoint head:** `a640fd321ff27f31bf8fecee9db7e7969aeb2021`  
+**Resumed-cycle checkpoint head:** `d86e03454394f4d636b5d50b885138c35bab71fb`  
 **Latest exact-head workflow before resumed checkpoint:** run #159 / `34648516237` — **failure** in preserved Pass 10.4B adversarial `Medic→Muster` choreography gate after Pass 11 setup/lifecycle/direct-manipulation/WebKit/primary choreography gates passed  
 **Estimated Pass 11 planning completion:** **100%**  
 **Estimated overall Pass 11 implementation progress:** **26%**  
@@ -468,7 +468,7 @@ Authoritative startup evidence:
 - run #145 / `34641027264` — exact-head full verification success and Pages deployment success;
 - work branch: `pass-11-golden-match`, created from that exact head;
 - last fully green verified implementation head for closed 11.1A: `3b67c3d0591dca4d77d66c788630101e31be8a46`;
-- resumed-cycle checkpoint head: `a640fd321ff27f31bf8fecee9db7e7969aeb2021`;
+- resumed-cycle checkpoint head: `d86e03454394f4d636b5d50b885138c35bab71fb`;
 - current planning completion: **100%**;
 - estimated implementation progress: **26%**;
 - estimated formally verified/closed progress: **18%**;
