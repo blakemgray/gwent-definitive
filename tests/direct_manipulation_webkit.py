@@ -28,12 +28,13 @@ def target(page,a):
     key=page.evaluate('a=>window.GwentDirectManipulation.actionKey(a)',a);loc=page.locator(f'[data-dm-action-key="{key}"]');assert loc.count()==1;return loc
 
 def wait_active_target(page,a):
-    # The drag controller promotes the spatial hit inside requestAnimationFrame.
-    # Wait on that exact observable state rather than assuming WebKit services rAF
-    # within an arbitrary wall-clock delay under CI load.
+    # The drag controller resolves spatial hit state inside requestAnimationFrame.
+    # Synchronize to WebKit's next serviced frame instead of imposing a runner-
+    # speed wall-clock deadline on rAF, then assert both semantic and DOM state.
     key=page.evaluate('a=>window.GwentDirectManipulation.actionKey(a)',a)
+    page.evaluate("()=>new Promise(resolve=>requestAnimationFrame(()=>resolve()))")
+    assert page.evaluate("window.GwentDirectManipulation.phase==='dragging_over_legal'")
     active=page.locator(f'[data-dm-action-key="{key}"].dm-active-target')
-    active.wait_for(state='visible',timeout=1000)
     assert active.count()==1
     assert page.locator('.dm-active-target').count()==1
 
