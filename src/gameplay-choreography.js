@@ -79,8 +79,15 @@
   }
   async function cue(text,kind,target,signal,name='abilityFast'){
     abortCheck(signal);const host=overlayRoot(),el=root.document.createElement('div');el.className=`gc-cue gc-cue-${kind}`;el.textContent=text;
-    const r=rectOf(target);if(r){el.style.left=`${r.x+r.width/2}px`;el.style.top=`${r.y+r.height/2}px`;}else{el.classList.add('gc-center');}
-    host.appendChild(el);const cleanup=()=>{try{el.remove();}catch(_){}};queue()?.registerCleanup?.(cleanup);
+    const r=rectOf(target);if(!r)el.classList.add('gc-center');
+    host.appendChild(el);
+    if(r){
+      const er=el.getBoundingClientRect(),margin=8,halfW=er.width/2,halfH=er.height/2;
+      const minX=margin+halfW,maxX=Math.max(minX,(root.innerWidth||0)-margin-halfW),minY=margin+halfH,maxY=Math.max(minY,(root.innerHeight||0)-margin-halfH);
+      const cx=Math.min(maxX,Math.max(minX,r.x+r.width/2)),cy=Math.min(maxY,Math.max(minY,r.y+r.height/2));
+      el.style.left=`${cx}px`;el.style.top=`${cy}px`;
+    }
+    const cleanup=()=>{try{el.remove();}catch(_){}};queue()?.registerCleanup?.(cleanup);
     const ms=duration(reduced()?'microNormal':name);
     const frames=reduced()?[{opacity:0},{opacity:1},{opacity:0}]:[{opacity:0,transform:'translate(-50%,-35%) scale(.88)'},{offset:.25,opacity:1,transform:'translate(-50%,-50%) scale(1.04)'},{offset:.72,opacity:1,transform:'translate(-50%,-50%) scale(1)'},{opacity:0,transform:'translate(-50%,-68%) scale(.98)'}];
     const a=register(el.animate(frames,{duration:ms,easing:motion()?.EASING?.direct||'ease-out'}));await done(a);cleanup();abortCheck(signal);
