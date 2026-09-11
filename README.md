@@ -2,9 +2,15 @@
 
 Canonical JS-first hosted build.
 
+> **Project handoff / continuity:** [`CONTINUITY.md`](CONTINUITY.md) is the canonical running record for product doctrine, pass history, current repository state, QA evidence, known debt, and the exact next development action. Read it before starting a new pass and update it before every merge.
+
+## Current implementation status
+
+**Pass 10.4A — Direct Manipulation is complete and green on `main`.** Pass 10.3 remains the authoritative battlefield geometry/layout baseline underneath it. The next implementation milestone is **Pass 10.4B — Gameplay Choreography**.
+
 ## Runtime baseline — Pass 10.3 Battlefield UX Architecture
 
-Pass 10.3 remains the current playable runtime. It replaces the old full-width visual-row assumption with Battlefield Geometry Contract v2:
+Pass 10.3 remains the current battlefield geometry authority. It replaces the old full-width visual-row assumption with Battlefield Geometry Contract v2:
 
 - functional row territory is separate from the visual card rail;
 - every row pack is mathematically centered;
@@ -40,11 +46,17 @@ Research artifacts:
 - `docs/PASS10_4R_IMPLEMENTATION_BLUEPRINT.md`
 - `docs/PASS10_4R_SOURCE_NOTES.md`
 
-The next implementation sequence is 10.4A Direct Manipulation, 10.4B Gameplay Choreography, then 10.4C Feel / Accessibility / Performance.
+Implementation sequence from 10.4R:
+
+1. **10.4A Direct Manipulation — complete**
+2. **10.4B Gameplay Choreography — next**
+3. **10.4C Feel / Accessibility / Performance — planned**
 
 ### Battlefield QA matrix
 
-CI drives the live app at 852×393 through sparse rows (1, 2, 4 cards), ordinary density (8), swarm density (12), all six rows populated, all-weather state, opponent-passed state, ten-card and three-card hands, inspector-open state, and save/restore. Screenshots are archived from every verification run for visual review.
+CI drives the live app at 852×393 through sparse rows (1, 2, 4 cards), ordinary density (8), swarm density (12), all six rows populated, all-weather state, opponent-passed state, ten-card and three-card hands, inspector-open state, and save/restore. Screenshots are archived from verification runs for visual review.
+
+Pass 10.4A additionally gates direct manipulation, tap/drag parity, interruption/failure recovery, semantic landing continuity, lifecycle/save-restore behavior, stress trials, and WebKit/iPhone-targeted interaction.
 
 ### Local checks
 
