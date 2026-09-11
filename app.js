@@ -554,15 +554,10 @@
 
   function renderMatchMenu(root){
     if(ui.matchMenuStep==='confirm-restart'){
-      root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-match-menu="confirm-restart"><div class="eyebrow">RESTART MATCH</div><h2>Start this match over?</h2><p class="sub">The current match will be replaced with a fresh opening draw from the same legal decks.</p><div class="actions"><button id="match-restart-confirm" class="btn primary">RESTART</button><button id="match-restart-cancel" class="btn">KEEP PLAYING</button></div></aside>`;
-      $('#match-restart-confirm').onclick=()=>prepareMulliganState(ui.lab);
-      $('#match-restart-cancel').onclick=()=>{ui.matchMenuStep='menu';renderOverlay();};
+      root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-match-menu="confirm-restart"><div class="eyebrow">RESTART MATCH</div><h2>Start this match over?</h2><p class="sub">The current match will be replaced with a fresh opening draw from the same legal decks.</p><div class="actions"><button id="match-restart-confirm" class="btn primary" data-match-command="restart-confirm">RESTART</button><button id="match-restart-cancel" class="btn" data-match-command="restart-cancel">KEEP PLAYING</button></div></aside>`;
       return;
     }
-    root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-match-menu="main"><div class="eyebrow">MATCH MENU</div><h2>Battle paused</h2><p class="sub">Your exact rules state is saved.</p><div class="actions"><button id="match-resume" class="btn primary">RESUME</button><button id="match-restart-request" class="btn">RESTART MATCH</button><button id="match-exit" class="btn">EXIT TO MAIN MENU</button></div></aside>`;
-    $('#match-resume').onclick=closeOverlay;
-    $('#match-restart-request').onclick=()=>{ui.matchMenuStep='confirm-restart';renderOverlay();};
-    $('#match-exit').onclick=exitMatchToMenu;
+    root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-match-menu="main"><div class="eyebrow">MATCH MENU</div><h2>Battle paused</h2><p class="sub">Your exact rules state is saved.</p><div class="actions"><button id="match-resume" class="btn primary" data-match-command="resume">RESUME</button><button id="match-restart-request" class="btn" data-match-command="restart-request">RESTART MATCH</button><button id="match-exit" class="btn" data-match-command="exit">EXIT TO MAIN MENU</button></div></aside>`;
   }
 
   function exitMatchToMenu(){
@@ -635,6 +630,17 @@
   }
 
   document.addEventListener('click', e=>{
+    const matchCommand=e.target.closest('[data-match-command]');
+    if(matchCommand){
+      e.preventDefault();
+      const command=matchCommand.dataset.matchCommand;
+      if(command==='resume')closeOverlay();
+      else if(command==='restart-request'){ui.matchMenuStep='confirm-restart';renderOverlay();}
+      else if(command==='restart-cancel'){ui.matchMenuStep='menu';renderOverlay();}
+      else if(command==='restart-confirm')prepareMulliganState(ui.lab);
+      else if(command==='exit')exitMatchToMenu();
+      return;
+    }
     const nav=e.target.closest('[data-nav]'); if(nav){e.preventDefault();go(nav.dataset.nav);return;}
     const hand=e.target.closest('[data-card-iid]'); if(hand){selectCard(hand.dataset.cardIid);return;}
     const board=e.target.closest('[data-inspect-board]'); if(board){selectCard(board.dataset.inspectBoard);return;}
