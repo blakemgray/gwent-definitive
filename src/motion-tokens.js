@@ -23,11 +23,13 @@
 
   // Reduced motion keeps semantic cues readable while collapsing secondary
   // interpolation (score counting, reflow, and settle travel) aggressively.
-  // Nominal Pass 10.4A timings remain unchanged for normal-motion users.
+  // microFast/routineFast are deliberately near-immediate because they back
+  // secondary score/reflow transitions; semantic cues retain microNormal or
+  // stronger timing. Nominal Pass 10.4A timings remain unchanged for normal users.
   const REDUCED_TOKENS=Object.freeze({
-    microFast:20,
+    microFast:10,
     microNormal:70,
-    routineFast:25,
+    routineFast:10,
     routineNormal:50,
     routineSlow:60,
     abilityFast:70,
