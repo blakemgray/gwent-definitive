@@ -82,6 +82,10 @@ jobs:
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
         run: python tests/gameplay_choreography_ui.py
+      - name: Pass 10.4B adversarial choreography matrix
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+        run: python tests/gameplay_choreography_stress.py
       - name: Archive Pass 10.3 battlefield visual QA
         if: always()
         uses: actions/upload-artifact@v4
