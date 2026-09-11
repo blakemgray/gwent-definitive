@@ -19,9 +19,10 @@ for(const rel of ['direct-manipulation.css','src/motion-tokens.js','src/presenta
   assert(html.includes(rel),`Pass 10.4A runtime not loaded: ${rel}`);
   assert(sw.includes(rel.replace(/^src\//,''))||sw.includes(rel),`Pass 10.4A runtime not precached: ${rel}`);
 }
-const events=fs.readFileSync(path.join(root,'src/presentation-events.js'),'utf8');
 for(const rel of ['gameplay-choreography.css','src/gameplay-choreography.js','src/choreography-external-gate.js']){
-  assert(events.includes(rel),`Pass 10.4B runtime loader missing: ${rel}`);
+  assert(html.includes(rel),`Pass 10.4B runtime not explicitly loaded: ${rel}`);
   assert(sw.includes(rel),`Pass 10.4B runtime not precached: ${rel}`);
 }
-console.log(`pwa-validation: ${precache.length} precache paths valid with 10.4B choreography runtime`);
+const eventsIdx=html.indexOf('src/presentation-events.js'),choreoIdx=html.indexOf('src/gameplay-choreography.js'),gestureIdx=html.indexOf('src/gesture-controller.js'),externalIdx=html.indexOf('src/choreography-external-gate.js');
+assert(eventsIdx>=0&&choreoIdx>eventsIdx&&gestureIdx>choreoIdx&&externalIdx>gestureIdx,'Pass 10.4B runtime load order must be explicit and deterministic');
+console.log(`pwa-validation: ${precache.length} precache paths valid with explicit 10.4B choreography runtime`);
