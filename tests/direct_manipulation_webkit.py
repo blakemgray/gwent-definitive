@@ -22,7 +22,7 @@ def reset(page,s):
 def wait_idle(page):page.evaluate('window.GwentDirectManipulation.waitForIdle(4000)');page.wait_for_timeout(30)
 
 def first_ordinary(page):
-    return page.evaluate("""()=>{const api=window.__GWENT_PASS10__,s=api.getState(),G=api.engine;for(const i of s.players.p1.hand){const d=G.CARD_DB[i.cardId];const a=G.legalActions(s,'p1').find(x=>x.type==='PLAY_CARD'&&x.iid===i.iid);if(a&&d.type==='unit'&&!d.abilities.includes('spy')&&!d.abilities.includes('medic'))return{iid:i.iid,action:a};}return null;}""")
+    return page.evaluate("""()=>{const api=window.__GWENT_PASS10__,s=api.getState(),G=api.engine;for(const i of s.players.p1.hand){const d=G.CARD_DB[i.cardId];const a=G.legalActions(s,'p1').find(x=>x.type==='PLAY_CARD'&&x.iid===i.iid);if(a&&d.type==='unit'&&!d.abilities.includes('spy')&&!d.abilities.includes('medic'))return{iid:i.iid,action:a,cardId:i.cardId,abilities:[...d.abilities]};}return null;}""")
 
 def target(page,a):
     key=page.evaluate('a=>window.GwentDirectManipulation.actionKey(a)',a);loc=page.locator(f'[data-dm-action-key="{key}"]');assert loc.count()==1;return loc
@@ -56,8 +56,15 @@ with sync_playwright() as p:
     browser=p.webkit.launch();ctx=browser.new_context(viewport={'width':852,'height':393},has_touch=True,is_mobile=True);page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)));enter(page)
     assert page.evaluate("window.GwentDirectManipulation?.version==='10.4A.0'")
     assert page.evaluate("CSS.supports('touch-action','none')")
-    base=state(page);base['players']['p2']['passed']=True;base['currentPlayerId']='p1';reset(page,base)
-    item=first_ordinary(page);assert item
+    base=state(page);base['players']['p2']['passed']=True;base['currentPlayerId']='p1'
+    # This inherited 10.4A gate measures generic direct-manipulation latency and
+    # parity, not authored ability choreography. The deterministic quick-start
+    # hand can contain only ability-bearing playable units, so normalize one
+    # existing instance to a canonical ability-free close-row unit for this test.
+    assert base['players']['p1']['hand']
+    base['players']['p1']['hand'][0]['cardId']='realms_redania'
+    reset(page,base)
+    item=first_ordinary(page);assert item and item['cardId']=='realms_redania' and item['abilities']==[],item
 
     # Real touch taps on WebKit must select and commit without the inspector stealing intent.
     card=page.locator(f'#hand [data-card-iid="{item["iid"]}"]');touch_tap(page,card);page.wait_for_timeout(55)
@@ -76,8 +83,10 @@ with sync_playwright() as p:
     assert state(page)==before
     assert page.locator('.dm-drag-proxy,.dm-flight-proxy,.dm-source-placeholder,.dm-legal-target').count()==0
 
-    # WebKit reduced-motion path retains exact rules outcome.
+    # WebKit reduced-motion path retains exact rules outcome and the inherited
+    # generic interaction budget. Signature ability timing is owned by 10.4B QA.
     page.emulate_media(reduced_motion='reduce');page.evaluate('window.GwentDirectManipulation.reduced(null)');reset(page,base)
+    assert page.evaluate("window.GwentMotionTokens.reduced()===true")
     card=page.locator(f'#hand [data-card-iid="{item["iid"]}"]');touch_tap(page,card);page.wait_for_timeout(35);t=target(page,item['action']);touch_tap(page,t);wait_idle(page)
     assert state(page)==tap_state
     last=page.evaluate('window.GwentPresentationQueue.lastCompleted');assert last and last['durationMs']<350,last
@@ -86,4 +95,4 @@ with sync_playwright() as p:
     assert not errors,errors
     ctx.close();browser.close()
 
-print('direct-manipulation-webkit: WebKit touch-tap, drag parity, invalid return, cleanup, and reduced-motion gate passed')
+print('direct-manipulation-webkit: WebKit touch-tap, drag parity, invalid return, cleanup, and generic reduced-motion gate passed')
