@@ -65,13 +65,15 @@ ok(/queueMicrotask\(\(\)=>api\.maybeAutoBot\(\)\)/.test(turnGate),'bot must be r
 const queueIdx=html.indexOf('src/presentation-queue.js'),gateIdx=html.indexOf('src/interaction-turn-gate.js'),gestureIdx=html.indexOf('src/gesture-controller.js');
 ok(queueIdx>=0&&gateIdx>queueIdx&&gestureIdx>gateIdx,'turn gate must load after queue and before gesture controller');
 
-// Motion tokens and reduced-motion scaling.
-eq(Motion.duration('routineNormal'),240,'routine motion baseline');
+// Motion tokens and reduced-motion scaling. Pass 10.4C intentionally tunes timing,
+// while preserving the same 10.4A action architecture and concise reduced path.
+eq(Motion.version,'10.4C.0','motion token layer advanced by feel polish');
+eq(Motion.duration('routineNormal'),205,'tuned routine motion baseline');
 Motion.setReducedOverride(true);
-ok(Motion.duration('routineNormal')<=110,'reduced routine motion must be concise');
-ok(Motion.duration('majorNormal')<=110,'reduced major motion must be concise');
+ok(Motion.duration('routineNormal')<=50,'reduced routine motion must be concise');
+ok(Motion.duration('majorNormal')<=100,'reduced major motion must be concise');
 Motion.setReducedOverride(false);
-eq(Motion.duration('routineNormal'),240,'full motion restored');
+eq(Motion.duration('routineNormal'),205,'full tuned motion restored');
 Motion.setReducedOverride(null);
 
 // Presentation modules load and expose their intended boundaries.
