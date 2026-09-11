@@ -513,7 +513,7 @@ Locked sequence:
 
 PR #5 merged head: `cf1edb24c044c0af1ce64f2300ad59d43daa736d`  
 PR #5 merge commit: `7367cd69042d93f0f895bc9150f0207df30f8f1c`  
-Follow-on WebKit gate stabilization on main: `731f5fc3c93eb7bd445b52edaad59d43daa736d`
+Follow-on WebKit gate stabilization on main: `731f5fc3c93eb7bd445b52edaad1ff65db73f6ed`
 
 Implemented:
 
