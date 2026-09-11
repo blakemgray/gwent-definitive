@@ -158,7 +158,9 @@ with sync_playwright() as p:
     assert page.locator('#player-left #counts').count()==1
 
     page.evaluate("localStorage.removeItem(window.GwentStorage.SAVE_KEY)")
-    page.locator('#match-screen #match-menu').click(); page.set_viewport_size({'width':393,'height':852})
+    page.locator('#match-screen #match-menu').click()
+    assert page.locator('[data-match-menu="main"]').is_visible()
+    page.locator('#match-exit').click(); page.set_viewport_size({'width':393,'height':852})
     page.locator('#main-screen [data-nav="settings-screen"]').click(); page.locator('#settings-screen #developer-mode').check()
     assert page.locator('#card-interaction-mode').count()==1
     page.locator('#settings-screen [data-nav="main-screen"]').click()
