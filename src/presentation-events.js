@@ -1,7 +1,17 @@
 (function(root,factory){
   const api=factory();
   if(typeof module==='object'&&module.exports) module.exports=api;
-  else root.GwentPresentationEvents=api;
+  else {
+    root.GwentPresentationEvents=api;
+    if(root.document&&!root.GwentGameplayChoreography){
+      if(!root.document.querySelector('link[data-gwent-choreography]')){
+        const link=root.document.createElement('link');link.rel='stylesheet';link.href='gameplay-choreography.css';link.dataset.gwentChoreography='10.4B';root.document.head.appendChild(link);
+      }
+      if(!root.document.querySelector('script[data-gwent-choreography]')){
+        const script=root.document.createElement('script');script.src='src/gameplay-choreography.js';script.async=false;script.dataset.gwentChoreography='10.4B';root.document.head.appendChild(script);
+      }
+    }
+  }
 })(typeof self!=='undefined'?self:this,function(){
   'use strict';
 
@@ -87,10 +97,7 @@
     if(playedDef?.abilities?.includes('bond'))events.push({type:'TIGHT_BOND_TRIGGER',iid,playerId:afterLoc?.playerId||action?.playerId||null,row:afterLoc?.row||action?.row||null,cardId:playedCardId});
     if(playedDef?.abilities?.includes('morale'))events.push({type:'MORALE_TRIGGER',iid,playerId:afterLoc?.playerId||action?.playerId||null,row:afterLoc?.row||action?.row||null,cardId:playedCardId});
     if(playedDef?.abilities?.includes('hero'))events.push({type:'HERO_LAND',iid,playerId:afterLoc?.playerId||action?.playerId||null,row:afterLoc?.row||action?.row||null,cardId:playedCardId});
-    return {
-      version:'10.4B.0',kind:'game_action',inputMethod:meta.inputMethod||'unknown',action:clone(action),iid,
-      beforeLocation:beforeLoc,afterLocation:afterLoc,events,engineEvents,beforeScores,afterScores,beforeHealth,afterHealth,beforeHands,afterHands,beforeBoard,afterBoard,createdAt:Date.now()
-    };
+    return {version:'10.4B.0',kind:'game_action',inputMethod:meta.inputMethod||'unknown',action:clone(action),iid,beforeLocation:beforeLoc,afterLocation:afterLoc,events,engineEvents,beforeScores,afterScores,beforeHealth,afterHealth,beforeHands,afterHands,beforeBoard,afterBoard,createdAt:Date.now()};
   }
   return Object.freeze({version:'10.4B.0',build,boardSnapshot,semanticFromEngine});
 });
