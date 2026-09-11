@@ -53,7 +53,7 @@ with sync_playwright() as p:
     ids=page.evaluate("""()=>{const v=Object.values(window.__GWENT_PASS10__.engine.CARD_DB),find=(fn)=>v.find(fn)?.id;return{
       scorch:find(d=>d.type==='special'&&d.abilities.includes('scorch')),
       muster:find(d=>d.type==='unit'&&d.abilities.includes('muster')&&d.row!=='agile'&&!d.muster),
-      spy:find(d=>d.type==='unit'&&d.abilities.includes('spy')&&d.row!=='agile'),
+      spy:find(d=>d.type==='unit'&&d.abilities.includes('spy')&&d.row!=='agile'&&!d.abilities.includes('hero')),
       horn:find(d=>d.type==='special'&&d.abilities.includes('horn')),
       medic:find(d=>d.type==='unit'&&d.abilities.includes('medic')&&d.row!=='agile'),
       decoy:find(d=>d.type==='special'&&d.abilities.includes('decoy')),
