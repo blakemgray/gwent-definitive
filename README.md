@@ -6,9 +6,11 @@ Canonical JS-first hosted build.
 
 ## Current implementation status
 
-**Pass 10.4C — Feel / Presentation Polish is a green, visually approved release candidate on PR #8.** Pass 10.3 remains the authoritative battlefield geometry/layout baseline, Pass 10.4A remains the canonical direct-manipulation/action foundation, and Pass 10.4B remains the cause→effect gameplay choreography layer underneath it. Pass 10.4C is not production until PR #8 merges and `main` passes full verification + Pages deployment.
+**Pass 10.4C — Feel / Presentation Polish is complete, merged, fully green, visually approved, and deployed to production.** Pass 10.3 remains the authoritative battlefield geometry/layout baseline, Pass 10.4A remains the canonical direct-manipulation/action foundation, Pass 10.4B remains the cause→effect gameplay choreography layer, and Pass 10.4C is the tactile feel/feedback/accessibility polish layer on top of them.
 
-The next implementation milestone after 10.4C closes is **Pass 11 — Golden Match / Complete Normal Match**. Post-Pass-11 requirements are established in `FUTURE_CONTINUITY.md`; later exact pass numbers are intentionally not yet locked.
+The next implementation milestone is **Pass 11 — Golden Match / Complete Normal Match**. Post-Pass-11 requirements are established in `FUTURE_CONTINUITY.md`; later exact pass numbers are intentionally not yet locked.
+
+Production evidence for 10.4C: PR #8 final head `e6a357606c6d0e978ceabf93e2f456377b3f6ac2`; merge/runtime `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d`; final PR Run #136 / `34620304920` fully green; production Run #137 / `34621157464` fully green with Pages deployment success.
 
 ## Runtime baseline — Pass 10.3 Battlefield UX Architecture
 
@@ -52,8 +54,8 @@ Implementation sequence from 10.4R:
 
 1. **10.4A Direct Manipulation — complete**
 2. **10.4B Signature Gameplay Choreography — complete / production**
-3. **10.4C Feel / Presentation Polish — green + visually approved release candidate**
-4. **Pass 11 Golden Match / Complete Normal Match — next after 10.4C production closeout**
+3. **10.4C Feel / Presentation Polish — complete / production**
+4. **Pass 11 Golden Match / Complete Normal Match — next**
 
 ## Pass 10.4A — Direct Manipulation
 
@@ -95,7 +97,7 @@ Primary contract:
 
 Pass 10.4C is the final interaction-layer polish pass before Golden Match. It is presentation-only and preserves the deterministic engine, frozen 10.3 geometry, 10.4A canonical action path, and 10.4B choreography causality.
 
-Implemented on PR #8:
+Implemented and now in production:
 
 - tuned motion timing/easing and physical card-weight vocabulary;
 - tactile press state and lifted selection treatment;
@@ -111,7 +113,9 @@ Implemented on PR #8:
 
 Run #133 / `34617300625` on implementation head `ee600e8b856b9743ad4a58501b7a84b11f40dbb2` passed every inherited and 10.4C-specific gate. Artifact `10270749326` was manually reviewed at 852×393 and approved: selection weight, active targeting, ordinary landing, invalid return, reduced motion, settings, and representative 10.4B mechanic/lifecycle frames showed no release-blocking visual regression.
 
-Measured QA evidence on the release candidate included ~25.7 ms pointer press response and ~237.7 ms invalid-return completion. These are evidence only; hosted-runner timing is not used as a reason to weaken visual or accessibility review.
+The final docs-inclusive PR head `e6a357606c6d0e978ceabf93e2f456377b3f6ac2` then passed Run #136 / `34620304920`, and merged production SHA `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d` passed Run #137 / `34621157464` with Pages deployment success.
+
+Measured QA evidence on the approved candidate included ~25.7 ms pointer press response and ~237.7 ms invalid-return completion. These are evidence only; hosted-runner timing is not used as a reason to weaken visual or accessibility review.
 
 Primary contract:
 
