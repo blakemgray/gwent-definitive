@@ -1,8 +1,8 @@
 {
   "name": "gwent-definitive",
   "private": true,
-  "version": "11.0.0-alpha.1",
+  "version": "11.0.0-alpha.2",
   "scripts": {
-    "test": "node tests/engine-regression.js && node tests/pass11-setup-contract.js && node tests/catalog-fuzz.js && node tests/pwa-validation.js && node tests/interaction-motion-contract.js && node tests/direct-manipulation-contract.js && node tests/gameplay-choreography-contract.js && node tests/feel-presentation-contract.js"
+    "test": "node tests/engine-regression.js && node tests/pass11-setup-contract.js && node tests/pass11-lifecycle-contract.js && node tests/catalog-fuzz.js && node tests/pwa-validation.js && node tests/interaction-motion-contract.js && node tests/direct-manipulation-contract.js && node tests/gameplay-choreography-contract.js && node tests/feel-presentation-contract.js"
   }
 }

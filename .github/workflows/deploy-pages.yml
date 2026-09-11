@@ -50,6 +50,10 @@ jobs:
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
         run: python tests/pass11_setup_ui.py
+      - name: Pass 11 choice, restart, terminal-save, and rematch gate
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+        run: python tests/pass11_lifecycle_ui.py
       - name: Direct manipulation baseline, overlap, parity, interruption, reduced-motion, and touch gate
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
@@ -100,6 +104,14 @@ jobs:
         with:
           name: pass11-legal-setup-qa
           path: qa/pass11_setup
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Archive Pass 11 lifecycle visual QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass11-lifecycle-qa
+          path: qa/pass11_lifecycle
           if-no-files-found: warn
           retention-days: 30
       - name: Archive Pass 10.3 battlefield visual QA

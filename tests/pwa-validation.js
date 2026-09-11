@@ -9,7 +9,7 @@ assert(fs.existsSync(path.join(root,'icons/apple-touch-icon.png')),'Apple touch 
 const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
 const precache=[...sw.matchAll(/'\.\/([^']*)'/g)].map(m=>m[1]).filter(Boolean);
 for(const rel of precache){if(rel==='')continue;assert(fs.existsSync(path.join(root,rel)),`service worker precache target missing: ${rel}`);}
-assert(sw.includes("const BUILD='10.4C.0'"),'cache build version not pinned to Pass 10.4C');
+assert(sw.includes("const BUILD='11.1B.0'"),'cache build version not pinned to Pass 11.1B');
 assert(sw.includes('raw.githubusercontent.com'),'card-art runtime caching missing');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert(html.includes('apple-touch-icon'),'apple-touch-icon link missing');
@@ -31,4 +31,4 @@ const eventsIdx=html.indexOf('src/presentation-events.js'),choreoIdx=html.indexO
 assert(eventsIdx>=0&&choreoIdx>eventsIdx&&gestureIdx>choreoIdx&&externalIdx>gestureIdx&&feedbackIdx>externalIdx,'10.4B/10.4C runtime load order must be explicit and deterministic');
 const choreoCss=html.indexOf('gameplay-choreography.css'),feelCss=html.indexOf('feel-polish.css');
 assert(choreoCss>=0&&feelCss>choreoCss,'10.4C feel overrides must load after choreography CSS');
-console.log(`pwa-validation: ${precache.length} precache paths valid with explicit 10.4C feel runtime`);
+console.log(`pwa-validation: ${precache.length} precache paths valid with explicit Pass 11.1B runtime`);

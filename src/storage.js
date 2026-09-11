@@ -10,7 +10,7 @@
   function writeMatch({state,setup,lab=false,phase='match',mulliganUsed=0}){
     if(!state)return null;
     const safePhase=VALID_PHASES.has(phase)?phase:'match';
-    const payload={schema:SAVE_SCHEMA,build:'11.1A',savedAt:new Date().toISOString(),phase:safePhase,mulliganUsed:Math.max(0,Math.min(2,Number(mulliganUsed)||0)),classification:state.classification||'classic',lab:!!lab,setup:setup||{},state};
+    const payload={schema:SAVE_SCHEMA,build:'11.1B',savedAt:new Date().toISOString(),phase:safePhase,mulliganUsed:Math.max(0,Math.min(2,Number(mulliganUsed)||0)),classification:state.classification||'classic',lab:!!lab,setup:setup||{},state};
     localStorage.setItem(SAVE_KEY,JSON.stringify(payload));
     return payload;
   }
@@ -18,7 +18,9 @@
     const p=safeParse(localStorage.getItem(SAVE_KEY));
     if(!p||p.schema!==SAVE_SCHEMA||!VALID_PHASES.has(p.phase)||!p.state||!p.state.players||!p.state.players.p1||!p.state.players.p2)return null;
     if(p.phase==='mulligan'&&p.state.setupPhase!=='mulligan')return null;
-    if(p.phase==='match'&&p.state.setupPhase==='mulligan')return null;
+    if(p.phase!=='mulligan'&&p.state.setupPhase==='mulligan')return null;
+    if(p.phase==='result'&&!p.state.winner)return null;
+    if(p.phase!=='result'&&p.state.winner)return null;
     p.mulliganUsed=Math.max(0,Math.min(2,Number(p.mulliganUsed)||0));
     return p;
   }

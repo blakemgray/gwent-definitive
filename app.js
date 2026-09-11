@@ -95,7 +95,7 @@
 
   const ui = {
     selectedIid:null, revealOpponent:false, showIntent:false, lab:false,
-    screen:'main-screen', toastTimer:null, botTimer:null, preMatchState:null,
+    screen:'main-screen', toastTimer:null, botTimer:null, preMatchState:null, matchMenuOpen:false, matchMenuStep:'menu',
     mulliganUsed:0,
     settings:{autoBot:savedSettings.autoBot!==false, showEvents:!!savedSettings.showEvents, tacticalLabels:savedSettings.tacticalLabels!==false, defaultDifficulty:savedSettings.defaultDifficulty||'standard', developerMode:!!savedSettings.developerMode},
     setup:{playerPreset:'nr_golden', botPreset:'monsters_golden', difficulty:savedSettings.defaultDifficulty||'standard', firstPlayerId:'p1', seed:20260910, mode:'classic'}
@@ -151,7 +151,7 @@
   function prepareMulliganState(lab=false){
     ui.lab=lab;
     const pp=playerPreset(), bp=botPreset();
-    ui.selectedIid=null; ui.revealOpponent=false; ui.showIntent=false; ui.mulliganUsed=0;
+    ui.selectedIid=null; ui.revealOpponent=false; ui.showIntent=false; ui.matchMenuOpen=false; ui.matchMenuStep='menu'; ui.mulliganUsed=0;
     ui.preMatchState = G.createMatch({
       p1Faction:pp.faction,p2Faction:bp.faction,p1LeaderId:pp.leaderId,p2LeaderId:bp.leaderId,
       p1Deck:pp.deck,p2Deck:bp.deck,handSize:10,seed:Number(ui.setup.seed)||20260910,firstPlayerId:ui.setup.firstPlayerId,
@@ -317,11 +317,12 @@
   }
 
   function selectCard(iid){ ui.selectedIid=iid; renderOverlay(); }
-  function closeOverlay(){ ui.selectedIid=null; $('#overlay-root').innerHTML=''; }
+  function closeOverlay(){ ui.selectedIid=null;ui.matchMenuOpen=false;ui.matchMenuStep='menu';$('#overlay-root').innerHTML='';maybeAutoBot(); }
 
   function renderOverlay(){
     const root=$('#overlay-root');
-    if(state.pendingChoice){ renderMedicChoice(root); return; }
+    if(ui.matchMenuOpen){ renderMatchMenu(root); return; }
+    if(state.pendingChoice){ renderPendingChoice(root); return; }
     if(!ui.selectedIid){ root.innerHTML=''; return; }
     const found=findInst(ui.selectedIid); if(!found){ui.selectedIid=null;root.innerHTML='';return;}
     const d=def(found.inst.cardId); const img=assetFor(found.inst.cardId);
@@ -361,12 +362,30 @@
     }catch(e){ console.error(e); toast('ENGINE REJECTED ACTION'); }
   }
 
-  function renderMedicChoice(root){
-    const choice=state.pendingChoice; const candidates=choice.candidateIids.map(iid=>findInst(iid)).filter(Boolean);
-    root.innerHTML=`<div class="shade"></div><aside class="side-panel"><div class="eyebrow">MEDIC · ENGINE CHOICE</div><h2>Choose a unit to revive</h2><p class="sub">Only legal non-Hero units from your graveyard are exposed by the engine.</p><div class="choice-list">${candidates.map(c=>{const d=def(c.inst.cardId),img=assetFor(c.inst.cardId);return `<div class="choice-card">${img?`<img src="${img}" alt="${esc(d.name)}">`:''}<span><b>${esc(d.name)}</b><small class="sub"> ${d.strength} · ${esc(d.row)}</small></span><button class="btn primary" data-medic="${c.inst.iid}">REVIVE</button></div>`}).join('')}</div></aside>`;
-    root.querySelectorAll('[data-medic]').forEach(b=>b.addEventListener('click',()=>{
-      try{ const next=G.resolveChoice(state,{type:'RESOLVE_MEDIC',targetIid:b.dataset.medic}); commit(next,'MEDIC REVIVE · ENGINE RESOLVED'); }
-      catch(e){console.error(e);toast('INVALID MEDIC TARGET');}
+  function resolvePlayerChoice(action,label){
+    try{commit(G.applyAction(state,action),label);}
+    catch(e){console.error(e);toast('CHOICE COULD NOT BE APPLIED');}
+  }
+
+  function renderPendingChoice(root){
+    const choice=state.pendingChoice;
+    if(choice.playerId!=='p1'){
+      root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-choice-waiting="${esc(choice.type)}"><div class="eyebrow">OPPONENT DECISION</div><h2>Opponent is choosing</h2><p class="sub">The match is safely paused while the rules engine resolves this decision.</p></aside>`;
+      return;
+    }
+    const actions=G.legalChoiceActions(state,'p1');
+    if(choice.type==='medic'){
+      root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-choice-type="medic"><div class="eyebrow">MEDIC</div><h2>Choose a unit to revive</h2><p class="sub">Only eligible non-Hero units from your graveyard are available.</p><div class="choice-list">${actions.map((action,i)=>{const c=findInst(action.targetIid),d=c&&def(c.inst.cardId),img=c&&assetFor(c.inst.cardId);return c?`<div class="choice-card">${img?`<img src="${img}" alt="${esc(d.name)}">`:''}<span><b>${esc(d.name)}</b><small class="sub"> ${d.strength} · ${esc(d.row)}</small></span><button class="btn primary" data-choice-index="${i}">REVIVE</button></div>`:''}).join('')}</div></aside>`;
+    }else if(choice.type==='revive_row'){
+      const target=findInst(choice.targetIid),name=target?displayName(target.inst):'revived unit';
+      root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-choice-type="revive_row"><div class="eyebrow">MEDIC · ROW</div><h2>Where should ${esc(name)} fight?</h2><p class="sub">Choose one of the legal rows supplied by the rules engine.</p><div class="actions">${actions.map((action,i)=>`<button class="btn primary" data-choice-index="${i}">${esc(String(action.row).toUpperCase())}</button>`).join('')}</div></aside>`;
+    }else{
+      root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-choice-unsupported="${esc(choice.type)}"><div class="eyebrow">MATCH SAFELY PAUSED</div><h2>This choice needs a player surface</h2><p class="sub">Unsupported choice: ${esc(choice.type)}. Your exact match state remains saved and unchanged.</p></aside>`;
+      return;
+    }
+    root.querySelectorAll('[data-choice-index]').forEach(button=>button.addEventListener('click',()=>{
+      const action=actions[Number(button.dataset.choiceIndex)];
+      if(action)resolvePlayerChoice(action,choice.type==='revive_row'?'REVIVE ROW CHOSEN':'UNIT REVIVED');
     }));
   }
 
@@ -399,7 +418,7 @@
 
   function commit(next,label){
     state = history.commit(next);
-    if(state.winner){ if(Store) Store.clearMatch(); } else saveActiveMatch();
+    saveActiveMatch();
     renderMatch();
     if(label) toast(label);
     maybeAutoBot();
@@ -408,7 +427,8 @@
   function maybeAutoBot(){
     clearTimeout(ui.botTimer);
     const toggle=$('#auto-bot');
-    if(!toggle || !toggle.checked || ui.lab || !state || state.winner || state.pendingChoice || state.currentPlayerId!=='p2') return;
+    const ownsChoice=state?.pendingChoice?.playerId==='p2';
+    if(!toggle || !toggle.checked || ui.lab || ui.matchMenuOpen || !state || state.winner || (state.pendingChoice&&!ownsChoice) || (!ownsChoice&&state.currentPlayerId!=='p2')) return;
     ui.botTimer=setTimeout(()=>botMove(true),220);
   }
 
@@ -461,13 +481,35 @@
     return ranked[0]?.a || pass;
   }
 
+  function choiceStrength(action){
+    const iid=action.targetIid||action.deckTargetIid,f=iid&&findInst(iid),d=f&&def(f.inst.cardId);
+    return Number(d?.strength)||0;
+  }
+
+  function chooseBotChoiceAction(){
+    const choice=state.pendingChoice,actions=G.legalChoiceActions(state,'p2');if(!choice||!actions.length)return null;
+    if(['medic','leader_steal_grave','leader_return_grave','leader_weather_choice'].includes(choice.type))return actions.slice().sort((a,b)=>choiceStrength(b)-choiceStrength(a)||String(a.targetIid).localeCompare(String(b.targetIid)))[0];
+    if(['revive_row','skellige_row'].includes(choice.type))return actions.slice().sort((a,b)=>Number(!!state.weather[a.row])-Number(!!state.weather[b.row])||G.rowScore(state,'p2',a.row)-G.rowScore(state,'p2',b.row)||String(a.row).localeCompare(String(b.row)))[0];
+    if(choice.type==='leader_destroyer')return actions.slice().sort((a,b)=>choiceStrength(b)-choiceStrength(a)||String(a.deckTargetIid).localeCompare(String(b.deckTargetIid)))[0];
+    if(choice.type==='scoiatael_first')return actions.find(a=>a.playerId==='p2')||actions[0];
+    return actions.slice().sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)))[0];
+  }
+
   function botMove(){
-    if(!state || state.currentPlayerId!=='p2') return;
+    if(!state)return;
+    if(state.pendingChoice){
+      if(state.pendingChoice.playerId!=='p2')return;
+      const choice=chooseBotChoiceAction();if(!choice){toast('OPPONENT CHOICE PAUSED');return;}
+      try{commit(G.applyAction(state,choice),'OPPONENT DECISION RESOLVED');}
+      catch(e){console.error(e);toast('OPPONENT CHOICE FAILED');}
+      return;
+    }
+    if(state.currentPlayerId!=='p2')return;
     const a=chooseBotAction(); if(!a) return;
     try{
-      if(a.type==='PASS') commit(G.pass(state,a),`INTEGRATION BOT PASSED · ${ui.setup.difficulty.toUpperCase()}`);
-      else { const d=def(findInst(a.iid).inst.cardId); commit(G.playCard(state,a),`BOT PLAYED ${d.name.toUpperCase()}`); }
-    }catch(e){ console.error(e); toast('BOT ACTION FAILED'); }
+      if(a.type==='PASS') commit(G.pass(state,a),`OPPONENT PASSED · ${ui.setup.difficulty.toUpperCase()}`);
+      else { const d=def(findInst(a.iid).inst.cardId); commit(G.playCard(state,a),`OPPONENT PLAYED ${d.name.toUpperCase()}`); }
+    }catch(e){ console.error(e); toast('OPPONENT ACTION FAILED'); }
   }
 
   function renderAssistPanels(){
@@ -505,11 +547,40 @@
     $('#cheat-reset').onclick=()=>prepareMulliganState(ui.lab);
   }
 
+  function openMatchMenu(){
+    if(!state||state.winner)return;
+    clearTimeout(ui.botTimer);ui.matchMenuOpen=true;ui.matchMenuStep='menu';ui.selectedIid=null;renderOverlay();
+  }
+
+  function renderMatchMenu(root){
+    if(ui.matchMenuStep==='confirm-restart'){
+      root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-match-menu="confirm-restart"><div class="eyebrow">RESTART MATCH</div><h2>Start this match over?</h2><p class="sub">The current match will be replaced with a fresh opening draw from the same legal decks.</p><div class="actions"><button id="match-restart-confirm" class="btn primary">RESTART</button><button id="match-restart-cancel" class="btn">KEEP PLAYING</button></div></aside>`;
+      $('#match-restart-confirm').onclick=()=>prepareMulliganState(ui.lab);
+      $('#match-restart-cancel').onclick=()=>{ui.matchMenuStep='menu';renderOverlay();};
+      return;
+    }
+    root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-match-menu="main"><div class="eyebrow">MATCH MENU</div><h2>Battle paused</h2><p class="sub">Your exact rules state is saved.</p><div class="actions"><button id="match-resume" class="btn primary">RESUME</button><button id="match-restart-request" class="btn">RESTART MATCH</button><button id="match-exit" class="btn">EXIT TO MAIN MENU</button></div></aside>`;
+    $('#match-resume').onclick=closeOverlay;
+    $('#match-restart-request').onclick=()=>{ui.matchMenuStep='confirm-restart';renderOverlay();};
+    $('#match-exit').onclick=exitMatchToMenu;
+  }
+
+  function exitMatchToMenu(){
+    clearTimeout(ui.botTimer);if(Store)Store.clearMatch();
+    state=null;history=null;ui.preMatchState=null;ui.selectedIid=null;ui.matchMenuOpen=false;ui.matchMenuStep='menu';
+    go('main-screen');refreshContinueButton();
+  }
+
+  function startRematch(){
+    ui.setup.seed=(Number(ui.setup.seed)||20260910)+1;
+    prepareMulliganState(ui.lab);
+  }
+
   function renderResult(){
-    if(Store) Store.clearMatch();
+    ui.matchMenuOpen=false;ui.matchMenuStep='menu';
     const root=$('#overlay-root'); const winner=state.winner==='draw'?'DRAW':(state.winner==='p1'?'VICTORY':'DEFEAT');
-    root.innerHTML=`<div class="result-overlay"><div class="panel result-card"><div class="eyebrow">MATCH COMPLETE</div><h1>${winner}</h1><p class="sub">${state.roundHistory.map(r=>`Round ${r.round}: ${r.scores.p1.total}–${r.scores.p2.total}`).join('<br>')}</p><span class="badge ${state.classification==='classic'?'':state.classification}">${classificationLabel()}</span><div class="actions"><button id="result-rematch" class="btn primary">REMATCH</button><button id="result-menu" class="btn">MAIN MENU</button></div></div></div>`;
-    $('#result-rematch').onclick=()=>prepareMulliganState(ui.lab); $('#result-menu').onclick=()=>go('main-screen');
+    root.innerHTML=`<div class="result-overlay"><div class="panel result-card" data-result="${winner.toLowerCase()}"><div class="eyebrow">MATCH COMPLETE</div><h1>${winner}</h1><p class="sub">${state.roundHistory.map(r=>`Round ${r.round}: ${r.scores.p1.total}–${r.scores.p2.total}`).join('<br>')}</p><span class="badge ${state.classification==='classic'?'':state.classification}">${classificationLabel()}</span><div class="actions"><button id="result-rematch" class="btn primary">REMATCH</button><button id="result-menu" class="btn">MAIN MENU</button></div></div></div>`;
+    $('#result-rematch').onclick=startRematch;$('#result-menu').onclick=exitMatchToMenu;
   }
 
   function toast(msg){ const t=$('#toast'); if(!t) return; t.textContent=msg;t.classList.add('show');clearTimeout(ui.toastTimer);ui.toastTimer=setTimeout(()=>t.classList.remove('show'),1300); }
@@ -520,7 +591,7 @@
   }
 
   function saveActiveMatch(){
-    if(Store && state && !state.winner) Store.writeMatch({state,setup:ui.setup,lab:ui.lab,phase:'match',mulliganUsed:ui.mulliganUsed});
+    if(Store&&state)Store.writeMatch({state,setup:ui.setup,lab:ui.lab,phase:state.winner?'result':'match',mulliganUsed:ui.mulliganUsed});
     refreshContinueButton();
   }
 
@@ -529,7 +600,11 @@
     const saved=Store && Store.readMatch();
     b.classList.toggle('hidden',!saved);
     if(saved){
-      const label=b.querySelector('span'); if(label) label.textContent=saved.phase==='mulligan'?`MULLIGAN · ${saved.mulliganUsed||0} / 2 USED`:`ROUND ${saved.state.round} · ${saved.state.players.p1.hand.length} CARDS`;
+      const label=b.querySelector('span');if(label){
+        if(saved.phase==='mulligan')label.textContent=`MULLIGAN · ${saved.mulliganUsed||0} / 2 USED`;
+        else if(saved.phase==='result')label.textContent=`RESULT · ${saved.state.winner==='p1'?'VICTORY':saved.state.winner==='p2'?'DEFEAT':'DRAW'}`;
+        else label.textContent=`ROUND ${saved.state.round} · ${saved.state.players.p1.hand.length} CARDS`;
+      }
     }
   }
 
@@ -540,7 +615,7 @@
     if(saved.phase==='mulligan'){
       state=null;history=null;ui.preMatchState=deepClone(saved.state);go('mulligan-screen');renderMulliganScreen();toast('MULLIGAN RESTORED');return;
     }
-    ui.preMatchState=null;state=deepClone(saved.state);history=new G.HistorySession(state);go('match-screen');renderMatch();toast('MATCH RESTORED');maybeAutoBot();
+    ui.preMatchState=null;state=deepClone(saved.state);history=new G.HistorySession(state);go('match-screen');renderMatch();toast(saved.phase==='result'?'RESULT RESTORED':'MATCH RESTORED');maybeAutoBot();
   }
 
   function renderDeckScreen(){
@@ -572,7 +647,7 @@
   $('#quick-start').onclick=(e)=>{e.preventDefault();quickStart();};
   $('#start-lab').onclick=(e)=>{e.preventDefault();prepareMulliganState(true);};
   $('#pass-button').onclick=(e)=>{e.preventDefault();passPlayer();}; $('#bot-move').onclick=botMove; $('#cheat-open').onclick=(e)=>{e.preventDefault();openCheats();}; $('#leader-button').onclick=(e)=>{e.preventDefault();openLeader();};
-  $('#match-menu').onclick=(e)=>{e.preventDefault();go('main-screen');}; $('#catalog-search').addEventListener('input',e=>renderCatalog(e.target.value));
+  $('#match-menu').onclick=(e)=>{e.preventDefault();openMatchMenu();}; $('#catalog-search').addEventListener('input',e=>renderCatalog(e.target.value));
   $('#skip-mulligan').onclick=(e)=>{e.preventDefault();finalizeMatchFromPrepared();}; $('#finish-mulligan').onclick=(e)=>{e.preventDefault();finalizeMatchFromPrepared();};
 
   $('#auto-bot').addEventListener('change',e=>{ ui.settings.autoBot=e.target.checked; persistSettings(); maybeAutoBot(); });
@@ -588,7 +663,7 @@
     getState:()=>state ? G.helpers.deepClone(state) : null,
     getPreparedState:()=>ui.preMatchState ? deepClone(ui.preMatchState) : null,
     quickStart, prepareMulliganState, finalizeMatchFromPrepared, botMove, pass:passPlayer,
-    selectCard, playAction, openCheats, go, maybeAutoBot, engine:G, assetResolver:Assets, storage:Store, openLeader, renderRulesMatrix,
+    selectCard, playAction, openCheats, go, maybeAutoBot, engine:G, assetResolver:Assets, storage:Store, openLeader, openMatchMenu, saveActiveMatch, renderRulesMatrix,
     swapMulligan, getMulliganUsed:()=>ui.mulliganUsed, presets:()=>deepClone(PRESETS),
     setStateForQA:(s)=>{state=G.helpers.deepClone(s);history=new G.HistorySession(state);go('match-screen');renderMatch();},
     battlefieldRowModel:[['p2','siege'],['p2','ranged'],['p2','close'],['weather',null],['p1','close'],['p1','ranged'],['p1','siege']]

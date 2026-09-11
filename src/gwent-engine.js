@@ -127,7 +127,7 @@
     const daisy1=!whiteFlame && p1Leader && CARD_DB[p1Leader]?.abilities[0]==="francesca_daisy";
     const daisy2=!whiteFlame && p2Leader && CARD_DB[p2Leader]?.abilities[0]==="francesca_daisy";
     const state={
-      version:"pass11.1A",round:1,currentPlayerId:null,firstPlayerId:null,roundStarterId:null,classification:"classic",
+      version:"pass11.1B",round:1,currentPlayerId:null,firstPlayerId:null,roundStarterId:null,classification:"classic",
       seed:(opts.seed==null?0xC0FFEE:opts.seed)>>>0,rngState:(opts.seed==null?0xC0FFEE:opts.seed)>>>0,nextSeq:seq.n,
       setupPhase:opts.mulligan===true?"mulligan":"playing",mulliganCounts:{p1:0,p2:0},
       players:{
@@ -410,6 +410,23 @@
   }
   function shuffleGravesIntoDecks(state){ for(const pid of ["p1","p2"]){ const grave=state.players[pid].grave.splice(0); for(const inst of grave)addToDeckRandom(state,pid,inst); } log(state,"CRACH_SHUFFLED_GRAVES",{}); }
 
+  function legalChoiceActions(state,playerId){
+    const c=state&&state.pendingChoice;if(!c||c.playerId!==playerId)return[];
+    if(c.type==="scoiatael_first")return(c.candidatePlayerIds||[]).map(firstPlayerId=>({type:"RESOLVE_SCOIATAEL_FIRST",playerId:firstPlayerId}));
+    if(c.type==="medic")return(c.candidateIids||[]).map(targetIid=>({type:"RESOLVE_MEDIC",playerId:c.playerId,targetIid}));
+    if(c.type==="revive_row")return(c.candidateRows||[]).map(row=>({type:"RESOLVE_REVIVE_ROW",playerId:c.playerId,targetIid:c.targetIid,row}));
+    if(c.type==="leader_steal_grave")return(c.candidateIids||[]).map(targetIid=>({type:"RESOLVE_LEADER_STEAL_GRAVE",playerId:c.playerId,targetIid}));
+    if(c.type==="leader_return_grave")return(c.candidateIids||[]).map(targetIid=>({type:"RESOLVE_LEADER_RETURN_GRAVE",playerId:c.playerId,targetIid}));
+    if(c.type==="leader_weather_choice")return(c.candidateIids||[]).map(targetIid=>({type:"RESOLVE_LEADER_WEATHER",playerId:c.playerId,targetIid}));
+    if(c.type==="skellige_row")return["close","ranged"].map(row=>({type:"RESOLVE_SKELLIGE_ROW",playerId:c.playerId,targetIid:c.targetIid,row}));
+    if(c.type==="leader_destroyer"){
+      const out=[],hand=c.handIids||[],deck=c.deckIids||[];
+      for(let i=0;i<hand.length;i++)for(let j=i+1;j<hand.length;j++)for(const deckTargetIid of deck)out.push({type:"RESOLVE_LEADER_DESTROYER",playerId:c.playerId,discardIids:[hand[i],hand[j]],deckTargetIid});
+      return out;
+    }
+    return[];
+  }
+
   function resolveChoice(stateIn,action){
     const state=deepClone(stateIn), c=state.pendingChoice; if(!c)throw new Error("No pending choice"); const resume=c.resume||state.pendingResume||null; state.pendingChoice=null;
     if(c.type==="scoiatael_first"){
@@ -505,5 +522,5 @@
 
   function abilityCoverage(){ const tokens=new Set();for(const d of Object.values(CARD_DB))for(const a of d.abilities)tokens.add(a);return{catalogCards:Object.keys(CARD_DB).length,tokens:[...tokens].sort(),supported:[...tokens].filter(a=>SUPPORTED_ABILITIES.has(a)).sort(),unsupported:[...tokens].filter(a=>!SUPPORTED_ABILITIES.has(a)).sort(),leaders:Object.values(CARD_DB).filter(d=>d.type==="leader").length}; }
 
-  return {CARD_DB,ROWS,SUPPORTED_ABILITIES,DECK_RULES,validateDeck,assertLegalDeck,createMatch,mulliganCard,finishMulligan,playCard,activateLeader,resolveChoice,pass,applyAction,rowEffects,rowScore,totalScore,scoreSnapshot,legalActions,leaderAvailable,canPlay,assistedView,markAssisted,cheatDraw,sandboxSetTurn,HistorySession,abilityCoverage,helpers:{deepClone,getDef,otherPlayer,effectiveCardPower,validRowsFor,isReviveUnit,locateAny,nextRng,randomIndex}};
+  return {CARD_DB,ROWS,SUPPORTED_ABILITIES,DECK_RULES,validateDeck,assertLegalDeck,createMatch,mulliganCard,finishMulligan,playCard,activateLeader,legalChoiceActions,resolveChoice,pass,applyAction,rowEffects,rowScore,totalScore,scoreSnapshot,legalActions,leaderAvailable,canPlay,assistedView,markAssisted,cheatDraw,sandboxSetTurn,HistorySession,abilityCoverage,helpers:{deepClone,getDef,otherPlayer,effectiveCardPower,validRowsFor,isReviveUnit,locateAny,nextRng,randomIndex}};
 });
