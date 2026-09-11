@@ -81,11 +81,26 @@ with sync_playwright() as p:
     synthetic(page,[{'type':'LIFE_CHANGE','playerId':'p2','from':2,'to':1},{'type':'ROUND_END','round':1,'winnerId':'p1'},{'type':'BOARD_CLEAR','round':1},{'type':'ROUND_START','round':2,'currentPlayerId':'p1'}],'round-end',{'beforeBoard':round_board},'11_round_resolution_signature.png')
 
     # External app-only Pass is automatically observed and serialized through the same queue.
+    # With Auto Bot enabled, the opponent must not mutate engine state until the Pass choreography settles.
     s=state(page);s['players']['p2']['passed']=False;s['players']['p1']['passed']=False;s['currentPlayerId']='p1';reset(page,s)
+    page.evaluate("()=>{const t=document.querySelector('#auto-bot');t.checked=true;t.dispatchEvent(new Event('change',{bubbles:true}));}")
     ext_before=page.evaluate('window.GwentGameplayChoreography.runtime.externalTransactions')
-    page.locator('#pass-button').click();page.wait_for_function('before=>window.GwentGameplayChoreography.runtime.externalTransactions>before',arg=ext_before,timeout=3000);wait_idle(page)
+    gate_before=page.evaluate('window.GwentChoreographyExternalGate.stats')
+    page.locator('#pass-button').click()
+    page.wait_for_function('before=>window.GwentGameplayChoreography.runtime.externalTransactions>before',arg=ext_before,timeout=3000)
+    page.wait_for_function('before=>window.GwentChoreographyExternalGate.stats.deferrals>before',arg=gate_before['deferrals'],timeout=3000)
+    page.wait_for_function('window.GwentPresentationQueue.busy&&window.GwentChoreographyExternalGate.pending',timeout=3000)
+    pass_log_len=len(state(page)['eventLog']);samples=0
+    while page.evaluate('window.GwentPresentationQueue.busy'):
+        assert len(state(page)['eventLog'])==pass_log_len,'opponent mutated engine state during Pass presentation'
+        page.wait_for_timeout(20);samples+=1
+        if samples>50: break
+    assert samples>=2,samples
+    wait_idle(page)
     assert state(page)['players']['p1']['passed'] is True
-    assert any(x['kind'] in ['pass','round-end'] for x in page.evaluate('window.GwentGameplayChoreography.runtime.lastPlan'))
+    gate_after=page.evaluate('window.GwentChoreographyExternalGate.stats')
+    assert gate_after['pending'] is False and gate_after['releases']>gate_before['releases'],gate_after
+    assert page.evaluate("document.querySelector('#auto-bot').checked") is True
 
     # Reduced motion preserves the same semantic stage but completes quickly without travel ghosts.
     page.emulate_media(reduced_motion='reduce');page.evaluate('window.GwentDirectManipulation.reduced(null)')
@@ -109,4 +124,4 @@ with sync_playwright() as p:
     assert not errors,errors
     ctx.close();browser.close()
 
-print('gameplay-choreography-ui: real Spy/Weather semantics, viewport-safe signature frames, external Pass, reduced motion, and interruption safety passed')
+print('gameplay-choreography-ui: real Spy/Weather semantics, viewport-safe signatures, externally gated Pass/Auto Bot, reduced motion, and interruption safety passed')
