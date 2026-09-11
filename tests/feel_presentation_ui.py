@@ -20,6 +20,15 @@ def wait_idle(page,timeout=6000):
     page.wait_for_timeout(35)
 
 
+def state(page):
+    return page.evaluate('window.__GWENT_PASS10__.getState()')
+
+
+def reset(page,s):
+    page.evaluate("s=>{window.GwentDirectManipulation.cancel('qa-reset');window.__GWENT_PASS10__.setStateForQA(s);window.GwentBattlefieldUX.reconcile();}",s)
+    page.wait_for_timeout(70)
+
+
 def ordinary(page):
     return page.evaluate("""()=>{const a=window.__GWENT_PASS10__,s=a.getState(),G=a.engine;for(const i of s.players.p1.hand){const d=G.CARD_DB[i.cardId];const acts=G.legalActions(s,'p1').filter(x=>x.type==='PLAY_CARD'&&x.iid===i.iid);if(d?.type==='unit'&&!(d.abilities||[]).length&&acts.length)return{iid:i.iid,action:acts[0]};}return null;}""")
 
@@ -50,14 +59,15 @@ with sync_playwright() as p:
 
     assert page.evaluate("window.GwentMotionTokens?.version==='10.4C.0'&&window.GwentPresentationFeedback?.version==='10.4C.0'&&window.GwentPresentationFeedback.stats.installed")
     assert '10.4C' in page.title()
-    page.evaluate("""()=>{window.__feelHooks=[];window.__audioHooks=[];addEventListener('gwent:feedback-hook',e=>window.__feelHooks.push(e.detail));addEventListener('gwent:audio-hook',e=>window.__audioHooks.push(e.detail));window.GwentPresentationFeedback.updateSettings({effectsVolume:.6,muted:false,haptics:false});}""")
+    page.evaluate("""()=>{const b=document.querySelector('#auto-bot');if(b)b.checked=false;window.__feelHooks=[];window.__audioHooks=[];addEventListener('gwent:feedback-hook',e=>window.__feelHooks.push(e.detail));addEventListener('gwent:audio-hook',e=>window.__audioHooks.push(e.detail));window.GwentPresentationFeedback.updateSettings({effectsVolume:.6,muted:false,haptics:false});}""")
     settings=page.evaluate('window.GwentPresentationFeedback.getSettings()');assert settings['effectsVolume']==.6 and not settings['muted'] and not settings['haptics']
+    base=state(page);base['players']['p2']['passed']=True;base['currentPlayerId']='p1';reset(page,base)
 
     card=ordinary(page);assert card, 'deterministic opening hand needs an ability-free unit for generic feel QA'
     iid,action=card['iid'],card['action'];loc=page.locator(f'#hand .hand-card[data-card-iid="{iid}"]')
 
     # Pointer-down response is synchronous; press state must appear before a frame is needed.
-    sp=start_point(page,iid);page.mouse.move(sp['x'],sp['y']);t0=time.perf_counter();page.mouse.down();
+    sp=start_point(page,iid);page.mouse.move(sp['x'],sp['y']);t0=time.perf_counter();page.mouse.down()
     assert loc.evaluate("e=>e.classList.contains('dm-pressing')")
     press_ms=(time.perf_counter()-t0)*1000;page.mouse.up();page.wait_for_timeout(25)
     assert press_ms<80,press_ms
@@ -72,7 +82,7 @@ with sync_playwright() as p:
     page.screenshot(path=str(QA/'01_selection_weight.png'))
     page.keyboard.press('Escape');page.wait_for_timeout(30)
 
-    # Active target acquisition is structural + textual and emits a single semantic alignment hook.
+    # Active target acquisition is structural + textual and emits alignment feedback.
     sp=start_point(page,iid);tb=target_box(page,action);assert tb
     tx,ty=tb['x']+tb['width']/2,tb['y']+tb['height']/2
     page.mouse.move(sp['x'],sp['y']);page.mouse.down();page.mouse.move(sp['x']+14,sp['y']-2,steps=2);page.wait_for_timeout(25);page.mouse.move(tx,ty,steps=7);page.wait_for_timeout(45)
@@ -84,16 +94,14 @@ with sync_playwright() as p:
     hooks=page.evaluate('window.__feelHooks.map(x=>x.name)');assert any(x.startswith('CARD_COMMIT_') for x in hooks)
     page.screenshot(path=str(QA/'03_ordinary_landing.png'))
 
-    # Reset from current state with a fresh generic unit, then verify invalid return pacing/cleanup.
-    page.reload(wait_until='networkidle');enter(page) if not page.locator('#match-screen.active').count() else None
-    if not page.locator('#match-screen.active').count():
-        page.locator('#main-screen [data-nav="play-screen"]').click();page.locator('#play-screen #quick-start').click();page.locator('#mulligan-screen #finish-mulligan').click();page.wait_for_timeout(180)
-    card=ordinary(page);assert card;iid=card['iid'];sp=start_point(page,iid)
+    # Restore the exact pre-commit state, then verify invalid return pacing/cleanup.
+    reset(page,base);card=ordinary(page);assert card;iid=card['iid'];sp=start_point(page,iid)
     page.mouse.move(sp['x'],sp['y']);page.mouse.down();page.mouse.move(sp['x']+15,sp['y']-2,steps=2);page.wait_for_timeout(25);page.mouse.move(8,45,steps=6);page.wait_for_timeout(35)
     assert page.locator('.dm-drag-proxy').count()==1 and page.locator('.dm-active-target').count()==0
     page.screenshot(path=str(QA/'04_invalid_before_return.png'))
     t0=time.perf_counter();page.mouse.up();wait_idle(page);invalid_ms=(time.perf_counter()-t0)*1000
     assert invalid_ms<500,invalid_ms
+    assert state(page)==base
     assert page.locator('.dm-drag-proxy,.dm-flight-proxy,.dm-source-placeholder,.gc-cue,.gc-snapshot-ghost').count()==0
 
     # Mute suppresses audio dispatch without suppressing semantic feedback.
@@ -102,15 +110,14 @@ with sync_playwright() as p:
     page.evaluate("window.GwentPresentationFeedback.updateSettings({muted:false})")
 
     # Reduced motion keeps selection/legal information while collapsing travel budgets.
-    page.emulate_media(reduced_motion='reduce');page.evaluate('window.GwentDirectManipulation.reduced(null)');page.wait_for_timeout(25)
+    reset(page,base);page.emulate_media(reduced_motion='reduce');page.evaluate('window.GwentDirectManipulation.reduced(null)');page.wait_for_timeout(25)
     assert page.evaluate("window.GwentMotionTokens.duration('majorNormal')<=100&&window.GwentMotionTokens.duration('routineNormal')<=50")
     card=ordinary(page);assert card;iid=card['iid'];page.locator(f'#hand .hand-card[data-card-iid="{iid}"]').click();page.wait_for_timeout(25)
     assert page.locator('.dm-selected').count()==1 and page.locator('.dm-legal-target').count()>=1
     page.screenshot(path=str(QA/'05_reduced_selection.png'));page.keyboard.press('Escape')
 
-    # Settings surface is real product UI, haptics remain optional/capability-gated.
-    page.locator('#match-menu').click();page.wait_for_timeout(50)
-    if page.locator('#main-screen.active').count()==0: page.evaluate("document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.querySelector('#main-screen').classList.add('active')")
+    # Settings surface is real product UI; haptics remain optional/capability-gated.
+    page.evaluate("document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.querySelector('#main-screen').classList.add('active')")
     page.locator('#main-screen [data-nav="settings-screen"]').click();page.wait_for_timeout(30)
     assert page.locator('#effects-volume,#mute-effects,#haptic-feedback').count()==3
     h=page.locator('#haptic-feedback');cap=page.evaluate('window.GwentPresentationFeedback.hapticCapable()')
