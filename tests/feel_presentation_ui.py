@@ -98,7 +98,14 @@ with sync_playwright() as p:
     hooks=page.evaluate('window.__feelHooks.map(x=>x.name)');assert 'VALID_DESTINATION' in hooks
     page.screenshot(path=str(QA/'02_drag_active_target.png'));page.mouse.up();wait_idle(page)
     hooks=page.evaluate('window.__feelHooks.map(x=>x.name)');assert any(x.startswith('CARD_COMMIT_') for x in hooks)
+    toast_text=page.locator('#toast').inner_text().strip();assert 'ENGINE' not in toast_text,toast_text
     page.screenshot(path=str(QA/'03_ordinary_landing.png'))
+
+    # 10.4C also removes integration-era engine jargon from Medic choice presentation.
+    page.evaluate("""()=>{document.querySelector('#overlay-root').innerHTML='<aside class="side-panel"><div class="eyebrow">MEDIC · ENGINE CHOICE</div><p class="sub">Only legal non-Hero units from your graveyard are exposed by the engine.</p></aside>'; }""")
+    page.wait_for_timeout(20)
+    medic_copy=page.locator('#overlay-root').inner_text();assert 'ENGINE' not in medic_copy and 'exposed by the engine' not in medic_copy.lower(),medic_copy
+    page.evaluate("document.querySelector('#overlay-root').innerHTML=''")
 
     # Restore the exact pre-commit state, then verify invalid return pacing/cleanup.
     reset(page,base);card=ensure_plain(page);iid=card['iid'];sp=start_point(page,iid)
@@ -129,7 +136,7 @@ with sync_playwright() as p:
     h=page.locator('#haptic-feedback');cap=page.evaluate('window.GwentPresentationFeedback.hapticCapable()');assert h.is_disabled()==(not cap)
     page.screenshot(path=str(QA/'06_feedback_settings.png'))
 
-    stats=page.evaluate('window.GwentPresentationFeedback.stats');assert stats['installed'] and stats['hapticAttempts']==0
+    stats=page.evaluate('window.GwentPresentationFeedback.stats');assert stats['installed'] and stats['hapticAttempts']==0 and stats['copyPolishes']>=2
     assert not errors,errors
-    copied=copy_choreography_evidence();manifest={'press_response_ms':press_ms,'invalid_return_ms':invalid_ms,'feedback_stats':stats,'copied_10_4b_frames':copied,'viewport':'852x393'}
+    copied=copy_choreography_evidence();manifest={'press_response_ms':press_ms,'invalid_return_ms':invalid_ms,'feedback_stats':stats,'ordinary_toast':toast_text,'copied_10_4b_frames':copied,'viewport':'852x393'}
     (QA/'feel_metrics.json').write_text(json.dumps(manifest,indent=2));browser.close()
