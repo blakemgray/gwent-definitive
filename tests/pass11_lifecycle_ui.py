@@ -67,7 +67,7 @@ with sync_playwright() as p:
     page.evaluate('window.__GWENT_PASS11__.openMatchMenu()')
     assert page.locator('[data-match-menu="main"]').is_visible()
     page.locator('#match-restart-request').click()
-    assert page.locator('[data-match-menu="confirm-restart"]').is_visible()
+    page.locator('[data-match-menu="confirm-restart"]').wait_for(state='visible')
     page.screenshot(path=str(QA/'02_restart_confirmation.png'))
     page.locator('#match-restart-confirm').click()
     assert page.locator('#mulligan-screen.active').count()==1
