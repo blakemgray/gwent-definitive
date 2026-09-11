@@ -43,4 +43,8 @@ assert(source.includes("const result=await executor(signal,token)"),'base 10.4A 
 assert(source.includes("if(meta?.kind==='game_action')await present(meta,signal)"),'game actions must stay in one serialized presentation transaction');
 assert(source.includes('MutationObserver'),'external/pass/bot/leader commits must be observed without a second rules path');
 
-console.log('gameplay-choreography-contract: semantic planning, cause/effect grouping, engine isolation, and queue ordering passed');
+const eventSource=fs.readFileSync(path.join(__dirname,'../src/presentation-events.js'),'utf8');
+assert(!eventSource.includes('gameplay-choreography.js')&&!eventSource.includes('choreography-external-gate.js'),'semantic event adapter must not bootstrap presentation runtime');
+assert(!eventSource.includes('document.createElement'),'semantic event adapter must remain free of DOM loader side effects');
+
+console.log('gameplay-choreography-contract: semantic planning, cause/effect grouping, engine isolation, queue ordering, and adapter purity passed');
