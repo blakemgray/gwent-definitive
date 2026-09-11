@@ -7,24 +7,26 @@
 **Canonical hosted build:** `https://blakemgray.github.io/gwent-definitive/`  
 **Default branch:** `main`  
 **Current production runtime / Pass 10.4C merge:** `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d`  
-**Current verified repository main head:** `388f90cf230492093a89ccb67a67bd929ad4a12d`  
-**Latest exact-head verification:** run #141 / `34625822361` — full verify **success**, Pages deploy **success**  
+**Current verified transition-aligned main head:** `4d7d6e0b7dc95c25e02418001400e0da538c2a66`  
+**Latest exact-head main verification:** run #143 / `34638840306` — full verify **success**, Pages deploy **success**  
+**Transition PR:** #9 — `docs: prepare Pass 11 Work transition` — merged  
+**Transition PR exact green head:** `19393f835d4f474cdafd2efb689ec2e6a696e273`  
+**Transition PR validation:** run #142 / `34637982426` — **success**  
 **Current completed production milestone:** **Pass 10.4C — Feel / Presentation Polish**  
 **Current active implementation milestone:** **None — Pass 11 has not started**  
-**Current active repository task:** **Pre-Work continuity / roadmap / model-routing transition checkpoint**  
-**Current transition branch:** `docs/pre-work-pass11-transition`  
-**Current transition PR:** none yet  
-**Estimated transition-checkpoint completion:** **20%**  
+**Current active repository task:** **None — pre-Work transition checkpoint is complete; this file is the terminal closeout stamp**  
+**Estimated transition-checkpoint completion:** **100%**  
 **Next implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
+**Default next-work model:** **GPT-5.6 Sol · High**; escalate only per `MODEL_ROUTING.md`  
 **Last updated:** 2026-09-11 America/New_York
 
-Pass 10.4C remains complete, merged, fully verified on `main`, visually approved, and deployed. Run #141 re-proved the full verification matrix and Pages deployment on the terminal Pass-10.4C repository-closeout head. No gameplay implementation is active during this transition checkpoint. The purpose of this branch is to preserve the live-play findings, revised Pass 11 intent, expanded QA doctrine, and model-routing discipline before handing substantial work to ChatGPT Work.
+Pass 10.4C remains complete, merged, fully verified, visually approved, and deployed. The pre-Work transition checkpoint is complete: live-play findings, revised Pass 11 intent, expanded QA doctrine, forward roadmap, and model-routing discipline are now repository-authoritative. PR #9 merged the transition package, and Run #143 re-proved the full matrix and Pages deployment on the resulting `main` head. This continuity-only closeout is the terminal repository-cleanup stamp for the transition; verify/deploy it once after merge, but do **not** create a recursive continuity commit solely to record that final verification.
 
 ---
 
 # 0. Mandatory continuity protocol
 
-This file is authoritative for implemented/current project state. `FUTURE_CONTINUITY.md` is the forward-roadmap companion. `MODEL_ROUTING.md`, once present, governs model/effort recommendations for Work/Codex cycles but never overrides product or repository authority.
+This file is authoritative for implemented/current project state. `FUTURE_CONTINUITY.md` is the forward-roadmap companion. `MODEL_ROUTING.md` governs model/effort recommendations for Work/Codex cycles but never overrides product or repository authority.
 
 Source precedence:
 
@@ -42,13 +44,14 @@ Source precedence:
 For every new implementation task or resumed work cycle:
 
 1. Read the current branch's `CONTINUITY.md` first.
-2. Read `FUTURE_CONTINUITY.md`; if `MODEL_ROUTING.md` exists, read it before choosing a model/effort level.
-3. **Write an actual checkpoint update to this file in GitHub before doing further implementation work.** Chat-only continuity does not count.
-4. Record active pass/task, branch/PR/head, latest meaningful CI evidence or blocker, exact next action, and estimated completion percentage.
-5. Percentage is for visibility only; never compress scope, rush QA, skip visual review, or weaken a gate.
-6. Every user-facing progress report should include the current percentage.
-7. Every user-facing work message should end with a concrete **Next action**.
-8. On merge/deploy or task completion, update this file again with final SHAs, CI, artifacts, visual findings, remaining debt, and handoff.
+2. Read `FUTURE_CONTINUITY.md` in full.
+3. Read `MODEL_ROUTING.md` before choosing a model/effort level.
+4. **Write an actual checkpoint update to this file in GitHub before doing further implementation work.** Chat-only continuity does not count.
+5. Record active pass/task, branch/PR/head, latest meaningful CI evidence or blocker, exact next action, and estimated completion percentage.
+6. Percentage is for visibility only; never compress scope, rush QA, skip visual review, or weaken a gate.
+7. Every user-facing progress report should include the current percentage.
+8. Every user-facing work message should end with a concrete **Next action**.
+9. On merge/deploy or task completion, update this file again with final SHAs, CI, artifacts, visual findings, remaining debt, and handoff. A deliberately marked terminal continuity-only closeout may be verified once without creating a recursive commit solely to record its own verification.
 
 ### Model-transparency rule
 
@@ -58,9 +61,11 @@ Before every substantial phase, report:
 - completion percentage;
 - recommended model and reasoning effort;
 - why that level is justified;
-- what condition would justify escalation or de-escalation.
+- escalation trigger;
+- de-escalation/return trigger;
+- exact next action.
 
-Model escalation is a recommendation, not permission. GPT-6 Astra allowance is scarce on the current Plus plan. Do not silently spend Astra merely because it is available; default to the least-expensive model/effort that can reliably complete the task to the required standard.
+Model escalation is a recommendation, not permission. GPT-6 Astra allowance is scarce on the current Plus plan. Do not silently spend Astra merely because it is available; default to the least-expensive model/effort that can reliably complete the task to the required standard. `MODEL_ROUTING.md` is the standing authority for the detailed routing protocol.
 
 ---
 
@@ -176,7 +181,9 @@ Workflow: `.github/workflows/deploy-pages.yml`
 
 Policy: branch → PR → full static/browser/geometry/interaction/WebKit/pass-specific gates → visual inspection → latest-head green → merge → full `main` verification → Pages deploy → final continuity update.
 
-## Current production snapshot — Pass 10.4C
+## Current production snapshot — Pass 10.4C + pre-Work transition
+
+Pass 10.4C production evidence:
 
 - PR #8 merged.
 - Final PR head: `e6a357606c6d0e978ceabf93e2f456377b3f6ac2`.
@@ -185,13 +192,20 @@ Policy: branch → PR → full static/browser/geometry/interaction/WebKit/pass-s
 - Production verification + Pages deployment: run #137 / `34621157464` — verify **success**, deploy **success**.
 - README-aligned docs head: `a6851a1d5959ee530a0644b21529e606ea621c5f`.
 - README-aligned verification + Pages deployment: run #140 / `34623641751` — verify **success**, deploy **success**.
-- Terminal repository-closeout head: `388f90cf230492093a89ccb67a67bd929ad4a12d`.
-- Terminal repository-closeout verification + Pages deployment: run #141 / `34625822361` — verify **success**, deploy **success**.
-- Visually approved release artifact: `10270749326` / `sha256:9d06882cc9f6d363ce4b5cbe494023f11e9058c57fbc2bd52e1839a335ac3990`.
+- Terminal Pass-10.4C repository-closeout head: `388f90cf230492093a89ccb67a67bd929ad4a12d`.
+- Terminal Pass-10.4C repository-closeout verification + Pages deployment: run #141 / `34625822361` — verify **success**, deploy **success**.
+- Visually approved Pass-10.4C release artifact: `10270749326` / `sha256:9d06882cc9f6d363ce4b5cbe494023f11e9058c57fbc2bd52e1839a335ac3990`.
 
-Run #137 passed static engine/catalog/PWA/motion/direct-manipulation/choreography/feel validation, frozen 10.3 geometry, full 10.4A interaction/touch/parity, presentation-aware bot gating, disposable failure recovery, 256-trial physical stress / 512 committed interactions, semantic landing, lifecycle/save-restore, WebKit/iPhone, primary 10.4B choreography, the eight-scenario 10.4B adversarial matrix, and the 10.4C feel/feedback/reduced-motion/pacing gate. Production site staging/upload/deploy succeeded.
+Pre-Work transition evidence:
 
-Run #140 repeated the complete matrix on the documentation-aligned main head. Run #141 repeated the full matrix once more on the terminal Pass-10.4C repository-closeout head and successfully deployed Pages. No runtime change occurred between the 10.4C merge and these documentation-only closeout heads.
+- Transition PR: #9 — merged.
+- Exact PR head: `19393f835d4f474cdafd2efb689ec2e6a696e273`.
+- Exact-head PR validation: run #142 / `34637982426` — full verify **success**.
+- PR #9 merge/main SHA: `4d7d6e0b7dc95c25e02418001400e0da538c2a66`.
+- Main verification + Pages deployment: run #143 / `34638840306` — full verify **success**, deploy **success**.
+- Run #142 generated all four existing visual QA packages; representative Pass-10.4C artifact `10279156191`, digest `sha256:280f076f308313abdcb96beae5167396ac8d29136d1497bec949bb18b838fd00`, was manually inspected from the exact PR head before merge. Selection, active-target drag, ordinary landing, invalid-return state, reduced motion, settings, and representative Scorch/Muster/Spy/Horn/Decoy/Medic frames showed no new visual regression. The PR changed Markdown only; no runtime/gameplay file changed.
+
+Run #143 again passed static engine/catalog/PWA/motion/direct-manipulation/choreography/feel validation, frozen 10.3 geometry, 10.4A interaction/touch/parity, presentation-aware bot gating, disposable failure recovery, 256-trial physical stress, semantic landing, lifecycle/save-restore, WebKit/iPhone, 10.4B primary/adversarial choreography, and 10.4C feel/feedback/reduced-motion/pacing, then successfully staged and deployed Pages.
 
 ---
 
@@ -369,7 +383,7 @@ Do not invent later pass numbers unless explicitly assigned.
 
 # 8. Expanded QA doctrine for Pass 11 and later
 
-Release confidence should be built from **machine proof + visual proof + device proof**.
+Release confidence should be built from **machine proof + visual proof + live-browser proof + device proof**.
 
 ## Machine proof
 
@@ -427,7 +441,7 @@ An actual iPhone installed-PWA pass remains necessary for touch ergonomics, audi
 
 # 9. Current product status / broader debt
 
-Production now has hosted PWA infrastructure, deterministic classic engine, 216-card catalog, frozen 10.3 geometry, 10.4A direct manipulation, iPhone/WebKit coverage, 10.4B choreography, adversarial QA, 10.4C feel/feedback/accessibility polish, and CI-protected Pages deployment.
+Production now has hosted PWA infrastructure, deterministic classic engine, 216-card catalog, frozen 10.3 geometry, 10.4A direct manipulation, iPhone/WebKit coverage, 10.4B choreography, adversarial QA, 10.4C feel/feedback/accessibility polish, CI-protected Pages deployment, a reconciled Pass-11-first roadmap, expanded temporal/live-browser/device QA doctrine, and explicit Work model-routing rules.
 
 Broader work after the revised Pass 11 includes unrestricted legal deck builder, polished faction/leader selection, complete unrestricted mulligan/effect choices, final AI ladder through Grandmaster, mature save/resume/replay, modular assists/cheats/sandbox, complete victory/rematch/UX shell, local permitted-art ownership/caching, richer physical-card and audiovisual presentation, and final offline/install/native-quality polish.
 
@@ -442,22 +456,40 @@ Legacy product root: `Gwent Definitive - blakemgray` — `1dDtOJP3wYTVfQiXP3bYUj
 
 ---
 
-# 11. Current handoff
+# 11. Current handoff to ChatGPT Work
 
-**Pass 10.4C is closed and the production baseline is green. Pass 11 has not started.**
+**Pass 10.4C is closed, the pre-Work transition checkpoint is complete, and Pass 11 has not started.**
 
-Final production evidence before this transition checkpoint:
+Authoritative transition evidence:
 
-- runtime merge: `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d`;
-- final PR run: #136 / `34620304920` — success;
-- production runtime run: #137 / `34621157464` — verify success, Pages deploy success;
-- visually approved QA artifact: `10270749326`;
-- README-aligned run: #140 / `34623641751` — verify success, Pages deploy success;
-- terminal repository-closeout head: `388f90cf230492093a89ccb67a67bd929ad4a12d`;
-- terminal repository-closeout run: #141 / `34625822361` — full verify success, Pages deploy success.
+- pre-transition main head: `388f90cf230492093a89ccb67a67bd929ad4a12d`;
+- pre-transition Run #141 / `34625822361` — full verify success, Pages deploy success;
+- transition PR #9 exact head: `19393f835d4f474cdafd2efb689ec2e6a696e273`;
+- transition PR Run #142 / `34637982426` — full verify success;
+- transition PR #9 merge/main SHA: `4d7d6e0b7dc95c25e02418001400e0da538c2a66`;
+- transition-aligned main Run #143 / `34638840306` — full verify success, Pages deploy success;
+- exact-head visual QA review: representative Run #142 Pass-10.4C artifact `10279156191` / `sha256:280f076f308313abdcb96beae5167396ac8d29136d1497bec949bb18b838fd00` — manually inspected, no new visual regression;
+- PR #9 changed documentation only; gameplay/runtime remained unchanged.
 
-No known runtime, rules, geometry, interaction, WebKit, choreography, reduced-motion, semantic-feedback, copy, documentation, or visual blocker remains for 10.4C itself. New live-play findings are forward requirements/QA findings unless evidence establishes an actual regression.
+No known regression requires reopening 10.3, 10.4A, 10.4B, or 10.4C. New live-play findings are forward Pass 11 requirements/QA findings unless current evidence proves a regression.
 
-**Transition task status:** in progress on `docs/pre-work-pass11-transition`; gameplay code remains untouched.
+## Work startup protocol
 
-**Exact next action:** reconcile `FUTURE_CONTINUITY.md` to the current Pass-11-first roadmap and live-play findings, add `MODEL_ROUTING.md`, open a documentation PR, require exact-head green verification, then merge/verify before handing Pass 11 to ChatGPT Work.
+Start the next substantive cycle in **ChatGPT Work using GPT-5.6 Sol · High** unless the user explicitly chooses otherwise.
+
+Before implementation:
+
+1. read this file in full;
+2. read `FUTURE_CONTINUITY.md` in full;
+3. read `MODEL_ROUTING.md` in full;
+4. verify current `main` and latest CI/deployment state;
+5. report phase/completion/model recommendation/justification/escalation trigger/return trigger;
+6. create the Pass 11 work branch/PR from the then-current green `main`;
+7. update the actual branch `CONTINUITY.md` before gameplay implementation;
+8. reconstruct the current normal-match path and establish the detailed Pass 11 implementation/acceptance contract before changing gameplay code.
+
+GitHub is source/code/CI authority. Use connected TinyFish/Work browser capabilities for live player-facing QA where useful. Preserve the machine + temporal visual + live-browser + real-device proof model.
+
+**Terminal-closeout note:** this file is the final transition continuity stamp. Once the closeout PR containing this change is exact-head green, visually checked, merged, and its resulting `main` head is verified/deployed once, do **not** create another continuity-only commit solely to record that final verification. Repository/green-CI state outranks the intentionally non-recursive terminal stamp.
+
+**Exact next action:** after this terminal closeout is merged and verified, open ChatGPT Work on **GPT-5.6 Sol · High**, point it to `blakemgray/gwent-definitive`, require it to read `CONTINUITY.md` → `FUTURE_CONTINUITY.md` → `MODEL_ROUTING.md`, then begin the new Pass 11 cycle by updating `CONTINUITY.md` before implementation.
