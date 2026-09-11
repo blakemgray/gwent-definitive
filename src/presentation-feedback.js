@@ -23,7 +23,7 @@
     GAME_WIN:[10,8,18],GAME_LOSE:[18,8,10],GAME_DRAW:12
   });
 
-  const runtime={installed:false,observer:null,unsubscribeQueue:null,lastStage:null,lastSelected:null,lastActive:null,hooks:0,audioDispatches:0,hapticAttempts:0,settingsWrites:0};
+  const runtime={installed:false,observer:null,copyObserver:null,unsubscribeQueue:null,lastStage:null,lastSelected:null,lastActive:null,hooks:0,audioDispatches:0,hapticAttempts:0,settingsWrites:0,copyPolishes:0};
   const listeners=new Set();
   let settings=loadSettings();
 
@@ -116,6 +116,43 @@
     if(hook)emit(hook,{iid:meta.iid||meta.action?.iid||null,row,inputMethod:meta.inputMethod||'unknown'});
   }
 
+  // 10.4C owns player-facing presentation language. Older integration-layer copy
+  // deliberately exposed engine diagnostics while the match shell was being built;
+  // normalize those strings before paint without changing semantic logs or state.
+  function polishLegacyCopy(){
+    if(!root.document)return false;
+    let changed=false;
+    const toast=root.document.querySelector('#toast');
+    if(toast){
+      const text=(toast.textContent||'').trim();
+      if(/\s·\sENGINE RESOLVED$/.test(text)){
+        toast.textContent=text==='MEDIC REVIVE · ENGINE RESOLVED'?'MEDIC · UNIT REVIVED':text.replace(/\s·\sENGINE RESOLVED$/,'');
+        changed=true;
+      }else if(text==='ENGINE REJECTED ACTION'){
+        toast.textContent='ACTION NOT AVAILABLE';changed=true;
+      }
+    }
+    const panel=root.document.querySelector('#overlay-root .side-panel');
+    const eyebrow=panel?.querySelector('.eyebrow');
+    if(eyebrow?.textContent?.trim()==='MEDIC · ENGINE CHOICE'){
+      eyebrow.textContent='MEDIC · REVIVE A UNIT';changed=true;
+    }
+    const copyLine=panel?.querySelector('p.sub');
+    if(copyLine?.textContent?.includes('exposed by the engine')){
+      copyLine.textContent='Choose a legal non-Hero unit from your graveyard.';changed=true;
+    }
+    if(changed)runtime.copyPolishes++;
+    return changed;
+  }
+  function installCopyPolish(){
+    polishLegacyCopy();
+    const observer=new MutationObserver(()=>polishLegacyCopy());
+    const toast=root.document?.querySelector?.('#toast'),overlay=root.document?.querySelector?.('#overlay-root');
+    if(toast)observer.observe(toast,{subtree:true,childList:true,characterData:true});
+    if(overlay)observer.observe(overlay,{subtree:true,childList:true,characterData:true});
+    runtime.copyObserver=observer;
+  }
+
   function updateSettings(next={}){
     settings={
       effectsVolume:clamp(Number(next.effectsVolume??settings.effectsVolume),0,1),
@@ -160,14 +197,14 @@
     runtime.unsubscribeQueue=q.subscribe(onQueue);
     runtime.observer=new MutationObserver(()=>{inspectStage();inspectInteraction();});
     runtime.observer.observe(root.document.body,{subtree:true,attributes:true,attributeFilter:['class','data-gc-stage','data-dm-action-key']});
-    installSettings();installVersionMarks();inspectStage();inspectInteraction();runtime.installed=true;return true;
+    installSettings();installVersionMarks();installCopyPolish();inspectStage();inspectInteraction();runtime.installed=true;return true;
   }
   function uninstall(){
-    runtime.unsubscribeQueue?.();runtime.unsubscribeQueue=null;runtime.observer?.disconnect?.();runtime.observer=null;runtime.installed=false;runtime.lastStage=null;runtime.lastSelected=null;runtime.lastActive=null;
+    runtime.unsubscribeQueue?.();runtime.unsubscribeQueue=null;runtime.observer?.disconnect?.();runtime.observer=null;runtime.copyObserver?.disconnect?.();runtime.copyObserver=null;runtime.installed=false;runtime.lastStage=null;runtime.lastSelected=null;runtime.lastActive=null;
   }
 
   return Object.freeze({
-    version:VERSION,HOOKS,install,uninstall,emit,subscribe,getSettings,updateSettings,hapticCapable,
+    version:VERSION,HOOKS,install,uninstall,emit,subscribe,getSettings,updateSettings,hapticCapable,polishLegacyCopy,
     get stats(){return copy(runtime);}
   });
 });
