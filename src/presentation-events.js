@@ -1,15 +1,7 @@
 (function(root,factory){
   const api=factory();
   if(typeof module==='object'&&module.exports) module.exports=api;
-  else {
-    root.GwentPresentationEvents=api;
-    if(root.document){
-      if(!root.document.querySelector('link[data-gwent-choreography]')){const l=root.document.createElement('link');l.rel='stylesheet';l.href='gameplay-choreography.css';l.dataset.gwentChoreography='10.4B';root.document.head.appendChild(l);}
-      const load=(src,key)=>{if(root.document.querySelector(`script[data-gwent-${key}]`))return;const s=root.document.createElement('script');s.src=src;s.async=false;s.dataset[`gwent${key.replace(/-([a-z])/g,(_,c)=>c.toUpperCase())}`]='10.4B';root.document.head.appendChild(s);};
-      load('src/gameplay-choreography.js','choreography');
-      load('src/choreography-external-gate.js','external-gate');
-    }
-  }
+  else root.GwentPresentationEvents=api;
 })(typeof self!=='undefined'?self:this,function(){
   'use strict';
   const ROWS=['close','ranged','siege'];
