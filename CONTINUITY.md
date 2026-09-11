@@ -13,8 +13,8 @@
 **Current active repository task:** **11.1B exact-head stabilization: diagnose preserved Medic→Muster adversarial gate failure**  
 **Current work branch:** `pass-11-golden-match`  
 **Current work PR:** #11 — `Pass 11: Golden Match`  
-**Resumed-cycle checkpoint chain:** `e340545f0777958de0f83b271af7bf3903f06cf6` → `66208192eebd58e28704b322d1d13ed8d7f6ab59` → `c8232d294a30166c61a8fc22a84032bcd3f9f3af`  
-**Latest exact-head workflow before checkpoint:** run #159 / `34648516237` — **failure** in preserved Pass 10.4B adversarial `Medic→Muster` choreography gate after Pass 11 setup/lifecycle/direct-manipulation/WebKit/primary choreography gates passed  
+**Resumed-cycle checkpoint head:** `3ae907d5f1540c289e4a56129162a63556b5b44f`  
+**Latest exact-head workflow before resumed checkpoint:** run #159 / `34648516237` — **failure** in preserved Pass 10.4B adversarial `Medic→Muster` choreography gate after Pass 11 setup/lifecycle/direct-manipulation/WebKit/primary choreography gates passed  
 **Estimated Pass 11 planning completion:** **100%**  
 **Estimated overall Pass 11 implementation progress:** **26%**  
 **Estimated formally verified/closed Pass 11 progress:** **18%**  
@@ -174,7 +174,7 @@ Established parity:
 - 22/22 leaders;
 - 5/5 factions.
 
-Engine supports ordinary play, Spy, Tight Bond, Muster, Medic + pending choice, Decoy, Weather/Clear, Horn, row/leader Horn, Scorch/row Scorch, Hero, passing/auto-pass, round resolution, factions, leaders, and deterministic legal actions.
+Engine supports ordinary play, Spy, Tight Bond, Muster, Medic + pending choice, Decoy, Weather/Clear, Horn, row/leader Horn, Scorch/row Scorch, Hero, pass/auto-pass, round resolution, factions, leaders, and deterministic legal actions.
 
 ---
 
@@ -469,7 +469,7 @@ Authoritative startup evidence:
 - run #145 / `34641027264` — exact-head full verification success and Pages deployment success;
 - work branch: `pass-11-golden-match`, created from that exact head;
 - last fully green verified implementation head for closed 11.1A: `3b67c3d0591dca4d77d66c788630101e31be8a46`;
-- resumed-cycle checkpoint chain: `e340545f0777958de0f83b271af7bf3903f06cf6` → `66208192eebd58e28704b322d1d13ed8d7f6ab59` → `c8232d294a30166c61a8fc22a84032bcd3f9f3af`;
+- resumed-cycle checkpoint head: `3ae907d5f1540c289e4a56129162a63556b5b44f`;
 - current planning completion: **100%**;
 - estimated implementation progress: **26%**;
 - estimated formally verified/closed progress: **18%**;
