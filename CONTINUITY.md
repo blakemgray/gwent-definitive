@@ -6,13 +6,15 @@
 **Repository:** `blakemgray/gwent-definitive`  
 **Canonical hosted build:** https://blakemgray.github.io/gwent-definitive/  
 **Default branch:** `main`  
-**Current production/main head before Pass 10.4B merge:** `a7026cb884b562cc809a87f38a8c5f14153f652b`  
-**Last verified green production/main workflow before Pass 10.4B merge:** `Verify and Deploy Gwent Definitive` run ID `34546542961` / run #68 — verify **success**, deploy **success**  
+**Current production runtime head / Pass 10.4B merge:** `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`  
+**Last verified green production workflow:** `Verify and Deploy Gwent Definitive` run ID `34607056878` / run #112 — verify **success**, Pages deploy **success**  
 **Last updated:** 2026-09-11 America/Indiana/Indianapolis  
-**Latest implementation-complete release candidate:** **Pass 10.4B — Signature Gameplay Choreography**  
-**Current active repository action:** **Pass 10.4B closeout — final docs-head CI, PR #7 merge, main verification/Pages deploy**  
-**Next implementation milestone after 10.4B is merged/deployed:** **Pass 10.4C — Feel / Presentation Polish**  
-**Pass 11:** **Golden Match**, only after 10.4A/B/C establish the interaction layer.
+**Current completed implementation milestone:** **Pass 10.4B — Signature Gameplay Choreography**  
+**Current active implementation milestone:** **None — Pass 10.4B is closed**  
+**Next planned implementation milestone:** **Pass 10.4C — Feel / Presentation Polish**  
+**Pass 11:** **Golden Match**, only after 10.4C completes the interaction/presentation layer established by 10.4A/B.
+
+This continuity refresh is documentation-only and follows the verified/deployed Pass 10.4B runtime merge. The exact latest `main` commit may therefore be a documentation descendant of the production runtime SHA above; inspect current Git history/CI before beginning the next pass.
 
 ---
 
@@ -309,10 +311,10 @@ Policy:
 - Pages deploy only after verify succeeds;
 - update this continuity file in the pass before merge.
 
-### Production/main snapshot before Pass 10.4B merge
+### Historical production snapshot before Pass 10.4B
 
 **Main head:** `a7026cb884b562cc809a87f38a8c5f14153f652b` (`docs: require forward continuity review`)  
-**Last green main workflow:**
+**Last green main workflow before 10.4B:**
 - Workflow: `Verify and Deploy Gwent Definitive`
 - Run ID: `34546542961`
 - Run number: `68`
@@ -320,29 +322,17 @@ Policy:
 - Verify: `success`
 - Deploy: `success`
 
-Main therefore remains the green **10.4A production foundation plus continuity/roadmap documentation** until PR #7 is merged. Pass 10.4B is implementation-complete on its branch but is not yet production at the time of this continuity write.
+That was the final green 10.4A production foundation before Pass 10.4B merged.
 
-### Pass 10.4B release-candidate snapshot
+### Current production snapshot — Pass 10.4B
 
-**Branch:** `pass-10-4b-signature-choreography`  
-**PR:** `#7 — Pass 10.4B — Signature Gameplay Choreography`  
-**Green code head:** `6a34c9ce1c6fe1ae43d47eb329187e70cd546535`  
-**README closeout head:** `8effbafed28c2580a90bc7b7f2cfdf0b71996a96`  
-**This continuity update:** creates the subsequent docs-only branch head  
-**Merge SHA:** none yet — merge pending final docs-head CI  
-**Main/deploy SHA after merge:** none yet
+**Merged PR:** `#7 — Pass 10.4B — Signature Gameplay Choreography`  
+**Final PR head:** `1623caed9c72a80d110e3ec4efdc3e2838d9ee3c`  
+**Merge / production runtime SHA:** `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`  
+**Final PR validation:** run #111 / `34606032376` — verify **success**  
+**Production verification + Pages deployment:** run #112 / `34607056878` — verify **success**, deploy **success**
 
-Authoritative green release-candidate workflow:
-
-- Workflow: `Verify and Deploy Gwent Definitive`
-- Run ID: `34602290077`
-- Run number: `108`
-- Event: `pull_request`
-- Head: `6a34c9ce1c6fe1ae43d47eb329187e70cd546535`
-- Verify job: **success**
-- Deploy job: **skipped as expected for PR validation**
-
-Run #108 passed every required gate:
+Run #112 passed every required production gate:
 
 - engine/catalog/PWA/motion/direct-manipulation/choreography static validation;
 - Pass 10.3 battlefield density/centering/geometry gate;
@@ -356,16 +346,23 @@ Run #108 passed every required gate:
 - WebKit/iPhone-targeted interaction;
 - Pass 10.4B signature choreography, reduced-motion, and interruption gate;
 - Pass 10.4B eight-scenario adversarial choreography matrix;
-- all visual QA archives generated successfully.
+- all QA archives generated;
+- production site staged, uploaded, and deployed successfully.
 
-Pass 10.4B visual artifact:
+Production artifacts from Run #112:
 
-- Artifact name: `pass10-4b-signature-choreography-qa`
-- Artifact ID: `10265117227`
-- Run: #108 / `34602290077`
-- Digest: `sha256:5fa408a8a25c85c25735624324e45bbb1d465f78745d0bd9f5898d8f147ac975`
+- Pass 10.4B QA: artifact `10266123499`, digest `sha256:2462476c2659b0eb9caa6e0f57ffb0a11722360dfb15c36bfdef9791b15eec7c`
+- Pass 10.4A QA: artifact `10266163575`
+- Pass 10.3 QA: artifact `10266273487`
+- Pages package: artifact `10266689673`
 
-Manual visual inspection at the canonical 852×393 target was completed after Run #108. Verified frames include:
+The production runtime at `a6adca26...` is therefore the authoritative **green and deployed Pass 10.4B baseline**.
+
+### Pass 10.4B release-candidate visual evidence
+
+The implementation code head immediately before final documentation closeout was `6a34c9ce1c6fe1ae43d47eb329187e70cd546535`. Run #108 / `34602290077` was the first full green release-candidate run after the last visual runtime fix and produced visual artifact `10265117227` with digest `sha256:5fa408a8a25c85c25735624324e45bbb1d465f78745d0bd9f5898d8f147ac975`.
+
+Manual visual inspection at the canonical 852×393 target was completed on that artifact. Verified frames included:
 
 - tied multi-row Scorch pre/mid/final;
 - 8+ Muster swarm;
@@ -380,8 +377,6 @@ Manual visual inspection at the canonical 852×393 target was completed after Ru
 - interruption-before-cancel cleanup.
 
 The earlier Medic→Muster artifact defect—an oversized battlefield-height transient card-art sliver—was eliminated. The root cause was post-action visual capture occurring before newly inserted external-action cards had necessarily passed through Pass 10.3's compositor. Commit `6a34c9ce1c6fe1ae43d47eb329187e70cd546535` synchronously calls the existing 10.3 `reconcile()` at the game-action queue boundary before 10.4B captures post-action visual geometry. This changes no engine rule and does not replace 10.3 layout math.
-
-**No implementation blocker remains at the Run #108 code head.** Remaining closeout actions are administrative/repository gates only: final docs-head CI, PR #7 merge, main verification/Pages deployment, and one post-merge continuity refresh with final production SHAs.
 
 ---
 
@@ -541,16 +536,17 @@ A WebKit CI flake was stabilized by waiting on the actual requestAnimationFrame-
 
 ## Pass 10.4B — Signature Gameplay Choreography
 
-**Status:** **IMPLEMENTATION COMPLETE / RELEASE-GREEN / PR #7 MERGE PENDING.**
+**Status:** **COMPLETE / MERGED / GREEN / DEPLOYED TO PRODUCTION.**
 
 **Goal:** turn semantic game effects into readable, distinctive, interruption-safe presentation sequences while preserving engine-first state, 10.3 final geometry, and the 10.4A canonical input/commit path.
 
 **Branch:** `pass-10-4b-signature-choreography`  
 **PR:** `#7 — Pass 10.4B — Signature Gameplay Choreography`  
-**Green code head:** `6a34c9ce1c6fe1ae43d47eb329187e70cd546535`  
-**README closeout head:** `8effbafed28c2580a90bc7b7f2cfdf0b71996a96`  
-**Merge SHA:** none yet  
-**Main/deploy SHA after merge:** none yet
+**Green implementation head:** `6a34c9ce1c6fe1ae43d47eb329187e70cd546535`  
+**Final PR/docs head:** `1623caed9c72a80d110e3ec4efdc3e2838d9ee3c`  
+**Merge / production runtime SHA:** `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`  
+**Final PR CI:** run #111 / `34606032376` — **success**  
+**Production CI + Pages:** run #112 / `34607056878` — verify **success**, deploy **success**
 
 ### Locked 10.4B decisions
 
@@ -618,59 +614,44 @@ A WebKit CI flake was stabilized by waiting on the actual requestAnimationFrame-
 
 ### Final 10.4B QA / evidence
 
-**Authoritative release-candidate run:** #108 / `34602290077`, head `6a34c9ce1c6fe1ae43d47eb329187e70cd546535` — **verify success**.
+Release-candidate visual/runtime proof:
 
-Static and inherited coverage remained green, including:
+- Run #108 / `34602290077`, head `6a34c9ce1c6fe1ae43d47eb329187e70cd546535` — verify **success**.
+- Artifact `10265117227` manually inspected at 852×393 — no visual blocker.
 
-- engine regression and catalog fuzz;
-- PWA validation and explicit runtime precache/load order;
-- 10.4R motion contract;
-- 10.4A static contract;
-- 10.3 geometry browser gate;
-- complete direct-manipulation baseline/overlap/parity/interruption/reduced-motion/touch gate;
-- destination-family parity;
-- presentation-aware bot gate;
-- disposable presentation failure recovery;
-- 256 physical stress trials / 512 committed interactions;
-- semantic landing continuity;
-- last-card/visibility/save-restore lifecycle;
-- WebKit/iPhone interaction.
+Latest-head PR proof:
 
-10.4B-specific coverage green:
+- Run #111 / `34606032376`, head `1623caed9c72a80d110e3ec4efdc3e2838d9ee3c` — every inherited and 10.4B gate **success**.
 
-- signature choreography browser gate;
-- reduced-motion equivalents;
-- interruption/cancellation state reconciliation;
-- viewport-safe cues;
-- eight-scenario adversarial matrix:
-  1. tied multi-row Scorch;
-  2. 8+ Muster swarm;
-  3. Spy 10→11 hand pressure;
-  4. Horn over active Tight Bond;
-  5. simultaneous Frost/Fog/Rain → Clear Weather;
-  6. Medic → nested Muster;
-  7. Decoy on non-Hero Spy;
-  8. Round 2→3 Monster retention + two Skellige returns.
+Production proof:
 
-Visual artifact `10265117227` from Run #108 was manually inspected at 852×393. No visual blocker remains. The previously defective Medic→Muster transient is now card-bounded; the Round 2→3 hold/final sequence visibly preserves causal continuity and lands in the correct authoritative Round-3 state.
+- Run #112 / `34607056878`, head `a6adca26dc2bc52be9adb8ee7e551843bf00eee2` — every inherited and 10.4B gate **success**; Pages deploy **success**.
+- Production 10.4B artifact `10266123499` archived successfully.
+
+10.4B-specific adversarial coverage includes:
+
+1. tied multi-row Scorch;
+2. 8+ Muster swarm;
+3. Spy 10→11 hand pressure;
+4. Horn over active Tight Bond;
+5. simultaneous Frost/Fog/Rain → Clear Weather;
+6. Medic → nested Muster;
+7. Decoy on non-Hero Spy;
+8. Round 2→3 Monster retention + two Skellige returns.
 
 ### 10.4B non-goals / remaining broader debt
 
 10.4B does not complete the full legal deck builder, final AI, unrestricted production match shell, final audio/haptics, or final feel/accessibility/performance tuning. Those remain later work.
 
-### 10.4B exact closeout action
+### 10.4B handoff
 
-1. Run the final README + `CONTINUITY.md` docs-only branch head through the full required CI graph.
-2. If green, merge PR #7 with expected-head protection.
-3. Verify `main` through the full verification + Pages deployment workflow.
-4. Refresh this continuity file on `main` with the final merge SHA, production head, and main deploy evidence.
-5. Only then begin **Pass 10.4C — Feel / Presentation Polish**.
+Pass 10.4B is closed. Do not reopen it unless a regression is discovered against the green production baseline. The next implementation work belongs in **Pass 10.4C — Feel / Presentation Polish**.
 
 ---
 
-# 12. Current product status at the Pass 10.4B closeout
+# 12. Current product status after Pass 10.4B
 
-## Production/main currently has until PR #7 merges
+Production/main now has:
 
 - hosted canonical JS/PWA infrastructure;
 - deterministic classic-rules engine;
@@ -685,11 +666,7 @@ Visual artifact `10265117227` from Run #108 was manually inspected at 852×393. 
 - semantic presentation transaction substrate;
 - FLIP redistribution;
 - iPhone/WebKit interaction coverage;
-- CI-protected deployment.
-
-## Pass 10.4B release candidate additionally has
-
-- authored mechanic/lifecycle choreography runtime;
+- **10.4B authored mechanic/lifecycle choreography runtime**;
 - expanded semantic before/after + engine-delta adapter;
 - presentation-only pre-state visual snapshots for causal readability;
 - explicit production/PWA 10.4B load graph;
@@ -699,9 +676,10 @@ Visual artifact `10265117227` from Run #108 was manually inspected at 852×393. 
 - score-after-cause ordering;
 - round/faction lifecycle grouping;
 - reduced-motion mechanic equivalents;
-- adversarial signature/lifecycle QA proven green.
+- adversarial signature/lifecycle QA proven green;
+- CI-protected Pages deployment.
 
-## Major remaining work after 10.4B closeout
+Major remaining work:
 
 - Pass 10.4C timing/feel/audio hooks/future haptics/accessibility/performance;
 - unrestricted legal deck builder across all 216 cards;
@@ -711,42 +689,44 @@ Visual artifact `10265117227` from Run #108 was manually inspected at 852×393. 
 - full victory/rematch/unrestricted match shell;
 - local permitted-art ownership/caching rather than raw-GitHub dependency;
 - native-quality install/offline polish;
-- Pass 11 Golden Match after 10.4A/B/C.
+- Pass 11 Golden Match after 10.4C.
 
 ---
 
-# 13. Active repository action — Pass 10.4B closeout
+# 13. Next implementation pass — Pass 10.4C Feel / Presentation Polish
 
-**Do not begin 10.4C until PR #7 is merged and production verification/deployment is green.**
+**Status:** planned / ready to begin when explicitly triggered.
 
-Branch: `pass-10-4b-signature-choreography`  
-PR: `#7`  
-Green implementation head: `6a34c9ce1c6fe1ae43d47eb329187e70cd546535`  
-Green implementation CI: run #108 / `34602290077` — all inherited + WebKit + signature + adversarial gates green.  
-Visual artifact: `10265117227` — manually inspected, no blocker.
+10.4C is the next pass. It must operate on the green production baseline established by 10.3 + 10.4A + 10.4B and must not rewrite classic rules or replace frozen battlefield geometry.
 
-10.4B's implementation completion gate is satisfied at the code head. The only remaining requirements are:
+Primary 10.4C focus:
 
-- final docs-head CI green;
-- PR #7 merge;
-- main verification + Pages deploy green;
-- post-merge continuity refresh with final production evidence.
+- physical card weight and immediate tactile response;
+- motion curves and timing coherence;
+- hover/press/selection/target feedback;
+- score transitions and row reactions;
+- match/round pacing without ornamental delay;
+- semantic audio hooks;
+- future/native haptic mapping points;
+- reduced-motion quality rather than simple animation removal;
+- interruption/cancellation feel;
+- performance/frame budget on iPhone/WebKit;
+- final presentation consistency across tap, drag, player, bot, lifecycle, and effect-choice paths.
 
-**Next planned implementation pass:** **Pass 10.4C — Feel / Presentation Polish.**
+10.4C is a polish/feel/accessibility/performance pass, not a rules pass. The strongest acceptance evidence should include real visual inspection and timing/frame-budget evidence rather than only static green tests.
 
-10.4C should tune physical card weight, timing curves, pacing, target/score/row feedback, semantic audio hooks, future/native haptic mapping, reduced-motion quality, interruption feel, performance/frame budget, and iPhone-native responsiveness. It must not change classic rules or replace 10.3 geometry.
+**Next pass after 10.4C:** **Pass 11 — Golden Match / Complete Normal Match.**
 
 ---
 
 # 14. Forward roadmap authority
 
-`FUTURE_CONTINUITY.md` preserves intended future direction. The locked near-term sequence is:
+`FUTURE_CONTINUITY.md` preserves intended future direction. The locked near-term sequence is now:
 
-1. close/merge/deploy **10.4B — Signature Gameplay Choreography**;
-2. **10.4C — Feel / Presentation Polish**;
-3. **Pass 11 — Golden Match**.
+1. **Pass 10.4C — Feel / Presentation Polish**;
+2. **Pass 11 — Golden Match**.
 
-Pass 11 must not begin until 10.4A/B/C establish the interaction layer. Golden Match is the first full-game validation of legal decks, full round lifecycle, normal human interaction without developer shortcuts, real chained presentation, AI using the same choreography language, and strategic pacing with animation enabled.
+Pass 10.4A and 10.4B are complete production foundations. Pass 11 must not begin until 10.4C finishes the interaction/presentation layer. Golden Match is the first full-game validation of legal decks, full round lifecycle, normal human interaction without developer shortcuts, real chained presentation, AI using the same choreography language, and strategic pacing with animation enabled.
 
 Requirements beyond Pass 11 may be described in `FUTURE_CONTINUITY.md`; do not invent exact later pass numbers unless explicitly assigned.
 
@@ -817,12 +797,19 @@ For a new conversation, use:
 
 # 18. Current handoff
 
-**Production/main remains green on the 10.4A interaction foundation at `a7026cb884b562cc809a87f38a8c5f14153f652b`; main workflow run #68 (`34546542961`) verified and deployed successfully.**
+**Pass 10.4B is complete, merged, verified, and deployed.**
 
-**Pass 10.4B is implementation-complete and release-green on PR #7.** The authoritative code head is `6a34c9ce1c6fe1ae43d47eb329187e70cd546535`; Run #108 (`34602290077`) passed the complete inherited 10.3/10.4A regression matrix, WebKit/iPhone gate, primary 10.4B signature/reduced-motion/interruption suite, and all eight adversarial choreography scenarios. Artifact `10265117227` was manually inspected at 852×393 and has no remaining visual blocker.
+Production runtime baseline:
 
-The last significant visual defect—an oversized transient during external Medic→Muster presentation—was resolved by synchronously reconciling through the existing Pass 10.3 compositor before 10.4B post-action visual capture. The final Round 2→3 evidence also confirms one retained Monster and exactly two Skellige returns while the new round remains active.
+- merge/runtime SHA: `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`;
+- final PR head: `1623caed9c72a80d110e3ec4efdc3e2838d9ee3c`;
+- final PR run: #111 / `34606032376` — success;
+- production run: #112 / `34607056878` — verify success, Pages deploy success;
+- production 10.4B QA artifact: `10266123499`;
+- canonical hosted build: https://blakemgray.github.io/gwent-definitive/.
 
-**Exact next action:** let the final README + continuity docs-only branch head pass CI; merge PR #7 only if that latest head is green; verify the resulting `main` workflow and Pages deployment; refresh this ledger on `main` with the merge/production/deploy SHAs; then begin **Pass 10.4C — Feel / Presentation Polish**.
+All inherited 10.3/10.4A regression gates, 256-trial interaction stress, lifecycle/save-restore, WebKit/iPhone, primary 10.4B choreography/reduced-motion/interruption, and the eight adversarial choreography scenarios are green on production. The last visual defect found during the pass—oversized external Medic→Muster transient geometry—was fixed before release and visually revalidated.
 
-Do **not** reopen 10.4B implementation unless the final docs-head or post-merge verification exposes a real regression.
+**Exact next implementation action:** begin **Pass 10.4C — Feel / Presentation Polish** when explicitly triggered. Start from current green `main`, preserve the 10.3 geometry authority, 10.4A canonical action path, and 10.4B engine-first choreography architecture. Focus on tactile timing, pacing, target/score/row feedback, audio/future-haptic semantics, reduced-motion quality, interruption feel, and iPhone performance/frame budget. Do not begin Pass 11 until 10.4C is complete.
+
+Do not reopen Pass 10.4B unless current production evidence exposes a genuine regression.
