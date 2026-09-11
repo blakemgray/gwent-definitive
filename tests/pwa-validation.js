@@ -20,7 +20,7 @@ for(const rel of ['direct-manipulation.css','src/motion-tokens.js','src/presenta
   assert(sw.includes(rel.replace(/^src\//,''))||sw.includes(rel),`Pass 10.4A runtime not precached: ${rel}`);
 }
 const events=fs.readFileSync(path.join(root,'src/presentation-events.js'),'utf8');
-for(const rel of ['gameplay-choreography.css','src/gameplay-choreography.js']){
+for(const rel of ['gameplay-choreography.css','src/gameplay-choreography.js','src/choreography-external-gate.js']){
   assert(events.includes(rel),`Pass 10.4B runtime loader missing: ${rel}`);
   assert(sw.includes(rel),`Pass 10.4B runtime not precached: ${rel}`);
 }
