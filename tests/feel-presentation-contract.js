@@ -42,7 +42,7 @@ const choreoCss=html.indexOf('gameplay-choreography.css'),feelIdx=html.indexOf('
 const externalIdx=html.indexOf('src/choreography-external-gate.js'),feedbackIdx=html.indexOf('src/presentation-feedback.js');
 ok(feelIdx>choreoCss,'feel CSS must load after choreography styles');
 ok(feedbackIdx>externalIdx,'feedback subscriber must load after established presentation/action gates');
-ok(sw.includes("const BUILD='10.4C.0'"),'PWA cache must advance to 10.4C');
+ok(sw.includes("const BUILD='11.1B.0'"),'PWA cache must remain version-pinned and advance through Pass 11.1B');
 for(const rel of ['feel-polish.css','src/presentation-feedback.js'])ok(sw.includes(rel),`PWA must precache ${rel}`);
 ok(/not more animation/i.test(contract)&&/60 fps/i.test(contract),'10.4C contract preserves mission/performance target');
 console.log(`feel-presentation-contract: ${n} assertions passed`);
