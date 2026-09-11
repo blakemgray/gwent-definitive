@@ -15,6 +15,10 @@ def wait_idle(page,timeout=7000):
     page.evaluate('t=>window.GwentDirectManipulation.waitForIdle(t)',timeout)
     page.wait_for_function('!window.GwentPresentationQueue.busy',timeout=timeout)
     page.wait_for_timeout(35)
+def assert_cues_in_view(page):
+    boxes=page.locator('.gc-cue').evaluate_all("els=>els.map(e=>{const r=e.getBoundingClientRect();return{x:r.x,y:r.y,right:r.right,bottom:r.bottom,w:innerWidth,h:innerHeight,text:e.textContent};})")
+    for b in boxes:
+        assert b['x']>=-0.75 and b['y']>=-0.75 and b['right']<=b['w']+0.75 and b['bottom']<=b['h']+0.75,b
 
 def enter(page):
     page.goto(BASE,wait_until='networkidle')
@@ -36,6 +40,7 @@ def synthetic(page,events,name,extra=None,shot=None):
     page.evaluate("tx=>{window.__gcQaPromise=window.GwentPresentationQueue.run(tx,async()=>{});}",tx)
     page.wait_for_function(f"document.body.dataset.gcStage==='{name}'",timeout=3000)
     assert page.locator('.gc-cue').count()>=1 or name in ['muster']
+    assert_cues_in_view(page)
     if shot: page.screenshot(path=str(QA/shot))
     page.evaluate('()=>window.__gcQaPromise');page.wait_for_function('!window.GwentPresentationQueue.busy',timeout=5000)
     assert page.locator('.gc-cue,.gc-ghost').count()==0
@@ -93,7 +98,7 @@ with sync_playwright() as p:
     # Interruption is presentation-only: queue cancellation scrubs transient cues and cannot mutate authoritative state.
     frozen=state(page)
     txi={'kind':'game_action','version':'10.4B.0','inputMethod':'qa','action':{'type':'QA'},'events':[{'type':'SCORCH_TRIGGER','playerId':'p1','doomed':[{'iid':'x','playerId':'p2','row':'siege'}]},{'type':'ROUND_END','round':1,'winnerId':'p1'}],'engineEvents':[],'beforeBoard':round_board,'afterBoard':round_board}
-    page.evaluate("tx=>{window.__gcInterrupt=window.GwentPresentationQueue.run(tx,async()=>{});}",txi);page.wait_for_function("document.body.dataset.gcStage==='scorch'",timeout=3000);page.screenshot(path=str(QA/'13_interrupt_before_cancel.png'))
+    page.evaluate("tx=>{window.__gcInterrupt=window.GwentPresentationQueue.run(tx,async()=>{});}",txi);page.wait_for_function("document.body.dataset.gcStage==='scorch'",timeout=3000);assert_cues_in_view(page);page.screenshot(path=str(QA/'13_interrupt_before_cancel.png'))
     page.evaluate("window.GwentPresentationQueue.cancel('qa-interrupt')");page.evaluate('()=>window.__gcInterrupt');page.wait_for_timeout(50)
     assert state(page)==frozen
     assert page.locator('.gc-cue,.gc-ghost').count()==0
@@ -104,4 +109,4 @@ with sync_playwright() as p:
     assert not errors,errors
     ctx.close();browser.close()
 
-print('gameplay-choreography-ui: real Spy/Weather semantics, signature frames, external Pass, reduced motion, and interruption safety passed')
+print('gameplay-choreography-ui: real Spy/Weather semantics, viewport-safe signature frames, external Pass, reduced motion, and interruption safety passed')
