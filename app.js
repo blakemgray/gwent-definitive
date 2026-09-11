@@ -5,37 +5,84 @@
   const Assets = window.GwentAssetResolver;
   const Store = window.GwentStorage;
 
-  const PLAYER_DECK_A = [
-    'realms_thaler','realms_blue_stripes','realms_blue_stripes','realms_catapult','realms_dun_banner_medic',
-    'special_decoy','weather_frost','special_scorch','realms_vernon','neutral_geralt',
-    'realms_dijkstra','neutral_yennefer','realms_keira','realms_sheldon','realms_trebuchet','realms_catapult'
+  const PLAYER_GOLDEN_DECK = [
+    'realms_thaler',
+    'realms_dijkstra',
+    'realms_stennis',
+    'realms_blue_stripes',
+    'realms_blue_stripes',
+    'realms_blue_stripes',
+    'realms_crinfrid',
+    'realms_crinfrid',
+    'realms_crinfrid',
+    'realms_catapult_1',
+    'realms_catapult_1',
+    'realms_banner_nurse',
+    'realms_kaedwen_siege',
+    'realms_kaedwen_siege_1',
+    'realms_kaedwen_siege_2',
+    'realms_esterad',
+    'realms_natalis',
+    'realms_philippa',
+    'realms_vernon',
+    'realms_keira',
+    'realms_sheldon',
+    'realms_siege_tower',
+    'realms_ves',
+    'realms_trebuchet',
+    'realms_ballista',
+    'special_decoy',
+    'special_decoy',
+    'special_horn',
+    'special_scorch',
+    'weather_frost',
+    'weather_clear'
   ];
-  const PLAYER_DECK_B = [
-    'weather_frost','special_scorch','realms_catapult','realms_dun_banner_medic','realms_blue_stripes',
-    'realms_blue_stripes','special_decoy','realms_thaler','neutral_yennefer','realms_vernon',
-    'realms_dijkstra','realms_keira','neutral_geralt','realms_sheldon','realms_trebuchet','realms_catapult'
-  ];
-  const BOT_DECK_A = [
-    'monsters_earth_elemental','monsters_grave_hag','monsters_cockatrice','monsters_gargoyle',
-    'monsters_earth_elemental','monsters_grave_hag','monsters_cockatrice','monsters_gargoyle',
-    'monsters_earth_elemental','monsters_grave_hag','monsters_cockatrice','monsters_gargoyle',
-    'monsters_earth_elemental','monsters_grave_hag','monsters_cockatrice','monsters_gargoyle'
-  ];
-  const BOT_DECK_B = [
-    'monsters_cockatrice','monsters_earth_elemental','monsters_grave_hag','monsters_gargoyle',
-    'monsters_grave_hag','monsters_earth_elemental','monsters_gargoyle','monsters_cockatrice',
-    'monsters_earth_elemental','monsters_cockatrice','monsters_grave_hag','monsters_gargoyle',
-    'monsters_grave_hag','monsters_earth_elemental','monsters_cockatrice','monsters_gargoyle'
+  const BOT_GOLDEN_DECK = [
+    'monsters_arachas',
+    'monsters_arachas_1',
+    'monsters_arachas_2',
+    'monsters_arachas_behemoth',
+    'monsters_witch_velen',
+    'monsters_witch_velen_1',
+    'monsters_witch_velen_2',
+    'monsters_ghoul',
+    'monsters_ghoul_1',
+    'monsters_ghoul_2',
+    'monsters_nekker',
+    'monsters_nekker_1',
+    'monsters_nekker_2',
+    'monsters_bruxa',
+    'monsters_ekkima',
+    'monsters_fleder',
+    'monsters_garkain',
+    'monsters_katakan',
+    'monsters_earth_elemental',
+    'monsters_fire_elemental',
+    'monsters_cockatrice',
+    'monsters_gravehag',
+    'monsters_fiend',
+    'monsters_fogling',
+    'monsters_gryffin',
+    'monsters_wyvern',
+    'monsters_draug',
+    'monsters_imlerith',
+    'monsters_leshen',
+    'special_decoy',
+    'special_horn',
+    'special_scorch',
+    'weather_frost',
+    'weather_fog',
+    'weather_rain',
+    'weather_clear'
   ];
 
   const PRESETS = {
     player:[
-      {id:'nr_siege_spy', name:'Northern Realms · Siege & Spy', faction:'realms', leaderId:'realms_foltest_copper', deck:PLAYER_DECK_A, summary:'Thaler, Blue Stripes, Medic, Frost and Scorch in a recommended opening order.'},
-      {id:'nr_control', name:'Northern Realms · Control Opening', faction:'realms', leaderId:'realms_foltest_copper', deck:PLAYER_DECK_B, summary:'Front-loads control tools so Pass 10 can immediately showcase board pressure and mulligan decisions.'}
+      {id:'nr_golden', name:'Northern Realms · Siege & Intelligence', faction:'realms', leaderId:'realms_foltest_copper', deck:PLAYER_GOLDEN_DECK, summary:'A legal 31-card Northern Realms deck built around spies, bonds, siege, Medic, Decoy, weather and Scorch.'}
     ],
     bot:[
-      {id:'monsters_midrange', name:'Monsters · Midrange', faction:'monsters', leaderId:'monsters_eredin_silver', deck:BOT_DECK_A, summary:'Balanced Monsters pressure deck.'},
-      {id:'monsters_swarm', name:'Monsters · Swarm Pressure', faction:'monsters', leaderId:'monsters_eredin_silver', deck:BOT_DECK_B, summary:'A more aggressive Monsters opening profile.'}
+      {id:'monsters_golden', name:'Monsters · Muster Pressure', faction:'monsters', leaderId:'monsters_eredin_silver', deck:BOT_GOLDEN_DECK, summary:'A legal 36-card Monsters deck built around Muster families, resilient pressure, weather and control.'}
     ],
     difficulties:[
       {id:'apprentice', name:'Apprentice', summary:'Forgiving opponent that favors straightforward plays.'},
@@ -51,7 +98,7 @@
     screen:'main-screen', toastTimer:null, botTimer:null, preMatchState:null,
     mulliganUsed:0,
     settings:{autoBot:savedSettings.autoBot!==false, showEvents:!!savedSettings.showEvents, tacticalLabels:savedSettings.tacticalLabels!==false, defaultDifficulty:savedSettings.defaultDifficulty||'standard', developerMode:!!savedSettings.developerMode},
-    setup:{playerPreset:'nr_siege_spy', botPreset:'monsters_midrange', difficulty:savedSettings.defaultDifficulty||'standard', firstPlayerId:'p1', seed:20260910, mode:'classic'}
+    setup:{playerPreset:'nr_golden', botPreset:'monsters_golden', difficulty:savedSettings.defaultDifficulty||'standard', firstPlayerId:'p1', seed:20260910, mode:'classic'}
   };
   let state = null;
   let history = null;
@@ -96,7 +143,7 @@
   function botPreset(){ return PRESETS.bot.find(p=>p.id===ui.setup.botPreset) || PRESETS.bot[0]; }
 
   function quickStart(){
-    ui.setup.playerPreset='nr_siege_spy'; ui.setup.botPreset='monsters_midrange'; ui.setup.firstPlayerId='p1';
+    ui.setup.playerPreset='nr_golden'; ui.setup.botPreset='monsters_golden'; ui.setup.firstPlayerId='p1';
     ui.setup.mode='classic'; ui.setup.difficulty=ui.settings.defaultDifficulty; ui.setup.seed=20260910;
     prepareMulliganState();
   }
@@ -107,16 +154,20 @@
     ui.selectedIid=null; ui.revealOpponent=false; ui.showIntent=false; ui.mulliganUsed=0;
     ui.preMatchState = G.createMatch({
       p1Faction:pp.faction,p2Faction:bp.faction,p1LeaderId:pp.leaderId,p2LeaderId:bp.leaderId,
-      p1Deck:pp.deck,p2Deck:bp.deck,handSize:10,seed:Number(ui.setup.seed)||20260910,firstPlayerId:ui.setup.firstPlayerId
+      p1Deck:pp.deck,p2Deck:bp.deck,handSize:10,seed:Number(ui.setup.seed)||20260910,firstPlayerId:ui.setup.firstPlayerId,
+      validateDecks:true,shuffleDecks:true,mulligan:true
     });
     if(lab) ui.preMatchState = G.sandboxSetTurn(ui.preMatchState,'p1');
+    savePreparedMatch();
     go('mulligan-screen');
     renderMulliganScreen();
     toast(lab ? 'MECHANICS LAB · REVIEW HAND THEN ENTER' : 'MATCH PREPARED · REVIEW OPENING HAND');
   }
 
   function finalizeMatchFromPrepared(){
-    state = deepClone(ui.preMatchState);
+    if(!ui.preMatchState) return;
+    state = G.applyAction(ui.preMatchState,{type:'FINISH_MULLIGAN'});
+    ui.preMatchState = null;
     history = new G.HistorySession(state);
     go('match-screen');
     renderMatch();
@@ -127,15 +178,10 @@
 
   function swapMulligan(iid){
     if(!ui.preMatchState || ui.mulliganUsed>=2) return;
-    const s = deepClone(ui.preMatchState), p = s.players.p1;
-    const idx = p.hand.findIndex(c=>c.iid===iid);
-    if(idx<0 || !p.deck.length) return;
-    const outgoing = p.hand.splice(idx,1)[0];
-    const incoming = p.deck.shift();
-    p.hand.push(incoming);
-    p.deck.push(outgoing);
-    ui.preMatchState = s;
-    ui.mulliganUsed += 1;
+    const outgoing=ui.preMatchState.players.p1.hand.find(c=>c.iid===iid);if(!outgoing)return;
+    ui.preMatchState=G.applyAction(ui.preMatchState,{type:'MULLIGAN_CARD',playerId:'p1',iid});
+    ui.mulliganUsed=ui.preMatchState.mulliganCounts?.p1||0;
+    savePreparedMatch();
     renderMulliganScreen();
     toast(`${displayName(outgoing).toUpperCase()} · MULLIGANED`);
   }
@@ -160,12 +206,12 @@
       renderOptionChip('firstPlayerId','p2','Bot starts','Stress response play and passing logic.',ui.setup.firstPlayerId==='p2')
     ].join('');
     $('#setup-body').innerHTML = `
-      <div class="panel setup-panel"><div class="selector-title"><div><div class="eyebrow">PLAYER DECK PRESET</div><h3>${esc(playerPreset().name)}</h3></div><span class="badge">${esc(playerPreset().deck.length)} CARD SLICE</span></div><div class="selector-group"><div class="option-row">${playerCards}</div></div></div>
+      <div class="panel setup-panel"><div class="selector-title"><div><div class="eyebrow">PLAYER DECK PRESET</div><h3>${esc(playerPreset().name)}</h3></div><span class="badge">${esc(playerPreset().deck.length)} CARD DECK</span></div><div class="selector-group"><div class="option-row">${playerCards}</div></div></div>
       <div class="panel setup-panel"><div class="selector-title"><div><div class="eyebrow">OPPONENT ARCHETYPE</div><h3>${esc(botPreset().name)}</h3></div><span class="badge">OPPONENT</span></div><div class="selector-group"><div class="option-row">${botCards}</div></div></div>
       <div class="panel setup-panel"><div class="selector-title"><div><div class="eyebrow">DIFFICULTY LAYER</div><h3>${esc((PRESETS.difficulties.find(d=>d.id===ui.setup.difficulty)||{}).name||'')}</h3></div><span class="badge">DIFFICULTY</span></div><div class="selector-group"><div class="option-row">${diffCards}</div></div></div>
       <div class="panel setup-panel"><div class="selector-title"><div><div class="eyebrow">MATCH PARAMETERS</div><h3>Initiative and seed</h3></div><span class="badge">PRE-BATTLE FLOW</span></div><div class="selector-group"><div class="option-row">${firstCards}</div><div class="setup-summary"><div class="setup-kv"><b>Seed</b><input id="seed-input" class="seed-input" type="number" value="${esc(ui.setup.seed)}"></div><div class="setup-kv"><b>Resulting leader</b>${esc(def(playerPreset().leaderId)?.name || playerPreset().leaderId)}</div><div class="setup-kv"><b>Bot leader</b>${esc(def(botPreset().leaderId)?.name || botPreset().leaderId)}</div><div class="setup-kv"><b>Recommended mode</b>${ui.setup.mode.toUpperCase()}</div></div></div><div class="setup-actions"><button id="setup-reset" class="btn">RESET RECOMMENDED</button><button id="setup-prepare" class="btn primary">PREPARE OPENING HAND</button></div></div>`;
     const seedInput = $('#seed-input'); if(seedInput) seedInput.addEventListener('change', e=>ui.setup.seed = Number(e.target.value)||20260910);
-    $('#setup-reset').onclick = ()=>{ ui.setup={playerPreset:'nr_siege_spy', botPreset:'monsters_midrange', difficulty:ui.settings.defaultDifficulty, firstPlayerId:'p1', seed:20260910, mode:'classic'}; renderSetupScreen(); };
+    $('#setup-reset').onclick = ()=>{ ui.setup={playerPreset:'nr_golden', botPreset:'monsters_golden', difficulty:ui.settings.defaultDifficulty, firstPlayerId:'p1', seed:20260910, mode:'classic'}; renderSetupScreen(); };
     $('#setup-prepare').onclick = ()=>prepareMulliganState(false);
   }
 
@@ -468,8 +514,13 @@
 
   function toast(msg){ const t=$('#toast'); if(!t) return; t.textContent=msg;t.classList.add('show');clearTimeout(ui.toastTimer);ui.toastTimer=setTimeout(()=>t.classList.remove('show'),1300); }
 
+  function savePreparedMatch(){
+    if(Store&&ui.preMatchState)Store.writeMatch({state:ui.preMatchState,setup:ui.setup,lab:ui.lab,phase:'mulligan',mulliganUsed:ui.mulliganUsed});
+    refreshContinueButton();
+  }
+
   function saveActiveMatch(){
-    if(Store && state && !state.winner) Store.writeMatch({state,setup:ui.setup,lab:ui.lab});
+    if(Store && state && !state.winner) Store.writeMatch({state,setup:ui.setup,lab:ui.lab,phase:'match',mulliganUsed:ui.mulliganUsed});
     refreshContinueButton();
   }
 
@@ -478,14 +529,18 @@
     const saved=Store && Store.readMatch();
     b.classList.toggle('hidden',!saved);
     if(saved){
-      const label=b.querySelector('span'); if(label) label.textContent=`ROUND ${saved.state.round} · ${saved.state.players.p1.hand.length} CARDS`;
+      const label=b.querySelector('span'); if(label) label.textContent=saved.phase==='mulligan'?`MULLIGAN · ${saved.mulliganUsed||0} / 2 USED`:`ROUND ${saved.state.round} · ${saved.state.players.p1.hand.length} CARDS`;
     }
   }
 
   function resumeSavedMatch(){
     const saved=Store && Store.readMatch(); if(!saved) return;
-    state=deepClone(saved.state); history=new G.HistorySession(state); ui.setup=Object.assign({},ui.setup,saved.setup||{}); ui.lab=!!saved.lab;
-    ui.selectedIid=null; ui.revealOpponent=false; ui.showIntent=false; go('match-screen'); renderMatch(); toast('MATCH RESTORED'); maybeAutoBot();
+    ui.setup=Object.assign({},ui.setup,saved.setup||{});ui.lab=!!saved.lab;ui.mulliganUsed=Number(saved.mulliganUsed||0);
+    ui.selectedIid=null;ui.revealOpponent=false;ui.showIntent=false;
+    if(saved.phase==='mulligan'){
+      state=null;history=null;ui.preMatchState=deepClone(saved.state);go('mulligan-screen');renderMulliganScreen();toast('MULLIGAN RESTORED');return;
+    }
+    ui.preMatchState=null;state=deepClone(saved.state);history=new G.HistorySession(state);go('match-screen');renderMatch();toast('MATCH RESTORED');maybeAutoBot();
   }
 
   function renderDeckScreen(){
@@ -534,10 +589,11 @@
     getPreparedState:()=>ui.preMatchState ? deepClone(ui.preMatchState) : null,
     quickStart, prepareMulliganState, finalizeMatchFromPrepared, botMove, pass:passPlayer,
     selectCard, playAction, openCheats, go, maybeAutoBot, engine:G, assetResolver:Assets, storage:Store, openLeader, renderRulesMatrix,
-    swapMulligan,
+    swapMulligan, getMulliganUsed:()=>ui.mulliganUsed, presets:()=>deepClone(PRESETS),
     setStateForQA:(s)=>{state=G.helpers.deepClone(s);history=new G.HistorySession(state);go('match-screen');renderMatch();},
     battlefieldRowModel:[['p2','siege'],['p2','ranged'],['p2','close'],['weather',null],['p1','close'],['p1','ranged'],['p1','siege']]
   };
+  window.__GWENT_PASS11__ = window.__GWENT_PASS10__;
   window.__GWENT_PASS10_2__ = window.__GWENT_PASS10__;
   window.__GWENT_PASS9__ = window.__GWENT_PASS10__;
 })();

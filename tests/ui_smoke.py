@@ -146,8 +146,8 @@ with sync_playwright() as p:
     page.screenshot(path=str(qa_dir/'11_context_preserving_inspector.png'))
     page.locator('#overlay-root [data-close-overlay]').first.click()
 
-    saved=page.evaluate("localStorage.getItem('gwent-definitive-match-v1')")
-    assert saved and json.loads(saved)['schema']==1
+    saved=page.evaluate("localStorage.getItem(window.GwentStorage.SAVE_KEY)")
+    assert saved and json.loads(saved)['schema']==2
     page.reload(wait_until='domcontentloaded')
     page.set_viewport_size({'width':393,'height':852})
     assert page.locator('#main-screen #continue-match').is_visible(),'continue match should be visible after reload'
@@ -157,7 +157,7 @@ with sync_playwright() as p:
     assert page.locator('#player-left #leader-button').count()==1
     assert page.locator('#player-left #counts').count()==1
 
-    page.evaluate("localStorage.removeItem('gwent-definitive-match-v1')")
+    page.evaluate("localStorage.removeItem(window.GwentStorage.SAVE_KEY)")
     page.locator('#match-screen #match-menu').click(); page.set_viewport_size({'width':393,'height':852})
     page.locator('#main-screen [data-nav="settings-screen"]').click(); page.locator('#settings-screen #developer-mode').check()
     assert page.locator('#card-interaction-mode').count()==1
