@@ -8,15 +8,16 @@
 **Default branch:** `main`  
 **Current production runtime / Pass 10.4C merge:** `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d`  
 **Last verified production workflow:** run #137 / `34621157464` — verify **success**, Pages deploy **success**  
+**Last verified docs-aligned main head:** `a6851a1d5959ee530a0644b21529e606ea621c5f`  
+**Last verified docs-aligned workflow:** run #140 / `34623641751` — verify **success**, Pages deploy **success**  
 **Current completed production milestone:** **Pass 10.4C — Feel / Presentation Polish**  
 **Current active implementation milestone:** **None — Pass 10.4C is closed**  
-**Current active repository task:** **final 10.4C documentation cleanup / repository-green closeout**  
-**Main head before this checkpoint:** `94a749c1993a3e37a102bd8d246cb0eacfc9e9d4`  
-**Estimated repository-closeout completion:** **~25%** — visibility only; never a reason to rush or weaken QA  
+**Current active repository task:** **None — 10.4C runtime and repository closeout are complete**  
+**Estimated Pass 10.4C completion:** **100%**  
 **Next implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
 **Last updated:** 2026-09-11 America/New_York
 
-Pass 10.4C is already merged, fully verified on `main`, visually approved, and deployed. The current task changes documentation only: align README to production truth, then verify/deploy that final documentation head so the repository ends 10.4C completely green before Pass 11 begins.
+Pass 10.4C is complete, merged, fully verified on `main`, visually approved, deployed, and documentation-aligned. README reflects production truth. Run #140 re-proved the complete matrix and Pages deployment on the final README-aligned documentation head. This continuity-only closeout commit is the terminal repository-cleanup stamp; verify/deploy it once, but do not create a recursive continuity commit solely to record that verification.
 
 ---
 
@@ -154,9 +155,13 @@ Policy: branch → PR → full static/browser/geometry/interaction/WebKit/pass-s
 - Merge/runtime SHA: `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d`.
 - Final PR validation: run #136 / `34620304920` — every gate **success**.
 - Production verification + Pages deployment: run #137 / `34621157464` — verify **success**, deploy **success**.
+- README-aligned docs head: `a6851a1d5959ee530a0644b21529e606ea621c5f`.
+- README-aligned verification + Pages deployment: run #140 / `34623641751` — verify **success**, deploy **success**.
 - Visually approved release artifact: `10270749326` / `sha256:9d06882cc9f6d363ce4b5cbe494023f11e9058c57fbc2bd52e1839a335ac3990`.
 
 Run #137 passed static engine/catalog/PWA/motion/direct-manipulation/choreography/feel validation, frozen 10.3 geometry, full 10.4A interaction/touch/parity, presentation-aware bot gating, disposable failure recovery, 256-trial physical stress / 512 committed interactions, semantic landing, lifecycle/save-restore, WebKit/iPhone, primary 10.4B choreography, the eight-scenario 10.4B adversarial matrix, and the 10.4C feel/feedback/reduced-motion/pacing gate. Production site staging/upload/deploy succeeded.
+
+Run #140 repeated the complete matrix on the documentation-aligned `main` head and archived all Pass 10.3/10.4A/10.4B/10.4C QA packages before a successful Pages deployment. No runtime change occurred between the 10.4C merge and the documentation-aligned head.
 
 ---
 
@@ -203,7 +208,8 @@ Green implementation head: `ee600e8b856b9743ad4a58501b7a84b11f40dbb2`
 Final PR/docs head: `e6a357606c6d0e978ceabf93e2f456377b3f6ac2`  
 Merge/runtime SHA: `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d`  
 Final PR CI: run #136 / `34620304920` — **success**  
-Production CI + Pages: run #137 / `34621157464` — verify **success**, deploy **success**
+Production CI + Pages: run #137 / `34621157464` — verify **success**, deploy **success**  
+README-aligned docs verification + Pages: run #140 / `34623641751` — verify **success**, deploy **success**
 
 ### Implemented
 
@@ -275,22 +281,20 @@ Legacy product root: `Gwent Definitive - blakemgray` — `1dDtOJP3wYTVfQiXP3bYUj
 
 ---
 
-# 9. Current handoff / active repository task
+# 9. Current handoff
 
-**Pass 10.4C runtime is complete, merged, fully verified, visually approved, and deployed.**
+**Pass 10.4C and its repository cleanup are complete.**
 
-Production evidence:
+Final evidence:
 
 - final PR head: `e6a357606c6d0e978ceabf93e2f456377b3f6ac2`;
 - merge/runtime SHA: `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d`;
 - final PR run: #136 / `34620304920` — success;
-- production run: #137 / `34621157464` — verify success, Pages deploy success;
-- visually approved QA artifact: `10270749326`.
+- production runtime run: #137 / `34621157464` — verify success, Pages deploy success;
+- visually approved QA artifact: `10270749326`;
+- README-aligned docs head: `a6851a1d5959ee530a0644b21529e606ea621c5f`;
+- README-aligned docs run: #140 / `34623641751` — verify success, Pages deploy success.
 
-No known runtime, rules, geometry, interaction, WebKit, choreography, reduced-motion, semantic-feedback, copy, or visual blocker remains for 10.4C.
+No known runtime, rules, geometry, interaction, WebKit, choreography, reduced-motion, semantic-feedback, copy, documentation, or visual blocker remains for 10.4C.
 
-### Active documentation-cleanup task
-
-The only remaining 10.4C repository-cleanup work is documentation alignment and a final docs-only green `main` head.
-
-**Exact next action:** update README from release-candidate wording to **complete / merged / green / deployed**, then run that final documentation head through the complete `main` workflow and Pages deployment. Once green, update this file with that final repository head/run and prepare **Pass 11 — Golden Match / Complete Normal Match**.
+**Exact next action:** when explicitly triggered, begin **Pass 11 — Golden Match / Complete Normal Match**. At the start of that task, update this file in GitHub first, create a dedicated Pass 11 branch/PR from the then-current green `main`, and preserve the 10.3 / 10.4A / 10.4B / 10.4C authority boundaries.
