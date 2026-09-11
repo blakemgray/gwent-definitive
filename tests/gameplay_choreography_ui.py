@@ -78,7 +78,7 @@ with sync_playwright() as p:
     # External app-only Pass is automatically observed and serialized through the same queue.
     s=state(page);s['players']['p2']['passed']=False;s['players']['p1']['passed']=False;s['currentPlayerId']='p1';reset(page,s)
     ext_before=page.evaluate('window.GwentGameplayChoreography.runtime.externalTransactions')
-    page.locator('#pass-button').click();page.wait_for_function('window.GwentGameplayChoreography.runtime.externalTransactions>arguments[0]',arg=ext_before,timeout=3000);wait_idle(page)
+    page.locator('#pass-button').click();page.wait_for_function('before=>window.GwentGameplayChoreography.runtime.externalTransactions>before',arg=ext_before,timeout=3000);wait_idle(page)
     assert state(page)['players']['p1']['passed'] is True
     assert any(x['kind'] in ['pass','round-end'] for x in page.evaluate('window.GwentGameplayChoreography.runtime.lastPlan'))
 
