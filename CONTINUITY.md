@@ -18,7 +18,8 @@
 **Current work branch:** `pass-11-golden-match`  
 **Current work PR:** #11 — `Pass 11: Golden Match`  
 **Current work head before resumed-cycle checkpoint:** `3a1ab389d94b5a6f0eb222a75df58efb85ee7da8`  
-**Latest exact-head workflow on that head:** run #159 / `34648516237` — **failure** in preserved Pass 10.4B adversarial `Medic→Muster` choreography gate after Pass 11 setup/lifecycle/direct-manipulation/WebKit/primary choreography gates passed  
+**Resumed-cycle checkpoint head:** `e340545f0777958de0f83b271af7bf3903f06cf6`  
+**Latest exact-head workflow before checkpoint:** run #159 / `34648516237` — **failure** in preserved Pass 10.4B adversarial `Medic→Muster` choreography gate after Pass 11 setup/lifecycle/direct-manipulation/WebKit/primary choreography gates passed  
 **Estimated Pass 11 planning completion:** **100%**  
 **Estimated overall Pass 11 implementation progress:** **26%**  
 **Estimated formally verified/closed Pass 11 progress:** **18%**  
@@ -27,7 +28,7 @@
 
 Pass 10.4C remains complete, merged, fully verified, visually approved, and deployed. Run #145 verified and deployed exact `main` head `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b`. The Pass 11 cycle is open on `pass-11-golden-match`, created from that exact green head. PR #11 contains the mandatory startup checkpoint and the repository-grounded `docs/PASS11_GOLDEN_MATCH_CONTRACT.md`; planning is complete and gameplay implementation began only after that contract was established. Pass 11.1A is closed: code commit `84c9b77f6b6c648373125fb651eefa8da239d5d1`, continuity-aligned candidate `182684264502d772b2197b3abdc3bc7d4196543a`, and fixture-isolation repair `3b67c3d0591dca4d77d66c788630101e31be8a46`. Run #151 / `34644865929` passed the full workflow on that exact implementation head; its Pass 11 setup evidence was manually inspected and approved.
 
-The 11.1B lifecycle/choice/restart/rematch work is substantially implemented on later commits. The current exact PR head `3a1ab389d94b5a6f0eb222a75df58efb85ee7da8` passes the new Pass 11 legal setup/mulligan gate, the new Pass 11 choice/restart/terminal-save/rematch gate, direct-manipulation baseline/parity/stress/lifecycle gates, WebKit/iPhone interaction, bot/presentation failure recovery, and primary 10.4B choreography. Run #159 fails later in the preserved 10.4B adversarial choreography matrix at the nested Medic→Muster scenario. The current stabilization task is therefore to prove whether that failure is a genuine product regression or a synthetic/adversarial-fixture synchronization assumption, without weakening the preserved gate.
+The 11.1B lifecycle/choice/restart/rematch work is substantially implemented on later commits. Exact PR head `3a1ab389d94b5a6f0eb222a75df58efb85ee7da8` passed the new Pass 11 legal setup/mulligan gate, the new Pass 11 choice/restart/terminal-save/rematch gate, direct-manipulation baseline/parity/stress/lifecycle gates, WebKit/iPhone interaction, bot/presentation failure recovery, and primary 10.4B choreography. Run #159 failed later in the preserved 10.4B adversarial choreography matrix at the nested Medic→Muster scenario. The current stabilization task is therefore to prove whether that failure is a genuine product regression or a synthetic/adversarial-fixture synchronization assumption, without weakening the preserved gate.
 
 ---
 
@@ -198,7 +199,7 @@ Pass 10.4C production evidence:
 - Final PR validation: run #136 / `34620304920` — every gate **success**.
 - Production verification + Pages deployment: run #137 / `34621157464` — verify **success**, deploy **success**.
 - README-aligned docs head: `a6851a1d5959ee530a0644b21529e606ea621c5f`.
-- README-aligned verification + Pages deployment: run #140 / `34623641751` — verify **success**, deploy **success**.
+- README-aligned verification + Pages: run #140 / `34623641751` — verify **success**, deploy **success**.
 - Terminal Pass-10.4C repository-closeout head: `388f90cf230492093a89ccb67a67bd929ad4a12d`.
 - Terminal Pass-10.4C repository-closeout verification + Pages deployment: run #141 / `34625822361` — verify **success**, deploy **success**.
 - Visually approved Pass-10.4C release artifact: `10270749326` / `sha256:9d06882cc9f6d363ce4b5cbe494023f11e9058c57fbc2bd52e1839a335ac3990`.
@@ -474,6 +475,7 @@ Authoritative startup evidence:
 - work branch: `pass-11-golden-match`, created from that exact head;
 - last fully green verified implementation head for closed 11.1A: `3b67c3d0591dca4d77d66c788630101e31be8a46`;
 - resumed-cycle pre-checkpoint head: `3a1ab389d94b5a6f0eb222a75df58efb85ee7da8`;
+- resumed-cycle checkpoint head: `e340545f0777958de0f83b271af7bf3903f06cf6`;
 - current planning completion: **100%**;
 - estimated implementation progress: **26%**;
 - estimated formally verified/closed progress: **18%**;
