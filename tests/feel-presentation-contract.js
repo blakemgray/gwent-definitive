@@ -31,6 +31,7 @@ ok(/effectsVolume/.test(feedbackSrc)&&/muted/.test(feedbackSrc),'effects volume 
 ok(/haptics:false/.test(feedbackSrc),'web haptics default conservatively off');
 ok(/typeof root\.navigator\?\.vibrate===['"]function['"]/.test(feedbackSrc),'haptics capability-detected');
 ok(!/gwent-engine|legalActions|playAction\(/i.test(feedbackSrc),'feedback adapter must not own rules/actions');
+ok(/polishLegacyCopy/.test(feedbackSrc)&&/ENGINE RESOLVED/.test(feedbackSrc),'10.4C normalizes integration-era engine jargon before player-facing paint');
 ok(/installVersionMarks/.test(feedbackSrc)&&/Pass 10\.4C/.test(feedbackSrc),'latest feel layer owns visible release identity');
 ok(!/document\.title\s*=\s*['"][^'"]*10\.4B/.test(externalGateSrc),'lower 10.4B gate must not overwrite document milestone identity');
 ok(!/querySelector\(['"]\.buildline['"]\)/.test(externalGateSrc),'lower 10.4B gate must not overwrite visible buildline identity');
