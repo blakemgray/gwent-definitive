@@ -4,6 +4,7 @@ const ROOT=path.resolve(__dirname,'..');
 const Motion=require('../src/motion-tokens.js');
 const Feedback=require('../src/presentation-feedback.js');
 const feedbackSrc=fs.readFileSync(path.join(ROOT,'src/presentation-feedback.js'),'utf8');
+const externalGateSrc=fs.readFileSync(path.join(ROOT,'src/choreography-external-gate.js'),'utf8');
 const feelCss=fs.readFileSync(path.join(ROOT,'feel-polish.css'),'utf8');
 const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 const sw=fs.readFileSync(path.join(ROOT,'sw.js'),'utf8');
@@ -30,6 +31,10 @@ ok(/effectsVolume/.test(feedbackSrc)&&/muted/.test(feedbackSrc),'effects volume 
 ok(/haptics:false/.test(feedbackSrc),'web haptics default conservatively off');
 ok(/typeof root\.navigator\?\.vibrate===['"]function['"]/.test(feedbackSrc),'haptics capability-detected');
 ok(!/gwent-engine|legalActions|playAction\(/i.test(feedbackSrc),'feedback adapter must not own rules/actions');
+ok(/installVersionMarks/.test(feedbackSrc)&&/Pass 10\.4C/.test(feedbackSrc),'latest feel layer owns visible release identity');
+ok(!/document\.title\s*=\s*['"][^'"]*10\.4B/.test(externalGateSrc),'lower 10.4B gate must not overwrite document milestone identity');
+ok(!/querySelector\(['"]\.buildline['"]\)/.test(externalGateSrc),'lower 10.4B gate must not overwrite visible buildline identity');
+ok(/<title>[^<]*Pass 10\.4C<\/title>/.test(html),'static document identity must be 10.4C');
 ok(/dm-selected/.test(feelCss)&&/dm-active-target/.test(feelCss)&&/prefers-reduced-motion/.test(feelCss),'feel layer covers selection, targeting, reduced motion');
 ok(!/#match-screen \.lane\s*\{[^}]*\b(?:left|top|width|height)\s*:/s.test(feelCss),'feel CSS must not replace lane geometry');
 const choreoCss=html.indexOf('gameplay-choreography.css'),feelIdx=html.indexOf('feel-polish.css');
