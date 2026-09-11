@@ -1,11 +1,11 @@
-const BUILD='10.4A.0';
+const BUILD='10.4B.0';
 const CORE=`gwent-definitive-core-${BUILD}`;
 const RUNTIME=`gwent-definitive-runtime-${BUILD}`;
 const PRECACHE=[
-  './','./index.html','./app.js','./styles.css','./battlefield-ux.css','./direct-manipulation.css','./manifest.webmanifest','./icon.svg',
+  './','./index.html','./app.js','./styles.css','./battlefield-ux.css','./direct-manipulation.css','./gameplay-choreography.css','./manifest.webmanifest','./icon.svg',
   './icons/apple-touch-icon.png','./icons/icon-192.png','./icons/icon-512.png',
   './src/cards-catalog.js','./src/gwent-engine.js','./src/asset-resolver.js','./src/storage.js','./src/battlefield-ux.js',
-  './src/motion-tokens.js','./src/presentation-queue.js','./src/interaction-turn-gate.js','./src/presentation-events.js','./src/flip-layout.js','./src/gesture-controller.js'
+  './src/motion-tokens.js','./src/presentation-queue.js','./src/interaction-turn-gate.js','./src/presentation-events.js','./src/gameplay-choreography.js','./src/flip-layout.js','./src/gesture-controller.js'
 ];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CORE).then(cache=>cache.addAll(PRECACHE)).then(()=>self.skipWaiting()));
