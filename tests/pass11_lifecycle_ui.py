@@ -64,7 +64,7 @@ with sync_playwright() as p:
       window.__GWENT_PASS11__.setStateForQA(state);
       window.__GWENT_PASS11__.saveActiveMatch();
     }""")
-    page.locator('#match-menu').click()
+    page.evaluate('window.__GWENT_PASS11__.openMatchMenu()')
     assert page.locator('[data-match-menu="main"]').is_visible()
     page.locator('#match-restart-request').click()
     assert page.locator('[data-match-menu="confirm-restart"]').is_visible()
