@@ -2,11 +2,11 @@
 
 Canonical JS-first hosted build.
 
-> **Project handoff / continuity:** [`CONTINUITY.md`](CONTINUITY.md) is the canonical running record for product doctrine, pass history, current repository state, QA evidence, known debt, and the exact next development action. Read it before starting a new pass and update it before every merge.
+> **Project handoff / continuity:** read both [`CONTINUITY.md`](CONTINUITY.md) and [`FUTURE_CONTINUITY.md`](FUTURE_CONTINUITY.md) before starting a new pass. `CONTINUITY.md` is the canonical running record for product doctrine, pass history, current repository state, QA evidence, known debt, and the exact next development action; update it before every merge. `FUTURE_CONTINUITY.md` preserves the intended forward roadmap across conversation limits and should be updated when future sequencing or requirements are intentionally changed.
 
 ## Current implementation status
 
-**Pass 10.4A — Direct Manipulation is complete and green on `main`.** Pass 10.3 remains the authoritative battlefield geometry/layout baseline underneath it. The next implementation milestone is **Pass 10.4B — Gameplay Choreography**.
+**Pass 10.4A — Direct Manipulation is complete and green on `main`.** Pass 10.3 remains the authoritative battlefield geometry/layout baseline underneath it. The next implementation milestone is **Pass 10.4B — Signature Gameplay Choreography**, followed by **Pass 10.4C — Feel / Presentation Polish**, then **Pass 11 — Golden Match / Complete Normal Match**. Post-Pass-11 requirements are established in `FUTURE_CONTINUITY.md`, but their exact pass numbers are intentionally not yet locked.
 
 ## Runtime baseline — Pass 10.3 Battlefield UX Architecture
 
@@ -49,8 +49,9 @@ Research artifacts:
 Implementation sequence from 10.4R:
 
 1. **10.4A Direct Manipulation — complete**
-2. **10.4B Gameplay Choreography — next**
-3. **10.4C Feel / Accessibility / Performance — planned**
+2. **10.4B Signature Gameplay Choreography — next**
+3. **10.4C Feel / Presentation Polish — planned**
+4. **Pass 11 Golden Match / Complete Normal Match — planned after 10.4C**
 
 ### Battlefield QA matrix
 
