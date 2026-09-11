@@ -118,8 +118,31 @@ with sync_playwright() as p:
     reduced_start(page);s,spyrow=decoy_state();reset(page,s);begin(page,'decoy',lambda a:a.get('targetIid')=='captured-spy');wait_stage(page,'decoy');shot(page,'56_decoy_reduced.png');wait_idle(page);reduced_end(page)
 
     # 8. ROUND 2 -> 3: Monster retention + two Skellige grave returns in one deterministic transition.
-    # Keep one legal hand action per side so normal round-start auto-pass does not immediately resolve Round 3 before QA can inspect the revived battlefield.
-    s=empty_state(base);s['round']=2;s['players']['p1']['faction']='skellige';s['players']['p2']['faction']='monsters';s['players']['p2']['passed']=True;s['players']['p1']['passed']=False;s['currentPlayerId']='p1';s['players']['p1']['hand']=[I('r3-p1',ids['ordinary'])];s['players']['p2']['hand']=[I('r3-p2',ids['ordinary'])];s['players']['p1']['board']['close']=[I(f'win{i}',ids['ordinary']) for i in range(3)];s['players']['p2']['board']['close']=[I(f'mon{i}',ids['ordinary']) for i in range(2)];s['players']['p1']['grave']=[I('sk-a',ids['ordinaryRanged']),I('sk-b',ids['ordinarySiege'])];reset(page,s);shot(page,'57_round23_pre.png');page.locator('#pass-button').click();wait_stage(page,'round-end',9000);page.wait_for_function("document.querySelectorAll('.gc-snapshot-round-hold').length>=5",timeout=6000);shot(page,'58_round23_hold.png');wait_idle(page,15000);final=state(page);assert final['round']==3 and final['players']['p2']['retainedIid'];revived=[c['iid'] for r in ['close','ranged','siege'] for c in final['players']['p1']['board'][r]];assert len(revived)==2,revived;last=page.evaluate('window.GwentGameplayChoreography.runtime.lastPlan');round_stage=next(x for x in last if x['kind']=='round-end');assert len(round_stage['factionRevives'])==2 and round_stage['retention']['retained'];clean(page);shot(page,'59_round23_final.png')
+    # Keep one legal Skellige hand card across the Round-2 pass so Round 3 does not
+    # immediately auto-pass both exhausted players, clear the revived units, and
+    # end the match before this fixture can inspect the post-revival battlefield.
+    s=empty_state(base)
+    s['round']=2
+    s['players']['p1']['faction']='skellige'
+    s['players']['p2']['faction']='monsters'
+    s['players']['p2']['passed']=True
+    s['players']['p1']['passed']=False
+    s['currentPlayerId']='p1'
+    s['players']['p1']['hand']=[I('round3-buffer',ids['ordinary'])]
+    s['players']['p1']['board']['close']=[I(f'win{i}',ids['ordinary']) for i in range(3)]
+    s['players']['p2']['board']['close']=[I(f'mon{i}',ids['ordinary']) for i in range(2)]
+    s['players']['p1']['grave']=[I('sk-a',ids['ordinaryRanged']),I('sk-b',ids['ordinarySiege'])]
+    reset(page,s);shot(page,'57_round23_pre.png')
+    page.locator('#pass-button').click();wait_stage(page,'round-end',9000)
+    page.wait_for_function("document.querySelectorAll('.gc-snapshot-round-hold').length>=5",timeout=6000);shot(page,'58_round23_hold.png')
+    wait_idle(page,15000);final=state(page)
+    assert final['round']==3 and final['winner'] is None
+    assert final['players']['p2']['retainedIid'] and not final['players']['p1']['passed']
+    revived=[c['iid'] for r in ['close','ranged','siege'] for c in final['players']['p1']['board'][r]]
+    assert len(revived)==2,revived
+    last=page.evaluate('window.GwentGameplayChoreography.runtime.lastPlan');round_stage=next(x for x in last if x['kind']=='round-end')
+    assert len(round_stage['factionRevives'])==2 and round_stage['retention']['retained']
+    clean(page);shot(page,'59_round23_final.png')
 
     assert not errors,errors
     (QA/'stress_summary.json').write_text(json.dumps({'cards':ids,'scenarios':['scorch-tied','muster-8plus','spy-10-to-11','horn-bond','all-weather-clear','medic-muster','decoy-spy','round23-monster-skellige'],'pageErrors':errors},indent=2))
