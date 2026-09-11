@@ -1,8 +1,8 @@
 {
   "name": "gwent-definitive",
   "private": true,
-  "version": "10.4.1",
+  "version": "10.4.2",
   "scripts": {
-    "test": "node tests/engine-regression.js && node tests/catalog-fuzz.js && node tests/pwa-validation.js && node tests/interaction-motion-contract.js && node tests/direct-manipulation-contract.js"
+    "test": "node tests/engine-regression.js && node tests/catalog-fuzz.js && node tests/pwa-validation.js && node tests/interaction-motion-contract.js && node tests/direct-manipulation-contract.js && node tests/gameplay-choreography-contract.js"
   }
 }

@@ -151,7 +151,7 @@ def enter(page):
 
 
 def ordinary_cards(page):
-    return page.evaluate("""()=>{const a=window.__GWENT_PASS10__,s=a.getState(),G=a.engine;return s.players.p1.hand.map(i=>({i,d:G.CARD_DB[i.cardId]})).filter(x=>x.d.type==='unit'&&!x.d.abilities.includes('spy')).map(x=>({iid:x.i.iid,cardId:x.i.cardId,actions:G.legalActions(s,'p1').filter(a=>a.type==='PLAY_CARD'&&a.iid===x.i.iid)})).filter(x=>x.actions.length);}""")
+    return page.evaluate("""()=>{const a=window.__GWENT_PASS10__,s=a.getState(),G=a.engine;return s.players.p1.hand.map(i=>({i,d:G.CARD_DB[i.cardId]})).filter(x=>x.d.type==='unit'&&!x.d.abilities.includes('spy')).map(x=>({iid:x.i.iid,cardId:x.i.cardId,abilities:[...x.d.abilities],actions:G.legalActions(s,'p1').filter(a=>a.type==='PLAY_CARD'&&a.iid===x.i.iid)})).filter(x=>x.actions.length);}""")
 
 
 with sync_playwright() as p:
@@ -166,7 +166,7 @@ with sync_playwright() as p:
 
     base=state(page);base['players']['p2']['passed']=True;base['currentPlayerId']='p1';reset(page,base)
     ordinary=ordinary_cards(page);assert len(ordinary)>=3
-    iid=ordinary[0]['iid'];base=promote(base,iid);reset(page,base)
+    baseline=next((c for c in ordinary if not c['abilities']),ordinary[0]);iid=baseline['iid'];base=promote(base,iid);reset(page,base)
     action=page.evaluate('iid=>window.GwentDirectManipulation.actionsFor(iid)[0]',iid)
 
     # Every overlapping hand card must preserve a meaningful hit strip.
@@ -265,7 +265,7 @@ with sync_playwright() as p:
 
     # Real Chromium touch injection: touchStart/move/end must traverse Pointer Events and match canonical engine outcome.
     tctx=browser.new_context(viewport={'width':852,'height':393},has_touch=True,is_mobile=True);touch=tctx.new_page();terr=[];touch.on('pageerror',lambda e:terr.append(str(e)));enter(touch)
-    tb=state(touch);tb['players']['p2']['passed']=True;tb['currentPlayerId']='p1';reset(touch,tb);tcards=ordinary_cards(touch);tc=tcards[0];tb=promote(tb,tc['iid']);reset(touch,tb)
+    tb=state(touch);tb['players']['p2']['passed']=True;tb['currentPlayerId']='p1';reset(touch,tb);tcards=ordinary_cards(touch);tc=next((c for c in tcards if not c['abilities']),tcards[0]);tb=promote(tb,tc['iid']);reset(touch,tb)
     ta=touch.evaluate('iid=>window.GwentDirectManipulation.actionsFor(iid)[0]',tc['iid']);expected_base=json.loads(json.dumps(tb))
     touch.evaluate('a=>window.__GWENT_PASS10__.playAction(a)',ta);expected=state(touch);reset(touch,expected_base)
     cdp_touch_drag(tctx,touch,tc['iid'],ta)

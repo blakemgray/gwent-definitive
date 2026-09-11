@@ -9,7 +9,7 @@ assert(fs.existsSync(path.join(root,'icons/apple-touch-icon.png')),'Apple touch 
 const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
 const precache=[...sw.matchAll(/'\.\/([^']*)'/g)].map(m=>m[1]).filter(Boolean);
 for(const rel of precache){if(rel==='')continue;assert(fs.existsSync(path.join(root,rel)),`service worker precache target missing: ${rel}`);}
-assert(sw.includes("const BUILD='10.4A.0'"),'cache build version not pinned to Pass 10.4A');
+assert(sw.includes("const BUILD='10.4B.0'"),'cache build version not pinned to Pass 10.4B');
 assert(sw.includes('raw.githubusercontent.com'),'card-art runtime caching missing');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert(html.includes('apple-touch-icon'),'apple-touch-icon link missing');
@@ -19,4 +19,10 @@ for(const rel of ['direct-manipulation.css','src/motion-tokens.js','src/presenta
   assert(html.includes(rel),`Pass 10.4A runtime not loaded: ${rel}`);
   assert(sw.includes(rel.replace(/^src\//,''))||sw.includes(rel),`Pass 10.4A runtime not precached: ${rel}`);
 }
-console.log(`pwa-validation: ${precache.length} precache paths valid`);
+for(const rel of ['gameplay-choreography.css','src/gameplay-choreography.js','src/choreography-external-gate.js']){
+  assert(html.includes(rel),`Pass 10.4B runtime not explicitly loaded: ${rel}`);
+  assert(sw.includes(rel),`Pass 10.4B runtime not precached: ${rel}`);
+}
+const eventsIdx=html.indexOf('src/presentation-events.js'),choreoIdx=html.indexOf('src/gameplay-choreography.js'),gestureIdx=html.indexOf('src/gesture-controller.js'),externalIdx=html.indexOf('src/choreography-external-gate.js');
+assert(eventsIdx>=0&&choreoIdx>eventsIdx&&gestureIdx>choreoIdx&&externalIdx>gestureIdx,'Pass 10.4B runtime load order must be explicit and deterministic');
+console.log(`pwa-validation: ${precache.length} precache paths valid with explicit 10.4B choreography runtime`);
