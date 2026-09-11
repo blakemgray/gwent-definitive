@@ -6,12 +6,8 @@
 **Repository:** `blakemgray/gwent-definitive`  
 **Canonical hosted build:** `https://blakemgray.github.io/gwent-definitive/`  
 **Default branch:** `main`  
-**Current production runtime / Pass 10.4C merge:** `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d`  
 **Current verified repository main head:** `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b`  
 **Latest exact-head main verification:** run #145 / `34641027264` — full verify **success**, Pages deploy **success**  
-**Transition PR:** #9 — `docs: prepare Pass 11 Work transition` — merged  
-**Transition PR exact green head:** `19393f835d4f474cdafd2efb689ec2e6a696e273`  
-**Transition PR validation:** run #142 / `34637982426` — **success**  
 **Current completed production milestone:** **Pass 10.4C — Feel / Presentation Polish**  
 **Current active implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match — 11.1A closed / 11.1B stabilization active**  
 **Current active repository task:** **11.1B exact-head stabilization: diagnose preserved Medic→Muster adversarial gate failure**  
@@ -19,6 +15,7 @@
 **Current work PR:** #11 — `Pass 11: Golden Match`  
 **Current work head before resumed-cycle checkpoint:** `3a1ab389d94b5a6f0eb222a75df58efb85ee7da8`  
 **Resumed-cycle checkpoint head:** `e340545f0777958de0f83b271af7bf3903f06cf6`  
+**Checkpoint metadata follow-up head:** `66208192eebd58e28704b322d1d13ed8d7f6ab59`  
 **Latest exact-head workflow before checkpoint:** run #159 / `34648516237` — **failure** in preserved Pass 10.4B adversarial `Medic→Muster` choreography gate after Pass 11 setup/lifecycle/direct-manipulation/WebKit/primary choreography gates passed  
 **Estimated Pass 11 planning completion:** **100%**  
 **Estimated overall Pass 11 implementation progress:** **26%**  
@@ -476,6 +473,7 @@ Authoritative startup evidence:
 - last fully green verified implementation head for closed 11.1A: `3b67c3d0591dca4d77d66c788630101e31be8a46`;
 - resumed-cycle pre-checkpoint head: `3a1ab389d94b5a6f0eb222a75df58efb85ee7da8`;
 - resumed-cycle checkpoint head: `e340545f0777958de0f83b271af7bf3903f06cf6`;
+- checkpoint metadata follow-up head: `66208192eebd58e28704b322d1d13ed8d7f6ab59`;
 - current planning completion: **100%**;
 - estimated implementation progress: **26%**;
 - estimated formally verified/closed progress: **18%**;
