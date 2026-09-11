@@ -102,6 +102,12 @@ with sync_playwright() as p:
     assert gate_after['pending'] is False and gate_after['releases']>gate_before['releases'],gate_after
     assert page.evaluate("document.querySelector('#auto-bot').checked") is True
 
+    # The remaining presentation-only checks must not inherit a legitimate Auto Bot timer.
+    # Turning it back off dispatches the production change handler, whose maybeAutoBot() call
+    # clears any pending timer before reduced-motion and interruption isolation assertions begin.
+    page.evaluate("()=>{const t=document.querySelector('#auto-bot');t.checked=false;t.dispatchEvent(new Event('change',{bubbles:true}));}")
+    assert page.evaluate("document.querySelector('#auto-bot').checked") is False
+
     # Reduced motion preserves the same semantic stage but completes quickly without travel ghosts.
     page.emulate_media(reduced_motion='reduce');page.evaluate('window.GwentDirectManipulation.reduced(null)')
     start=page.evaluate('performance.now()')
