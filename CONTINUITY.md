@@ -13,9 +13,7 @@
 **Current active repository task:** **11.1B exact-head stabilization: diagnose preserved Medic→Muster adversarial gate failure**  
 **Current work branch:** `pass-11-golden-match`  
 **Current work PR:** #11 — `Pass 11: Golden Match`  
-**Current work head before resumed-cycle checkpoint:** `3a1ab389d94b5a6f0eb222a75df58efb85ee7da8`  
-**Resumed-cycle checkpoint head:** `e340545f0777958de0f83b271af7bf3903f06cf6`  
-**Checkpoint metadata follow-up head:** `66208192eebd58e28704b322d1d13ed8d7f6ab59`  
+**Resumed-cycle checkpoint chain:** `e340545f0777958de0f83b271af7bf3903f06cf6` → `66208192eebd58e28704b322d1d13ed8d7f6ab59` → `c8232d294a30166c61a8fc22a84032bcd3f9f3af`  
 **Latest exact-head workflow before checkpoint:** run #159 / `34648516237` — **failure** in preserved Pass 10.4B adversarial `Medic→Muster` choreography gate after Pass 11 setup/lifecycle/direct-manipulation/WebKit/primary choreography gates passed  
 **Estimated Pass 11 planning completion:** **100%**  
 **Estimated overall Pass 11 implementation progress:** **26%**  
@@ -471,9 +469,7 @@ Authoritative startup evidence:
 - run #145 / `34641027264` — exact-head full verification success and Pages deployment success;
 - work branch: `pass-11-golden-match`, created from that exact head;
 - last fully green verified implementation head for closed 11.1A: `3b67c3d0591dca4d77d66c788630101e31be8a46`;
-- resumed-cycle pre-checkpoint head: `3a1ab389d94b5a6f0eb222a75df58efb85ee7da8`;
-- resumed-cycle checkpoint head: `e340545f0777958de0f83b271af7bf3903f06cf6`;
-- checkpoint metadata follow-up head: `66208192eebd58e28704b322d1d13ed8d7f6ab59`;
+- resumed-cycle checkpoint chain: `e340545f0777958de0f83b271af7bf3903f06cf6` → `66208192eebd58e28704b322d1d13ed8d7f6ab59` → `c8232d294a30166c61a8fc22a84032bcd3f9f3af`;
 - current planning completion: **100%**;
 - estimated implementation progress: **26%**;
 - estimated formally verified/closed progress: **18%**;
