@@ -52,6 +52,17 @@ with sync_playwright() as p:
     browser=p.chromium.launch(**kwargs);ctx=browser.new_context(viewport={'width':852,'height':393});page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)));enter(page)
     assert page.evaluate("window.GwentPresentationEvents.version==='10.4B.0'&&window.GwentGameplayChoreography.runtime.installed")
 
+    # Choreography QA owns an explicit ordered fixture. Production Instant Match now
+    # validates and shuffles full-size decks, so signature coverage must not depend
+    # on a lucky production opening hand.
+    fixture=page.evaluate("""()=>window.__GWENT_PASS10__.engine.createMatch({
+      p1Faction:'realms',p2Faction:'monsters',p1LeaderId:'realms_foltest_copper',p2LeaderId:'monsters_eredin_silver',
+      p1Deck:['realms_thaler','weather_frost','realms_keira','realms_sheldon','realms_trebuchet'],
+      p2Deck:['monsters_cockatrice','monsters_gargoyle','monsters_fiend','monsters_fogling'],
+      handSize:2,seed:1042026,firstPlayerId:'p1'
+    })""")
+    reset(page,fixture)
+
     # Real engine Spy proves engine log -> semantic adapter -> authored plan; exactly two actual draw events remain grouped under Spy.
     s=state(page);s['players']['p2']['passed']=True;s['currentPlayerId']='p1';reset(page,s)
     before=state(page);spy=play_ability(page,'spy');after=state(page)
