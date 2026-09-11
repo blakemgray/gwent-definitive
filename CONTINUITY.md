@@ -6,20 +6,18 @@
 **Repository:** `blakemgray/gwent-definitive`  
 **Canonical hosted build:** `https://blakemgray.github.io/gwent-definitive/`  
 **Default branch:** `main`  
-**Current production runtime:** Pass 10.4B merge `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`  
-**Last verified production workflow:** run #112 / `34607056878` — verify **success**, Pages deploy **success**  
-**Current completed production milestone:** **Pass 10.4B — Signature Gameplay Choreography**  
-**Current active milestone:** **Pass 10.4C — Feel / Presentation Polish**  
-**Active branch / PR:** `pass-10-4c-feel-presentation-polish` / **PR #8**  
-**Active branch head before this checkpoint:** `e6d71343dc02ddb283ba0789703f523d5b3827fe`  
-**Latest green implementation head:** `ee600e8b856b9743ad4a58501b7a84b11f40dbb2`  
-**Latest full CI:** run #133 / `34617300625` — **all gates success**  
-**Latest 10.4C QA artifact:** `10270749326`, digest `sha256:9d06882cc9f6d363ce4b5cbe494023f11e9058c57fbc2bd52e1839a335ac3990`  
-**Estimated Pass 10.4C completion:** **~98%** — visibility only; never a reason to rush or weaken QA  
-**Next milestone:** **Pass 11 — Golden Match / Complete Normal Match**, only after 10.4C is merged, green on `main`, and deployed.  
+**Current production runtime / Pass 10.4C merge:** `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d`  
+**Last verified production workflow:** run #137 / `34621157464` — verify **success**, Pages deploy **success**  
+**Current completed production milestone:** **Pass 10.4C — Feel / Presentation Polish**  
+**Current active implementation milestone:** **None — Pass 10.4C is closed**  
+**Next planned implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
+**Final PR:** `#8 — Pass 10.4C — Feel / Presentation Polish`  
+**Final PR head:** `e6a357606c6d0e978ceabf93e2f456377b3f6ac2`  
+**Latest visually approved implementation artifact:** `10270749326`, digest `sha256:9d06882cc9f6d363ce4b5cbe494023f11e9058c57fbc2bd52e1839a335ac3990`  
+**Estimated Pass 10.4C completion:** **100%**  
 **Last updated:** 2026-09-11 America/New_York
 
-Production remains Pass 10.4B until PR #8 merges and post-merge `main` verification + Pages deployment succeed.
+Pass 10.4C is merged, fully verified on `main`, visually approved, and deployed. Do not reopen it unless a genuine regression is discovered against current production evidence.
 
 ---
 
@@ -41,9 +39,9 @@ Source precedence:
 
 For every new implementation task or resumed work cycle:
 
-1. Read the active branch's `CONTINUITY.md` first.
+1. Read the current branch's `CONTINUITY.md` first.
 2. **Write an actual checkpoint update to this file in GitHub before doing further implementation work.** Chat-only continuity does not count.
-3. Record active pass/task, branch/PR/head, latest meaningful CI evidence or blocker, exact next action, and estimated completion percentage.
+3. Record active pass/task, branch/PR/head, latest meaningful CI evidence or blocker, exact next action, and an estimated completion percentage.
 4. Percentage is for visibility only; never compress scope, rush QA, skip visual review, or weaken a gate.
 5. Every user-facing progress report should include the current percentage.
 6. Every user-facing work message should end with a concrete **Next action**.
@@ -81,7 +79,7 @@ Witcher 3 atmosphere + premium physical tabletop + modern iOS discipline: dark w
 
 ## Battlefield geometry authority
 
-**Pass 10.3 Battlefield Geometry Contract v2 is frozen authority.** Final structural order is Opponent Siege / Ranged / Close / Weather / Player Close / Ranged / Siege. Later motion may interpolate around final slots but may not replace geometry math.
+**Pass 10.3 Battlefield Geometry Contract v2 is frozen authority.** Final order: Opponent Siege / Ranged / Close / Weather / Player Close / Ranged / Siege. Later motion may interpolate around final slots but may not replace geometry math.
 
 ---
 
@@ -150,14 +148,16 @@ Workflow: `.github/workflows/deploy-pages.yml`
 
 Policy: branch → PR → full static/browser/geometry/interaction/WebKit/pass-specific gates → visual inspection → latest-head green → merge → full `main` verification → Pages deploy → final continuity update.
 
-### Current production snapshot — Pass 10.4B
+### Current production snapshot — Pass 10.4C
 
-- PR #7 merged.
-- Final PR head `1623caed9c72a80d110e3ec4efdc3e2838d9ee3c`.
-- Merge/runtime `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`.
-- Final PR run #111 / `34606032376`: success.
-- Production run #112 / `34607056878`: verify + Pages success.
-- Production 10.4B artifact `10266123499`.
+- PR #8 merged.
+- Final PR head: `e6a357606c6d0e978ceabf93e2f456377b3f6ac2`.
+- Merge/runtime SHA: `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d`.
+- Final PR validation: run #136 / `34620304920` — every gate **success**.
+- Production verification + Pages deployment: run #137 / `34621157464` — verify **success**, deploy **success**.
+- Visually approved release artifact: `10270749326` / `sha256:9d06882cc9f6d363ce4b5cbe494023f11e9058c57fbc2bd52e1839a335ac3990`.
+
+Run #137 passed static engine/catalog/PWA/motion/direct-manipulation/choreography/feel validation, frozen 10.3 geometry, full 10.4A interaction/touch/parity, presentation-aware bot gating, disposable failure recovery, 256-trial physical stress / 512 committed interactions, semantic landing, lifecycle/save-restore, WebKit/iPhone, primary 10.4B choreography, the eight-scenario 10.4B adversarial matrix, and the 10.4C feel/feedback/reduced-motion/pacing gate. Production site staging/upload/deploy succeeded.
 
 ---
 
@@ -187,8 +187,7 @@ Locked foundation: tap/drag parity; Pointer Events; 8 px threshold; pointer capt
 
 ## Pass 10.4B — Signature Gameplay Choreography
 
-**Status:** **COMPLETE / MERGED / GREEN / DEPLOYED.**
-
+**Status:** complete / merged / green / deployed.  
 PR #7; implementation head `6a34c9ce1c6fe1ae43d47eb329187e70cd546535`; final PR head `1623caed9c72a80d110e3ec4efdc3e2838d9ee3c`; merge/runtime `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`.
 
 Locked behavior: engine-first; choreography owns no rules state; cause before consequence; destructive identity before collapse; score after visible cause; same language for opponent actions; reduced-motion equivalents; external Auto-Bot gate; post-action snapshot only after synchronous 10.3 reconciliation.
@@ -197,84 +196,62 @@ Coverage: Scorch, Muster, Spy, Horn, Weather/Clear, Medic, Decoy, Bond, Morale, 
 
 ## Pass 10.4C — Feel / Presentation Polish
 
-**Status:** **ACTIVE / IMPLEMENTATION GREEN / VISUALLY APPROVED RELEASE CANDIDATE.**
+**Status:** **COMPLETE / MERGED / GREEN / DEPLOYED TO PRODUCTION.**
 
 Branch: `pass-10-4c-feel-presentation-polish`  
 PR: #8  
-Latest green implementation head: `ee600e8b856b9743ad4a58501b7a84b11f40dbb2`  
-Run #133 / `34617300625`: **all verification gates success**  
-Artifact `10270749326`, digest `sha256:9d06882cc9f6d363ce4b5cbe494023f11e9058c57fbc2bd52e1839a335ac3990`  
-Estimated completion: **~98%**
+Green implementation head: `ee600e8b856b9743ad4a58501b7a84b11f40dbb2`  
+Final PR/docs head: `e6a357606c6d0e978ceabf93e2f456377b3f6ac2`  
+Merge/runtime SHA: `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d`  
+Final PR CI: run #136 / `34620304920` — **success**  
+Production CI + Pages: run #137 / `34621157464` — verify **success**, deploy **success**
 
 ### Implemented
 
-- 10.4C motion/easing/feel vocabulary in `motion-tokens.js`.
+- 10.4C motion/easing/physical-feel vocabulary in `motion-tokens.js`.
 - `feel-polish.css`: tactile press, lifted selection, cleaner legal/active target treatment, reduced-motion equivalent; no geometry ownership.
-- `presentation-feedback.js`: presentation-only semantic feedback hooks for selection, valid destination, row-specific commit, draws, Spy, Horn, Bond, Muster, Medic, Decoy, Scorch, Weather/Clear, Pass, turns, round result, game result.
+- `presentation-feedback.js`: presentation-only semantic feedback hooks for selection, valid destination, row-specific commit, draws, Spy, Horn, Bond, Muster, Medic, Decoy, Scorch, Weather/Clear, Pass, turns, round result, and game result.
 - Persisted effects volume + mute.
 - Optional web haptics are capability-detected, opt-in, and off by default.
-- Final audio assets remain decoupled from rules; only semantic hooks are provided.
-- 10.4C explicit load/PWA/deploy graph.
-- Lower-layer 10.4B code no longer overwrites visible 10.4C milestone/build identity; static regression guard locks ownership.
+- Final audio assets remain decoupled from rules; 10.4C provides semantic hooks rather than binding media to game logic.
+- Explicit 10.4C load/PWA/deploy graph.
+- Lower-layer 10.4B code no longer overwrites visible current-pass milestone/build identity; static regression guard locks ownership.
 - Presentation-only normalization removes development-era `ENGINE RESOLVED` / `ENGINE CHOICE` language from ordinary player-facing feedback while preserving semantic logs/developer tooling/engine behavior.
 - Browser QA rejects engine jargon in ordinary landing and Medic presentation.
 
-### CI evidence
+### Manual visual approval
 
-Run #133 on `ee600e8...` passed:
-
-- static engine/catalog/PWA/motion/direct-manipulation/choreography/feel validation;
-- frozen 10.3 geometry;
-- full 10.4A baseline/overlap/parity/interruption/reduced-motion/touch;
-- destination-family parity;
-- bot gate + failure recovery;
-- 256-trial stress / 512 committed interactions;
-- semantic landing;
-- lifecycle/save-restore;
-- WebKit/iPhone;
-- primary 10.4B choreography;
-- eight-scenario 10.4B adversarial matrix;
-- 10.4C feel/feedback/reduced-motion/pacing;
-- all QA archives.
-
-Measured feel evidence: pointer press ~25.7 ms; invalid return ~237.7 ms; haptic attempts 0 with default opt-out; ordinary toast `REDANIAN FOOT SOLDIER`.
-
-### Manual visual approval — Run #133
-
-Artifact `10270749326` was manually inspected at the canonical 852×393 target and is **approved for final closeout**.
+Artifact `10270749326` was manually inspected at the canonical 852×393 target and approved before merge.
 
 Verified:
 
-- selection reads as physical lift/weight without the old debug-style `SELECTED` pill;
-- active legal target has clear structural/gold alignment feedback;
-- ordinary landing is centered/clean and now reads only `REDANIAN FOOT SOLDIER` — no `ENGINE RESOLVED` jargon;
-- invalid drag remains an intentionally off-board proxy before returning cleanly with no persistent transient;
-- reduced-motion selection preserves the same legal-destination information hierarchy;
-- feedback settings are integrated into the normal scrollable Settings surface;
-- Medic signature presents `REVIVE`; nested Medic→Muster shows `MEDIC · UNIT REVIVED` and maintains correct card-scale geometry;
-- representative Scorch, Muster, Spy, Horn, Weather/Clear, Decoy, Leader, round-resolution, reduced-motion, interruption, Monster-retention, and Skellige-return frames show no visual regression from established 10.4B choreography.
+- physical selection lift/weight without the old debug `SELECTED` pill;
+- clear structural/gold active-target feedback;
+- ordinary landing centered and clean, with player-facing `REDANIAN FOOT SOLDIER` rather than engine jargon;
+- invalid drag returns cleanly with no persistent transient;
+- reduced motion preserves legal-destination clarity;
+- feedback settings integrate into the normal scrollable Settings surface;
+- Medic signature presents `REVIVE`; nested Medic→Muster uses `MEDIC · UNIT REVIVED` and correct card-scale geometry;
+- representative Scorch, Muster, Spy, Horn, Weather/Clear, Decoy, Leader, round-resolution, reduced-motion, interruption, Monster-retention, and Skellige-return frames show no visual regression.
 
-No visual release blocker remains on the implementation candidate.
+Measured evidence from the approved candidate: pointer press ~25.7 ms; invalid return ~237.7 ms. These values are evidence only and are not used to justify skipping visual/accessibility review.
 
-### Exact closeout handoff
+### 10.4C handoff
 
-The next task is **final PR/documentation closeout**:
+Pass 10.4C is closed. Do not reopen it unless current production evidence exposes a genuine regression. The interaction/presentation stack is now:
 
-1. update README/current-status language to mark 10.4C as a green, visually approved release candidate and Pass 11 as next;
-2. ensure final continuity/contract language reflects the release candidate without falsely calling it production before merge;
-3. run the resulting exact latest documentation head through the full CI matrix;
-4. merge PR #8 only if that latest head is green;
-5. verify post-merge `main` through the same matrix and Pages deployment;
-6. update this file with final merge/main/deploy SHAs and formally close 10.4C;
-7. only then begin Pass 11.
+- 10.3 — final geometry authority;
+- 10.4A — canonical direct manipulation/action path;
+- 10.4B — engine-first mechanic/lifecycle choreography;
+- 10.4C — tactile feel, feedback, reduced-motion polish, semantic audio/haptic hooks, copy cleanup, and presentation consistency.
+
+The next implementation work belongs in **Pass 11 — Golden Match / Complete Normal Match**.
 
 ---
 
 # 6. Current product status / broader debt
 
-Production currently has hosted PWA infrastructure, deterministic classic engine, 216-card catalog, frozen 10.3 geometry, 10.4A direct manipulation, iPhone/WebKit coverage, 10.4B choreography, adversarial QA, and CI-protected Pages deployment.
-
-PR #8 adds tuned feel/motion, semantic audio hooks, optional haptics, persisted effects settings, player-facing copy cleanup, and dedicated 10.4C QA.
+Production now has hosted PWA infrastructure, deterministic classic engine, 216-card catalog, frozen 10.3 geometry, 10.4A direct manipulation, iPhone/WebKit coverage, 10.4B choreography, adversarial QA, 10.4C feel/feedback/accessibility polish, and CI-protected Pages deployment.
 
 Broader work after 10.4C includes Pass 11 Golden Match, unrestricted legal deck builder, polished faction/leader selection, complete unrestricted mulligan/effect choices, final AI ladder through Grandmaster, mature save/resume/replay, modular assists/cheats/sandbox, full victory/rematch shell, local permitted-art ownership/caching, and final offline/install/native-quality polish.
 
@@ -282,14 +259,13 @@ Broader work after 10.4C includes Pass 11 Golden Match, unrestricted legal deck 
 
 # 7. Forward roadmap
 
-`FUTURE_CONTINUITY.md` remains forward authority. Near-term sequence is:
+`FUTURE_CONTINUITY.md` remains forward authority.
 
-1. **close Pass 10.4C**;
-2. **Pass 11 — Golden Match / Complete Normal Match**.
-
-Do not invent later pass numbers unless explicitly assigned.
+**Next implementation milestone: Pass 11 — Golden Match / Complete Normal Match.**
 
 Pass 11 must validate one complete normal match with legal deck initialization, opening draw/mulligan, direct manipulation hand, all required choice dialogs, player/opponent turns, passing/exhaustion, scoring, rounds, factions/lives, best-of-three result, restart/rematch, and save integrity without developer shortcuts.
+
+Do not invent later pass numbers unless explicitly assigned.
 
 ---
 
@@ -304,14 +280,16 @@ Legacy product root: `Gwent Definitive - blakemgray` — `1dDtOJP3wYTVfQiXP3bYUj
 
 # 9. Current handoff
 
-**Pass 10.4C is approximately 98% complete and its implementation candidate is green + visually approved.**
+**Pass 10.4C is complete, merged, fully verified, visually approved, and deployed.**
 
-Current evidence:
+Production evidence:
 
-- PR #8 open;
-- implementation head `ee600e8b856b9743ad4a58501b7a84b11f40dbb2`;
-- Run #133 / `34617300625` fully green;
-- artifact `10270749326` manually approved;
-- no known runtime, accessibility, interaction, WebKit, choreography, copy, or visual blocker.
+- final PR head: `e6a357606c6d0e978ceabf93e2f456377b3f6ac2`;
+- merge/runtime SHA: `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d`;
+- final PR run: #136 / `34620304920` — success;
+- production run: #137 / `34621157464` — verify success, Pages deploy success;
+- visually approved QA artifact: `10270749326`.
 
-**Exact next action:** prepare the final documentation/status head, run it through the full matrix, then merge PR #8 only if that exact head is green. After merge, verify `main` + Pages and write the final continuity closeout before beginning Pass 11.
+No known runtime, rules, geometry, interaction, WebKit, choreography, reduced-motion, semantic-feedback, copy, or visual blocker remains for 10.4C.
+
+**Exact next action:** begin **Pass 11 — Golden Match / Complete Normal Match** when explicitly triggered. At the start of that task, update this file in GitHub first, then build from current green `main` while preserving 10.3/10.4A/10.4B/10.4C authority boundaries.
