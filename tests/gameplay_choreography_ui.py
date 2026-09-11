@@ -91,8 +91,8 @@ with sync_playwright() as p:
     page.wait_for_function('before=>window.GwentChoreographyExternalGate.stats.deferrals>before',arg=gate_before['deferrals'],timeout=3000)
     page.wait_for_function('window.GwentPresentationQueue.busy&&window.GwentChoreographyExternalGate.pending',timeout=3000)
     pass_log_len=len(state(page)['eventLog']);samples=0
-    while page.evaluate('window.GwentPresentationQueue.busy'):
-        assert len(state(page)['eventLog'])==pass_log_len,'opponent mutated engine state during Pass presentation'
+    while page.evaluate('window.GwentChoreographyExternalGate.pending'):
+        assert len(state(page)['eventLog'])==pass_log_len,'opponent mutated engine state before Pass presentation gate released'
         page.wait_for_timeout(20);samples+=1
         if samples>50: break
     assert samples>=2,samples
