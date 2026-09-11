@@ -13,16 +13,16 @@
 **Transition PR exact green head:** `19393f835d4f474cdafd2efb689ec2e6a696e273`  
 **Transition PR validation:** run #142 / `34637982426` — **success**  
 **Current completed production milestone:** **Pass 10.4C — Feel / Presentation Polish**  
-**Current active implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match — 11.1A candidate implemented**  
-**Current active repository task:** **11.1A exact-head CI and visual-evidence review**  
+**Current active implementation milestone:** **Pass 11 — Golden Match / Complete Normal Match — 11.1A closed / 11.1B next**  
+**Current active repository task:** **11.1B normal lifecycle and choice-broker foundation**  
 **Current work branch:** `pass-11-golden-match`  
 **Current work PR:** #11 — `Pass 11: Golden Match`  
 **Estimated Pass 11 planning completion:** **100%**  
-**Estimated overall Pass 11 completion:** **15%**  
+**Estimated overall Pass 11 completion:** **18%**  
 **Default current-work model:** **GPT-5.6 Sol · High**; escalate only per `MODEL_ROUTING.md`  
 **Last updated:** 2026-09-11 America/New_York
 
-Pass 10.4C remains complete, merged, fully verified, visually approved, and deployed. Run #145 verified and deployed exact `main` head `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b`. The Pass 11 cycle is open on `pass-11-golden-match`, created from that exact green head. PR #11 now contains the mandatory startup checkpoint and the repository-grounded `docs/PASS11_GOLDEN_MATCH_CONTRACT.md`. Planning is complete and coherent. Gameplay implementation began only after the contract was established. The 11.1A code candidate is `84c9b77f6b6c648373125fb651eefa8da239d5d1`; exact-head CI and Pass 11 setup evidence review are pending.
+Pass 10.4C remains complete, merged, fully verified, visually approved, and deployed. Run #145 verified and deployed exact `main` head `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b`. The Pass 11 cycle is open on `pass-11-golden-match`, created from that exact green head. PR #11 contains the mandatory startup checkpoint and the repository-grounded `docs/PASS11_GOLDEN_MATCH_CONTRACT.md`; planning is complete and gameplay implementation began only after that contract was established. Pass 11.1A is closed: code commit `84c9b77f6b6c648373125fb651eefa8da239d5d1`, continuity-aligned candidate `182684264502d772b2197b3abdc3bc7d4196543a`, and fixture-isolation repair `3b67c3d0591dca4d77d66c788630101e31be8a46`. Run #151 / `34644865929` passed the full workflow on that exact implementation head; its Pass 11 setup evidence was manually inspected and approved.
 
 ---
 
@@ -460,16 +460,16 @@ Legacy product root: `Gwent Definitive - blakemgray` — `1dDtOJP3wYTVfQiXP3bYUj
 
 # 11. Current Pass 11 work cycle
 
-**Pass 10.4C is closed. Pass 11 planning is active; gameplay implementation remains blocked on the implementation/acceptance contract.**
+**Pass 10.4C is closed. Pass 11 planning is complete; 11.1A is closed and 11.1B is the next bounded implementation slice.**
 
 Authoritative startup evidence:
 
 - exact starting `main` head: `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b`;
 - run #145 / `34641027264` — exact-head full verification success and Pages deployment success;
 - work branch: `pass-11-golden-match`, created from that exact head;
-- current change scope: continuity checkpoint only;
+- current verified implementation head: `3b67c3d0591dca4d77d66c788630101e31be8a46`;
 - current planning completion: **100%**;
-- estimated overall Pass 11 completion: **15%**;
+- estimated overall Pass 11 completion: **18%**;
 - Pass 11 contract commit: `c85b9264cae68f41f18d941b5134480d119dcf17`;
 - model recommendation: **GPT-5.6 Sol · High**.
 
@@ -494,7 +494,7 @@ Confirmed baseline gaps include:
 
 The contract locks must-ship scope, explicit move-right scope, internal phases, model routing, machine/browser/temporal/live-device acceptance, and the release sequence. It preserves Pass 10.3 geometry authority and the canonical engine/action path.
 
-## 11.1A candidate — legal normal-match foundation
+## 11.1A closed — legal normal-match foundation
 
 Implementation commit `84c9b77f6b6c648373125fb651eefa8da239d5d1` adds:
 
@@ -507,6 +507,18 @@ Implementation commit `84c9b77f6b6c648373125fb651eefa8da239d5d1` adds:
 - permanent Node and Playwright Pass 11 setup gates plus generated screenshots;
 - no change to Pass 10.3 battlefield geometry or the Pass 10.4 interaction/choreography stack.
 
-Run #148 succeeded on the exact planning head before implementation. The next workflow run must verify the latest continuity-aligned candidate head before 11.1A is closed.
+Run #148 succeeded on the exact planning head before implementation. Run #150 / `34644065607` then proved the new engine and Pass 11 setup/browser gate, but exposed a preserved Pass-10.4B choreography test's hidden dependency on the former ordered production quick-start deck (`no playable frost`). Production shuffle was retained. Commit `3b67c3d0591dca4d77d66c788630101e31be8a46` repaired only the test by constructing an explicit ordered QA fixture.
 
-**Exact next action:** require the latest exact PR head to pass the full workflow, inspect the generated `pass11-legal-setup-qa` screenshots and summary, correct any failures without weakening gates, then update continuity and advance to the next bounded functional-lifecycle slice.
+Run #151 / `34644865929` passed every static, engine, fuzz, frozen-geometry, direct-manipulation, parity, bot-gate, failure-recovery, 256-trial stress, lifecycle, WebKit/iPhone, choreography, adversarial, feel, and Pass 11 setup gate on that exact implementation head.
+
+The exact-run `pass11-legal-setup-qa` artifact is `10281992451`, digest `sha256:fac448619f05887566127ae7076e829787bdff82ff977746ce5ec84635c5fac5`. Manual frame-by-frame review confirmed:
+
+- a readable 10-card opening hand from the legal 31-card Northern Realms deck;
+- persisted restore after one of two mulligans, with the replaced card absent and the counter correct;
+- a clean normal-match start with empty rows, player hand 10 / deck 21, opponent hand 10 / deck 26, and no disguised preplayed state;
+- artifact summary legality counts of 25 units / 6 specials for the player and 29 units / 7 specials for the opponent;
+- no browser page errors.
+
+This update is the deliberate terminal continuity-only closeout for 11.1A. Its succeeding exact-head workflow should be verified once without creating a recursive commit solely to record that documentation verification.
+
+**Exact next action:** begin 11.1B — add a typed pending-choice router for all Golden Match-reachable choices, deterministic opponent choice resolution, durable terminal-result saves, player restart/rematch/menu flow, and an end-to-end normal-match engine/browser gate.
