@@ -17,12 +17,6 @@
     queueMicrotask(()=>api.maybeAutoBot?.());
     return reason||true;
   }
-  function installVersionMarks(){
-    document.title='Gwent Classic — Definitive Edition · Pass 10.4B';
-    const build=document.querySelector('.buildline');if(build)build.textContent='BUILD 10.4B · SIGNATURE GAMEPLAY CHOREOGRAPHY · CI-GATED';
-    const profile=document.querySelector('#profile-screen h2');if(profile)profile.textContent='Pass 10.4B choreography status';
-    const eyebrow=document.querySelector('#profile-screen .eyebrow');if(eyebrow)eyebrow.textContent='PASS 10.4B';
-  }
 
   // gameplay-choreography wraps Queue.run before this module loads. Wrap that
   // boundary once more so every committed game action—gesture-driven or an
@@ -59,7 +53,8 @@
     get stats(){return {deferrals,releases,pending:gated,geometrySyncs};},
     release:()=>release('manual')
   };
-  // Gesture-controller 10.4A stamps its own version during parser execution;
-  // defer this presentation-pass mark until the current script graph has settled.
-  setTimeout(installVersionMarks,0);
+
+  // This module remains a Pass 10.4B behavioral substrate. Visible release /
+  // milestone identity belongs to the latest presentation layer (10.4C+), so
+  // lower layers must never overwrite document/profile version marks.
 })();
