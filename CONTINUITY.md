@@ -1,7 +1,7 @@
 # Gwent Classic — Definitive Edition
 ## Canonical Running Project Continuity
 
-**Purpose:** permanent implemented-state handoff. A new conversation or implementation context should be able to recover the project from this file plus the repository without depending on chat memory.
+**Purpose:** permanent implemented-state handoff for this project. Recover the project from this file plus the repository, not chat memory.
 
 **Repository:** `blakemgray/gwent-definitive`  
 **Canonical hosted build:** `https://blakemgray.github.io/gwent-definitive/`  
@@ -11,113 +11,81 @@
 **Current completed production milestone:** **Pass 10.4B — Signature Gameplay Choreography**  
 **Current active milestone:** **Pass 10.4C — Feel / Presentation Polish**  
 **Active branch / PR:** `pass-10-4c-feel-presentation-polish` / **PR #8**  
-**Active head before this continuity checkpoint:** `ee600e8b856b9743ad4a58501b7a84b11f40dbb2`  
-**Latest active-branch CI:** run #133 / `34617300625` — **all verification gates success**  
+**Active branch head before this checkpoint:** `e6d71343dc02ddb283ba0789703f523d5b3827fe`  
+**Latest green implementation head:** `ee600e8b856b9743ad4a58501b7a84b11f40dbb2`  
+**Latest full CI:** run #133 / `34617300625` — **all gates success**  
 **Latest 10.4C QA artifact:** `10270749326`, digest `sha256:9d06882cc9f6d363ce4b5cbe494023f11e9058c57fbc2bd52e1839a335ac3990`  
-**Estimated Pass 10.4C completion:** **~96%** — visibility estimate only; never a reason to rush scope or weaken QA  
-**Next planned milestone:** **Pass 11 — Golden Match / Complete Normal Match**, only after 10.4C is merged, green, visually approved, and deployed.  
+**Estimated Pass 10.4C completion:** **~98%** — visibility only; never a reason to rush or weaken QA  
+**Next milestone:** **Pass 11 — Golden Match / Complete Normal Match**, only after 10.4C is merged, green on `main`, and deployed.  
 **Last updated:** 2026-09-11 America/New_York
 
-Production remains the fully green/deployed Pass 10.4B runtime until PR #8 merges and `main` passes verification + Pages deployment.
+Production remains Pass 10.4B until PR #8 merges and post-merge `main` verification + Pages deployment succeed.
 
 ---
 
 # 0. Mandatory continuity protocol
 
-This file is authoritative for implemented/current project state. `FUTURE_CONTINUITY.md` is the companion forward-roadmap authority.
+This file is authoritative for implemented/current state. `FUTURE_CONTINUITY.md` is the forward-roadmap companion.
 
-When sources disagree, use this precedence:
+Source precedence:
 
 1. Current explicit user instruction.
-2. Current repository code and current green CI behavior.
-3. This `CONTINUITY.md` implemented-state ledger.
-4. `FUTURE_CONTINUITY.md` for intended future direction.
-5. Current pass contracts/specifications under `docs/` and `config/`.
-6. Older archived pass artifacts.
-7. Chat memory or summaries.
+2. Current repository code + green CI behavior.
+3. This file.
+4. `FUTURE_CONTINUITY.md`.
+5. Current pass contracts/config.
+6. Older archives.
+7. Chat memory.
 
-### Start-of-task continuity rule
+### Start-of-task rule
 
 For every new implementation task or resumed work cycle:
 
-1. Read the active branch's current `CONTINUITY.md` first.
-2. **Write an actual checkpoint update to this file in GitHub before doing further implementation work.** A chat-only continuity summary does not satisfy this requirement.
-3. Record active pass/task, branch/PR/head, latest meaningful CI evidence or blocker, exact next action, and an estimated completion percentage.
-4. The percentage is for visibility only and must never compress scope, rush QA, skip visual review, or weaken a gate.
-5. Every user-facing progress report should include the current estimated completion percentage.
+1. Read the active branch's `CONTINUITY.md` first.
+2. **Write an actual checkpoint update to this file in GitHub before doing further implementation work.** Chat-only continuity does not count.
+3. Record active pass/task, branch/PR/head, latest meaningful CI evidence or blocker, exact next action, and estimated completion percentage.
+4. Percentage is for visibility only; never compress scope, rush QA, skip visual review, or weaken a gate.
+5. Every user-facing progress report should include the current percentage.
 6. Every user-facing work message should end with a concrete **Next action**.
-7. On completion/merge/deploy, update this file again with final SHAs, CI evidence, artifacts, visual findings, remaining debt, and handoff.
-
-A pass is not continuity-complete until this file is current.
+7. On merge/deploy, update this file again with final SHAs, CI, artifacts, visual findings, remaining debt, and handoff.
 
 ---
 
-# 1. Product mission
+# 1. Locked product doctrine
 
-Build the definitive modern implementation of **classic The Witcher 3 Gwent**, using Arun Sundaram's `asundr/gwent-classic` as the primary behavior/card/rules oracle while replacing the old monolithic browser implementation with a deterministic, testable, mobile-first architecture.
+## Mission
 
-Core product modes remain:
+Build the definitive modern implementation of **classic The Witcher 3 Gwent**, using Arun Sundaram's `asundr/gwent-classic` as the behavior/card/rules oracle while keeping the new runtime deterministic, testable, mobile-first, and engine/presentation separated.
 
-- `CLASSIC`
-- `ASSISTED`
-- `MODIFIED`
-- `SANDBOX`
-
-Classic statistics must remain separate from assisted/modified/sandbox outcomes.
-
----
-
-# 2. Locked doctrine
+Match classifications remain `CLASSIC`, `ASSISTED`, `MODIFIED`, `SANDBOX`; statistics must not blur them together.
 
 ## Rules
 
-- Preserve classic TW3 Gwent rules/card behavior as the baseline.
-- Arun Sundaram is the behavior/card-data/rules oracle, not the runtime architecture.
+- Preserve classic TW3 Gwent rules/card behavior.
 - Engine state is authoritative and deterministic.
-- Presentation may never decide legality or outcomes.
-- Animation failure may never roll back a valid committed engine action.
-- AI difficulty must come from better reasoning, never hidden-information cheating.
+- Presentation never decides legality/outcomes.
+- Animation failure never rolls back a valid committed action.
+- AI difficulty comes from better reasoning, never hidden-information cheating.
 
 ## Interaction
 
-- Production is JS-first, hosted, and PWA-oriented.
-- Primary gameplay target is iPhone landscape.
-- Hybrid interaction is locked:
-  - tap card → tap legal destination;
-  - direct drag to legal destination.
+- JS-first hosted PWA; iPhone landscape is the primary gameplay target.
+- Hybrid tap-select→tap-destination and direct Pointer Events drag.
 - Both dispatch the same canonical validated action.
-- Card inspection is secondary intent.
-- Invalid gestures return visually with zero engine mutation.
-- Reduced motion must preserve equivalent gameplay clarity.
+- Invalid gestures return visually with zero mutation.
+- Reduced motion preserves equivalent gameplay clarity.
 
 ## Visual language
 
-- Witcher 3 atmosphere;
-- premium physical tabletop;
-- modern iOS interaction discipline;
-- dark wood, iron, parchment, leather, aged brass/gold, ivory text;
-- restrained effect treatment;
-- no generic free-to-play visual language.
+Witcher 3 atmosphere + premium physical tabletop + modern iOS discipline: dark wood, iron, parchment, leather, aged brass/gold, ivory; restrained effects; no generic free-to-play visual language.
 
 ## Battlefield geometry authority
 
-**Pass 10.3 Battlefield Geometry Contract v2 is frozen authority for final battlefield positions.**
-
-Order:
-
-1. Opponent Siege
-2. Opponent Ranged
-3. Opponent Close
-4. Weather band
-5. Player Close
-6. Player Ranged
-7. Player Siege
-
-Later animation may interpolate around final slots but may not replace geometry math.
+**Pass 10.3 Battlefield Geometry Contract v2 is frozen authority.** Final structural order is Opponent Siege / Ranged / Close / Weather / Player Close / Ranged / Siege. Later motion may interpolate around final slots but may not replace geometry math.
 
 ---
 
-# 3. Canonical architecture
+# 2. Canonical architecture
 
 ```text
 Card DB / rules data
@@ -134,367 +102,216 @@ Battlefield UX / gestures / choreography / audio / haptic hooks
 Hosted web app / PWA / future native-quality iOS shell
 ```
 
-Architectural rules:
+Locked architecture:
 
-- deterministic state transitions;
-- stable permanent card IDs and per-match `iid`s;
-- semantic action/event logs;
+- stable card IDs + per-match `iid`s;
+- semantic event/action logs;
 - one rules path regardless of input method;
 - engine commits before presentation;
 - presentation is disposable;
 - interruption/failure reconciles to engine truth;
 - bot/opponent mutation cannot occur inside unresolved player presentation.
 
-Important runtime files through active Pass 10.4C:
+Key runtime files:
 
-- `src/gwent-engine.js` — deterministic classic-rules engine.
-- `src/cards-catalog.js` — migrated 216-card catalog.
-- `src/storage.js` — persisted state abstraction.
-- `src/battlefield-ux.js` — frozen 10.3 final geometry/reconciliation authority.
-- `src/motion-tokens.js` — shared timing/easing/reduced-motion policy, now tuned by 10.4C.
+- `src/gwent-engine.js` — deterministic rules engine.
+- `src/cards-catalog.js` — 216-card catalog.
+- `src/battlefield-ux.js` — frozen 10.3 geometry/reconciliation authority.
+- `src/motion-tokens.js` — shared motion/reduced-motion policy, tuned by 10.4C.
 - `src/presentation-queue.js` — serialized cancellable presentation transactions.
-- `src/interaction-turn-gate.js` — 10.4A bot mutation gate.
+- `src/interaction-turn-gate.js` — 10.4A bot gate.
 - `src/presentation-events.js` — 10.4B semantic before/after + engine-delta adapter.
-- `src/gameplay-choreography.js` — 10.4B mechanic/lifecycle choreography runtime.
-- `src/choreography-external-gate.js` — 10.4B external action / Auto Bot gate and post-action 10.3 geometry sync; no longer owns visible milestone stamping.
-- `src/flip-layout.js` — FLIP redistribution around 10.3 final geometry.
-- `src/gesture-controller.js` — 10.4A canonical tap/drag controller.
-- `src/presentation-feedback.js` — 10.4C semantic audio/optional-haptic feedback subscriber plus player-facing copy normalization.
-- `feel-polish.css` — 10.4C tactile visual override layer.
-- `app.js` — product shell/match integration.
+- `src/gameplay-choreography.js` — 10.4B choreography runtime.
+- `src/choreography-external-gate.js` — 10.4B external-action/Auto-Bot gate + synchronous 10.3 geometry sync; no visible milestone ownership.
+- `src/gesture-controller.js` — 10.4A canonical direct-manipulation controller.
+- `src/presentation-feedback.js` — 10.4C semantic audio/optional-haptic subscriber + player-facing copy normalization.
+- `feel-polish.css` — 10.4C tactile polish layer.
 
-All active presentation modules are explicitly declared in `index.html` and explicitly staged/pre-cached by the PWA graph. Dynamic loader shortcuts remain rejected.
+All active runtime modules are explicit in `index.html` and the PWA/deploy graph. Dynamic loading from semantic adapters remains rejected.
 
 ---
 
-# 4. Engine/catalog baseline
+# 3. Engine/catalog baseline
 
-Established parity baseline:
+Established parity:
 
 - 216/216 card definitions;
-- 44/44 known ability tokens represented;
+- 44/44 known ability tokens;
 - 22/22 leaders;
 - 5/5 factions.
 
-Implemented rules include ordinary play, Spy, Tight Bond, Muster, Medic + pending choice, Decoy, Weather/Clear Weather, Horn, row/leader Horn lifecycle, Scorch and row-specific Scorch, Hero, pass/auto-pass, round resolution, faction behavior, leader actions, and deterministic legal-action generation.
-
-Full engine breadth does not mean the entire catalog is yet exposed through a polished unrestricted production match flow.
+Engine supports ordinary play, Spy, Tight Bond, Muster, Medic + pending choice, Decoy, Weather/Clear, Horn, row/leader Horn, Scorch/row Scorch, Hero, passing/auto-pass, round resolution, factions, leaders, and deterministic legal actions.
 
 ---
 
-# 5. Deployment workflow
+# 4. Deployment workflow
 
-Repository: `blakemgray/gwent-definitive`  
 Workflow: `.github/workflows/deploy-pages.yml`
 
-Policy:
-
-- feature work on a pass branch;
-- PR to `main`;
-- full static + browser + geometry + interaction + WebKit + pass-specific gates;
-- visual artifact inspection where applicable;
-- merge only after latest-head gates and visual review are green;
-- main push reruns verification;
-- Pages deploy only after verify succeeds;
-- continuity updated at the start of each work cycle and again before merge/after production verification.
+Policy: branch → PR → full static/browser/geometry/interaction/WebKit/pass-specific gates → visual inspection → latest-head green → merge → full `main` verification → Pages deploy → final continuity update.
 
 ### Current production snapshot — Pass 10.4B
 
 - PR #7 merged.
-- Final PR head: `1623caed9c72a80d110e3ec4efdc3e2838d9ee3c`.
-- Merge/runtime SHA: `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`.
+- Final PR head `1623caed9c72a80d110e3ec4efdc3e2838d9ee3c`.
+- Merge/runtime `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`.
 - Final PR run #111 / `34606032376`: success.
-- Production run #112 / `34607056878`: verify success, Pages deploy success.
-- Production 10.4B artifact: `10266123499`.
-
-Run #112 passed static validation, frozen 10.3 geometry, full 10.4A interaction/parity/touch, 256-trial stress / 512 committed interactions, lifecycle/save-restore, WebKit/iPhone, primary 10.4B choreography, and the eight-scenario 10.4B adversarial matrix.
+- Production run #112 / `34607056878`: verify + Pages success.
+- Production 10.4B artifact `10266123499`.
 
 ---
 
-# 6. Pass history / running ledger
+# 5. Pass history
 
-Do not erase historical pass milestones. Later work may supersede details, but history remains explicit.
+Historical entries remain explicit; do not invent missing history.
 
-## Pass 5 — Initial interactive prototype
-
-**Status:** historical / superseded.  
-Durable lesson: preview-environment limitations are not production architecture requirements.
-
-## Pass 5B — no-JS/hash preview workaround
-
-**Status:** historical / intentionally abandoned as production direction.
-
-## Pass 6 — art + inspector investigation
-
-**Status:** historical.  
-Identified remote-art preview limitations and a transformed-ancestor WebKit/fixed-position issue.
-
-## Pass 6.1 — inspector recovery / explicit assist states
-
-**Status:** historical foundation.  
-Recovered viewport inspector, explicit assist/cheat states, deck tabs, remote-art fallback, and authored Spy demonstration path.
-
-## Pass 7 — deterministic engine foundation
-
-**Status:** foundational and retained.  
-Introduced deterministic engine/UI separation, stable instances, seeded RNG, semantic logs, legal actions, classifications, cheat draw, and undo/redo history.
-
-## Pass 8 — full catalog migration + UI integration
-
-**Status:** foundational and retained.  
-Migrated all 216 Arun cards and integrated real assets/UI.
-
-## Pass 9 — source-parity rules completeness
-
-**Status:** foundational and retained.  
-Expanded abilities/factions/leaders and fixed Horn occupancy, exhaustion, Scorch/Decoy legality, and lifecycle issues.
-
-## Pass 10 — first bespoke battlefield attempt
-
-**Status:** rejected.  
-Durable lesson: live DOM geometry is authoritative; decorative imagery is subordinate.
-
-## Pass 10.1 — battlefield recovery
-
-**Status:** successful recovery foundation.  
-Rebuilt deterministic six-row DOM battlefield and recovered 0 px geometry drift at target QA viewport.
-
-## Pass 10.2 — continuity gap
-
-**Status:** no dedicated verified standalone dossier.  
-Do not invent a false 10.2 description.
-
-## Pass 10.3 — Battlefield UX Architecture / Geometry Contract v2
-
-**Status:** production layout authority.  
-Locked functional row territory, centered/compressed row packs, independent ten-card hand compositor, six-row structure, and target geometry.
-
-Primary contract: `docs/PASS10_3_BATTLEFIELD_UX_CONTRACT.md`.
-
-## Pass 10.4R — Interaction & Motion Research
-
-**Status:** complete specification pass.  
-Locked sequence:
-
-1. 10.4A Direct Manipulation
-2. 10.4B Gameplay Choreography
-3. 10.4C Feel / Presentation Polish
-4. Pass 11 Golden Match
-
-Primary references:
-
-- `docs/PASS10_4R_INTERACTION_MOTION_RESEARCH.md`
-- `docs/PASS10_4R_CHOREOGRAPHY_MATRIX.md`
-- `docs/PASS10_4R_IMPLEMENTATION_BLUEPRINT.md`
-- `config/interaction-motion-contract.json`
+- **Pass 5:** initial interactive prototype; preview limitations are not production requirements.
+- **Pass 5B:** no-JS/hash workaround; intentionally abandoned as production direction.
+- **Pass 6:** art/inspector investigation; identified preview and WebKit positioning issues.
+- **Pass 6.1:** inspector recovery + explicit assist states.
+- **Pass 7:** deterministic engine foundation, seeded RNG, stable instances, legal actions, semantic logs, classifications, history.
+- **Pass 8:** complete 216-card catalog migration + UI integration.
+- **Pass 9:** source-parity rules completeness; fixed Horn occupancy, exhaustion, Scorch/Decoy legality, lifecycle defects.
+- **Pass 10:** rejected bespoke battlefield attempt; live DOM geometry is authoritative.
+- **Pass 10.1:** deterministic six-row battlefield recovery.
+- **Pass 10.2:** continuity gap; no verified standalone dossier—do not invent one.
+- **Pass 10.3:** frozen Battlefield Geometry Contract v2 and centered/compressed row/hand compositor.
+- **Pass 10.4R:** complete interaction/motion research; locked sequence 10.4A → 10.4B → 10.4C → Pass 11.
 
 ## Pass 10.4A — Direct Manipulation
 
 **Status:** complete / merged / green.  
-PR #5 merge: `7367cd69042d93f0f895bc9150f0207df30f8f1c`  
-WebKit stabilization: `731f5fc3c93eb7bd445b52edaad1ff65db73f6ed`
+PR #5 merge `7367cd69042d93f0f895bc9150f0207df30f8f1c`; WebKit stabilization `731f5fc3c93eb7bd445b52edaad1ff65db73f6ed`.
 
-Locked foundation:
-
-- tap-select/tap-destination;
-- Pointer Events drag;
-- 8 px threshold + pointer capture;
-- legal destinations exclusively from engine `legalActions`;
-- one canonical `commitAction()`;
-- invalid-drop zero mutation;
-- source placeholder / finger proxy;
-- FLIP redistribution;
-- inspector secondary intent;
-- keyboard destination / Escape;
-- reduced motion;
-- presentation-aware bot gate;
-- semantic landing authority;
-- disposable presentation failure recovery;
-- save/restore/interruption cleanup.
+Locked foundation: tap/drag parity; Pointer Events; 8 px threshold; pointer capture; engine `legalActions`; one `commitAction()`; zero-mutation invalid return; placeholders/proxies; FLIP; inspector secondary intent; keyboard/Escape; reduced motion; bot gate; semantic landing; disposable presentation failure; persistence/interruption cleanup.
 
 ## Pass 10.4B — Signature Gameplay Choreography
 
 **Status:** **COMPLETE / MERGED / GREEN / DEPLOYED.**
 
-Branch: `pass-10-4b-signature-choreography`  
-PR: #7  
-Implementation head: `6a34c9ce1c6fe1ae43d47eb329187e70cd546535`  
-Final PR/docs head: `1623caed9c72a80d110e3ec4efdc3e2838d9ee3c`  
-Merge/runtime SHA: `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`
+PR #7; implementation head `6a34c9ce1c6fe1ae43d47eb329187e70cd546535`; final PR head `1623caed9c72a80d110e3ec4efdc3e2838d9ee3c`; merge/runtime `a6adca26dc2bc52be9adb8ee7e551843bf00eee2`.
 
-Locked 10.4B behavior:
+Locked behavior: engine-first; choreography owns no rules state; cause before consequence; destructive identity before collapse; score after visible cause; same language for opponent actions; reduced-motion equivalents; external Auto-Bot gate; post-action snapshot only after synchronous 10.3 reconciliation.
 
-- engine commits first;
-- choreography owns no rules state;
-- source event before consequence;
-- target identity before destructive collapse;
-- score follows visible cause;
-- opponent actions use same presentation language;
-- reduced-motion equivalents preserve mechanic clarity;
-- external player actions gate Auto Bot until presentation release;
-- every post-action visual snapshot occurs after synchronous 10.3 reconciliation.
-
-Signature coverage includes Scorch, Muster, Spy, Horn, Weather/Clear, Medic, Decoy, Tight Bond, Morale, Leader, Hero, draw/discard, Pass, round resolution, match result, Monster retention, Skellige resurrection, and Northern Realms post-round draw.
-
-Adversarial matrix includes tied multi-row Scorch, 8+ Muster, Spy 10→11, Horn+Bond, all-weather Clear, Medic→Muster, Decoy-on-non-Hero-Spy, and Round 2→3 Monster retention + two Skellige returns.
+Coverage: Scorch, Muster, Spy, Horn, Weather/Clear, Medic, Decoy, Bond, Morale, Leader, Hero, draw/discard, Pass, rounds, match result, Monster retention, Skellige resurrection, Northern Realms draw. Adversarial QA covers tied Scorch, 8+ Muster, Spy 10→11, Horn+Bond, all-weather Clear, Medic→Muster, Decoy-on-Spy, Round 2→3 retention + two Skellige returns.
 
 ## Pass 10.4C — Feel / Presentation Polish
 
-**Status:** **ACTIVE / IMPLEMENTATION GREEN / VISUAL CLOSEOUT IN PROGRESS.**
+**Status:** **ACTIVE / IMPLEMENTATION GREEN / VISUALLY APPROVED RELEASE CANDIDATE.**
 
-**Goal:** improve physical card feel, timing coherence, feedback, accessibility, semantic audio/haptic hooks, interruption feel, and iPhone/WebKit performance without changing classic rules, 10.3 geometry, the 10.4A canonical action path, or 10.4B choreography causality.
+Branch: `pass-10-4c-feel-presentation-polish`  
+PR: #8  
+Latest green implementation head: `ee600e8b856b9743ad4a58501b7a84b11f40dbb2`  
+Run #133 / `34617300625`: **all verification gates success**  
+Artifact `10270749326`, digest `sha256:9d06882cc9f6d363ce4b5cbe494023f11e9058c57fbc2bd52e1839a335ac3990`  
+Estimated completion: **~98%**
 
-**Branch:** `pass-10-4c-feel-presentation-polish`  
-**PR:** `#8 — Pass 10.4C — Feel / Presentation Polish`  
-**Current implementation head before this continuity checkpoint:** `ee600e8b856b9743ad4a58501b7a84b11f40dbb2`  
-**Latest full CI:** run #133 / `34617300625` — **success across every gate**  
-**Latest QA artifact:** `10270749326` / `sha256:9d06882cc9f6d363ce4b5cbe494023f11e9058c57fbc2bd52e1839a335ac3990`  
-**Estimated completion:** **~96%**
+### Implemented
 
-### Locked 10.4C implementation so far
+- 10.4C motion/easing/feel vocabulary in `motion-tokens.js`.
+- `feel-polish.css`: tactile press, lifted selection, cleaner legal/active target treatment, reduced-motion equivalent; no geometry ownership.
+- `presentation-feedback.js`: presentation-only semantic feedback hooks for selection, valid destination, row-specific commit, draws, Spy, Horn, Bond, Muster, Medic, Decoy, Scorch, Weather/Clear, Pass, turns, round result, game result.
+- Persisted effects volume + mute.
+- Optional web haptics are capability-detected, opt-in, and off by default.
+- Final audio assets remain decoupled from rules; only semantic hooks are provided.
+- 10.4C explicit load/PWA/deploy graph.
+- Lower-layer 10.4B code no longer overwrites visible 10.4C milestone/build identity; static regression guard locks ownership.
+- Presentation-only normalization removes development-era `ENGINE RESOLVED` / `ENGINE CHOICE` language from ordinary player-facing feedback while preserving semantic logs/developer tooling/engine behavior.
+- Browser QA rejects engine jargon in ordinary landing and Medic presentation.
 
-- `src/motion-tokens.js` advanced to 10.4C timing/easing/feel vocabulary while preserving reduced-motion equivalence.
-- `feel-polish.css` adds tactile press, lifted selection, cleaner legal/active target treatment, and reduced-motion presentation without replacing battlefield geometry.
-- `src/presentation-feedback.js` subscribes to established queue/stage/interaction signals and emits semantic feedback hooks.
-- Semantic hook set includes selection, valid destination, row-specific card commit, draw/discard, Spy, Horn, Bond, Muster, Medic, Decoy, Scorch, weather/clear, Pass, turn, round result, and game result.
-- Effects volume + mute persist independently of engine state.
-- Web haptics are conservative opt-in, capability-detected, and off by default.
-- Final audio assets remain decoupled; 10.4C provides semantic dispatch hooks rather than binding game rules to media.
-- `index.html`, service worker, PWA validation, and deploy staging explicitly load/cache/stage 10.4C files.
-- 10.4B external gate no longer owns visible milestone/build stamping; 10.4C is the final visible release-identity owner.
-- A static regression guard prevents lower 10.4B code from reclaiming visible 10.4C release identity.
-- Player-facing presentation normalizes development-era strings such as `ENGINE RESOLVED` and `ENGINE CHOICE` while leaving semantic logs/developer tooling/engine behavior untouched.
-- Browser QA now rejects engine jargon in ordinary player-facing landing feedback and Medic choice presentation.
+### CI evidence
 
-### 10.4C QA evidence
+Run #133 on `ee600e8...` passed:
 
-Run #130 / `34615805038`, head `227fd8b14faec69c359eef8d8f787e41f998c9d0`, was the first fully green 10.4C feel run after release-identity ownership was corrected. Manual inspection of its artifact found remaining player-facing integration jargon (`ENGINE RESOLVED`, `MEDIC · ENGINE CHOICE`), so that otherwise-green head was correctly **not** treated as release-final.
+- static engine/catalog/PWA/motion/direct-manipulation/choreography/feel validation;
+- frozen 10.3 geometry;
+- full 10.4A baseline/overlap/parity/interruption/reduced-motion/touch;
+- destination-family parity;
+- bot gate + failure recovery;
+- 256-trial stress / 512 committed interactions;
+- semantic landing;
+- lifecycle/save-restore;
+- WebKit/iPhone;
+- primary 10.4B choreography;
+- eight-scenario 10.4B adversarial matrix;
+- 10.4C feel/feedback/reduced-motion/pacing;
+- all QA archives.
 
-Current head `ee600e8b856b9743ad4a58501b7a84b11f40dbb2` adds presentation-only copy normalization plus static/browser regression assertions. Run #133 / `34617300625` passed:
+Measured feel evidence: pointer press ~25.7 ms; invalid return ~237.7 ms; haptic attempts 0 with default opt-out; ordinary toast `REDANIAN FOOT SOLDIER`.
 
-- engine/catalog/PWA/motion/direct-manipulation/choreography/feel static validation;
-- frozen 10.3 battlefield density/centering/geometry;
-- full 10.4A baseline, overlap, parity, interruption, reduced-motion, and touch;
-- destination-family tap/drag parity;
-- presentation-aware bot turn gating;
-- disposable presentation-failure recovery;
-- 256-trial physical interaction stress / 512 committed interactions;
-- semantic landing continuity/durable feedback;
-- last-card, visibility interruption, and save/restore lifecycle;
-- WebKit/iPhone-targeted interaction;
-- primary 10.4B signature choreography / reduced motion / interruption;
-- eight-scenario 10.4B adversarial choreography matrix;
-- 10.4C feel / semantic feedback / reduced-motion / pacing gate;
-- all 10.3/10.4A/10.4B/10.4C QA archives.
+### Manual visual approval — Run #133
 
-Measured 10.4C evidence from the prior inspected green artifact showed pointer press response around 26 ms and invalid-return completion around 237 ms, both inside the pass budgets. These metrics are evidence, not a reason to weaken visual review.
+Artifact `10270749326` was manually inspected at the canonical 852×393 target and is **approved for final closeout**.
 
-### Current blocker / exact handoff
+Verified:
 
-No automated regression is currently known. The only remaining release-candidate gate is **manual visual inspection of Run #133 artifact `10270749326`**, specifically:
+- selection reads as physical lift/weight without the old debug-style `SELECTED` pill;
+- active legal target has clear structural/gold alignment feedback;
+- ordinary landing is centered/clean and now reads only `REDANIAN FOOT SOLDIER` — no `ENGINE RESOLVED` jargon;
+- invalid drag remains an intentionally off-board proxy before returning cleanly with no persistent transient;
+- reduced-motion selection preserves the same legal-destination information hierarchy;
+- feedback settings are integrated into the normal scrollable Settings surface;
+- Medic signature presents `REVIVE`; nested Medic→Muster shows `MEDIC · UNIT REVIVED` and maintains correct card-scale geometry;
+- representative Scorch, Muster, Spy, Horn, Weather/Clear, Decoy, Leader, round-resolution, reduced-motion, interruption, Monster-retention, and Skellige-return frames show no visual regression from established 10.4B choreography.
 
-1. ordinary landing frame — confirm `ENGINE RESOLVED` is gone and replacement wording feels player-facing;
-2. Medic / Medic→Muster frames — confirm `ENGINE CHOICE` / `ENGINE RESOLVED` jargon is gone;
-3. selection, active-target, invalid-return, reduced-motion, and settings frames — confirm no clipping, accidental debug treatment, or accessibility regression;
-4. representative copied 10.4B mechanic/lifecycle frames — confirm 10.4C overrides did not visually degrade established choreography.
+No visual release blocker remains on the implementation candidate.
 
-If visual review is clean, update this continuity section with final visual evidence, prepare the final PR/docs head, rerun that exact head, merge PR #8 only after green latest-head verification, then verify `main` + Pages before declaring 10.4C production-complete.
+### Exact closeout handoff
 
----
+The next task is **final PR/documentation closeout**:
 
-# 7. Current product status
-
-Production currently has:
-
-- hosted canonical JS/PWA infrastructure;
-- deterministic classic-rules engine;
-- 216-card catalog;
-- source-parity rules baseline;
-- frozen six-row 10.3 geometry;
-- centered/compressed hand/row compositors;
-- save/Continue Match;
-- 10.4A tap/drag direct manipulation;
-- interruption/failure safety;
-- semantic presentation transactions;
-- iPhone/WebKit interaction coverage;
-- 10.4B authored mechanic/lifecycle choreography;
-- adversarial choreography QA;
-- CI-protected Pages deployment.
-
-Active PR #8 adds but has not yet deployed:
-
-- tuned 10.4C motion/feel tokens;
-- tactile selection/press/target treatment;
-- semantic audio hooks;
-- optional capability-gated haptic hooks;
-- persisted effects-volume/mute settings;
-- player-facing copy normalization;
-- dedicated 10.4C feel/performance/accessibility QA.
-
-Major remaining broader work after 10.4C:
-
-- Pass 11 Golden Match / complete normal match validation;
-- unrestricted legal deck builder across all 216 cards;
-- polished faction/leader/deck selection;
-- complete production mulligan/effect-choice UX across unrestricted legal combinations;
-- final strategic AI ladder through Grandmaster;
-- mature save/resume/replay;
-- modular cheats/assists/sandbox classifications;
-- full victory/rematch/unrestricted match shell;
-- local permitted-art ownership/caching;
-- final offline/install/native-quality product polish.
+1. update README/current-status language to mark 10.4C as a green, visually approved release candidate and Pass 11 as next;
+2. ensure final continuity/contract language reflects the release candidate without falsely calling it production before merge;
+3. run the resulting exact latest documentation head through the full CI matrix;
+4. merge PR #8 only if that latest head is green;
+5. verify post-merge `main` through the same matrix and Pages deployment;
+6. update this file with final merge/main/deploy SHAs and formally close 10.4C;
+7. only then begin Pass 11.
 
 ---
 
-# 8. Forward roadmap authority
+# 6. Current product status / broader debt
 
-`FUTURE_CONTINUITY.md` preserves intended future direction.
+Production currently has hosted PWA infrastructure, deterministic classic engine, 216-card catalog, frozen 10.3 geometry, 10.4A direct manipulation, iPhone/WebKit coverage, 10.4B choreography, adversarial QA, and CI-protected Pages deployment.
 
-Locked near-term sequence:
+PR #8 adds tuned feel/motion, semantic audio hooks, optional haptics, persisted effects settings, player-facing copy cleanup, and dedicated 10.4C QA.
 
-1. **Finish Pass 10.4C — Feel / Presentation Polish**.
+Broader work after 10.4C includes Pass 11 Golden Match, unrestricted legal deck builder, polished faction/leader selection, complete unrestricted mulligan/effect choices, final AI ladder through Grandmaster, mature save/resume/replay, modular assists/cheats/sandbox, full victory/rematch shell, local permitted-art ownership/caching, and final offline/install/native-quality polish.
+
+---
+
+# 7. Forward roadmap
+
+`FUTURE_CONTINUITY.md` remains forward authority. Near-term sequence is:
+
+1. **close Pass 10.4C**;
 2. **Pass 11 — Golden Match / Complete Normal Match**.
 
-Do not invent later exact pass numbers unless explicitly assigned.
+Do not invent later pass numbers unless explicitly assigned.
 
-Pass 11 must validate a complete normal match with legal deck initialization/opening draw/mulligan, direct manipulation hand, all required choice dialogs, player/opponent turns, passing/exhaustion, scoring, rounds, faction/life lifecycle, best-of-three result, restart/rematch, and save integrity without developer shortcuts.
+Pass 11 must validate one complete normal match with legal deck initialization, opening draw/mulligan, direct manipulation hand, all required choice dialogs, player/opponent turns, passing/exhaustion, scoring, rounds, factions/lives, best-of-three result, restart/rematch, and save integrity without developer shortcuts.
 
 ---
 
-# 9. Archive / Drive context
+# 8. Archive context
 
 GitHub is canonical for active development.
 
-Reference folder: `Gwent Classic - Arunsundaram`  
-Folder ID: `1dZWKlRFWTcOu3iYwXAdPx-mbz4dj-jlr`
-
-Legacy product root: `Gwent Definitive - blakemgray`  
-Folder ID: `1dDtOJP3wYTVfQiXP3bYUjdcH1bkx96yu`
-
-Drive archives are historical/reference material unless explicitly instructed otherwise.
+Reference Drive folder: `Gwent Classic - Arunsundaram` — `1dZWKlRFWTcOu3iYwXAdPx-mbz4dj-jlr`  
+Legacy product root: `Gwent Definitive - blakemgray` — `1dDtOJP3wYTVfQiXP3bYUjdcH1bkx96yu`
 
 ---
 
-# 10. New-chat bootstrap
+# 9. Current handoff
 
-For a new conversation:
+**Pass 10.4C is approximately 98% complete and its implementation candidate is green + visually approved.**
 
-> Read `CONTINUITY.md` first, then `FUTURE_CONTINUITY.md`, inspect current `main`, inspect any active pass branch/PR, read the relevant pass contracts, and inspect latest CI. Continue from the exact handoff state. Update `CONTINUITY.md` in GitHub at the start of the work cycle before more implementation work.
+Current evidence:
 
----
+- PR #8 open;
+- implementation head `ee600e8b856b9743ad4a58501b7a84b11f40dbb2`;
+- Run #133 / `34617300625` fully green;
+- artifact `10270749326` manually approved;
+- no known runtime, accessibility, interaction, WebKit, choreography, copy, or visual blocker.
 
-# 11. Current handoff
-
-**Pass 10.4C is active and approximately 96% complete.**
-
-Current branch/PR/head:
-
-- branch: `pass-10-4c-feel-presentation-polish`;
-- PR: #8;
-- implementation head before this continuity checkpoint: `ee600e8b856b9743ad4a58501b7a84b11f40dbb2`;
-- latest full-green CI: run #133 / `34617300625`;
-- current 10.4C artifact: `10270749326`.
-
-There is no known automated blocker. The exact next action is manual visual inspection of the #133 artifact, with special attention to ordinary landing and Medic/Muster player-facing wording after copy normalization. If clean, record visual approval here, create the final documentation/closeout head, run that exact head through the full matrix, merge PR #8, then verify `main` and Pages before declaring 10.4C complete.
-
-Do not begin Pass 11 until those closeout gates are complete.
+**Exact next action:** prepare the final documentation/status head, run it through the full matrix, then merge PR #8 only if that exact head is green. After merge, verify `main` + Pages and write the final continuity closeout before beginning Pass 11.
