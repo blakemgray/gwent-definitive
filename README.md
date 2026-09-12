@@ -1,137 +1,95 @@
 # Gwent Classic — Definitive Edition
 
-Canonical JS-first hosted build.
+Canonical JS-first hosted build of classic *The Witcher 3* Gwent.
 
-> **Project handoff / continuity:** read both [`CONTINUITY.md`](CONTINUITY.md) and [`FUTURE_CONTINUITY.md`](FUTURE_CONTINUITY.md) before starting a new pass. `CONTINUITY.md` is the canonical running record for doctrine, pass history, current repository state, QA evidence, known debt, and the exact next action. During active development it is updated at the start of each work cycle and again during merge/deploy closeout. `FUTURE_CONTINUITY.md` preserves intended forward direction across conversation limits.
+> **Project handoff / continuity:** read [`CONTINUITY.md`](CONTINUITY.md) and [`FUTURE_CONTINUITY.md`](FUTURE_CONTINUITY.md) before starting or resuming implementation. GitHub is authoritative for source, commits, pull requests, CI, artifacts, merge verification, and deployment state.
 
 ## Current implementation status
 
-**Pass 10.4C — Feel / Presentation Polish is complete, merged, fully green, visually approved, and deployed to production.** Pass 10.3 remains the authoritative battlefield geometry/layout baseline, Pass 10.4A remains the canonical direct-manipulation/action foundation, Pass 10.4B remains the cause→effect gameplay choreography layer, and Pass 10.4C is the tactile feel/feedback/accessibility polish layer on top of them.
+**Pass 11 — Golden Match / Complete Normal Match is implemented on PR #11 (`pass-11-golden-match`) and is in final release verification.** The production `main` branch remains the pre-Pass-11 baseline until an explicit merge/deploy is authorized.
 
-The next implementation milestone is **Pass 11 — Golden Match / Complete Normal Match**. Post-Pass-11 requirements are established in `FUTURE_CONTINUITY.md`; later exact pass numbers are intentionally not yet locked.
+Pass 11 preserves the closed interaction stack beneath it:
 
-Production evidence for 10.4C: PR #8 final head `e6a357606c6d0e978ceabf93e2f456377b3f6ac2`; merge/runtime `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d`; final PR Run #136 / `34620304920` fully green; production Run #137 / `34621157464` fully green with Pages deployment success.
+- **Pass 10.3** — authoritative battlefield geometry and six-row layout.
+- **Pass 10.4A** — one canonical tap/drag/action path with interruption-safe direct manipulation.
+- **Pass 10.4B** — serialized cause→effect gameplay choreography.
+- **Pass 10.4C** — physical feel, semantic feedback, accessibility, and reduced-motion polish.
 
-## Runtime baseline — Pass 10.3 Battlefield UX Architecture
+The current candidate adds the complete normal-match product loop around that foundation rather than replacing it.
 
-Pass 10.3 remains the battlefield geometry authority:
+## Product doctrine
 
-- functional row territory is separate from the visible card rail;
-- every row pack is mathematically centered;
-- first and last cards are protected from clipping;
-- sparse rows remain centered while dense rows compress only when required;
-- the ten-card hand uses an independent centered compositor;
-- turn state, pass state, total score, row score, cards, hand, modifiers, then tertiary counts follow an explicit information hierarchy;
-- weather is reinforced on affected rows instead of living only in a central strip;
-- the card inspector is narrower so tactical context remains visible;
-- the six-row structure remains non-negotiable.
+The default rules foundation is classic Witcher 3 Gwent. Modernization belongs around the rules: clearer interaction, stronger presentation, smarter non-cheating AI, quality-of-life improvements, modular assists/cheats, and eventual native-quality iPhone delivery.
 
-## Pass 10.4R — Interaction & Motion Research
+Runtime invariants:
 
-The specification pass preceding interaction/choreography implementation is complete.
+- the deterministic engine owns legality, scoring, effects, choices, rounds, and match outcome;
+- presentation never decides rules truth;
+- engine state commits before presentation and presentation is disposable/cancellable;
+- stable card IDs plus per-match `iid`s preserve card identity;
+- tap, drag, keyboard, opponent, and restored-session actions converge on one validated action path;
+- invalid or ambiguous intent produces zero authoritative mutation;
+- opponent actions cannot advance through unresolved presentation or player choice;
+- AI difficulty means better reasoning, never hidden-information cheating.
 
-Core decisions:
+Interaction north star:
 
-- Hybrid placement is the default: tap-select + tap destination and direct drag are both first-class.
-- Both input methods dispatch the same validated GameAction.
-- Pointer Events + pointer capture are the drag primitive; native HTML drag-and-drop is rejected for the battlefield.
-- Web Animations API plus transform/opacity motion is the primary animation path; requestAnimationFrame is reserved mainly for live pointer-following.
-- Hand and row redistribution use FLIP-style interpolation around Pass 10.3's authoritative final positions.
-- Engine state commits before presentation; animation can never decide rules outcomes.
-- Scorch, Muster, Spy, Horn, Weather, Medic, Decoy, Bond, pass, round resolution, and related effects have explicit semantic choreography.
-- Audio and future haptics subscribe to semantic presentation events rather than rules logic.
-- Reduced-motion mode has mechanic-specific substitutions and retains equivalent gameplay clarity.
-- Rotation, visibility changes, skips, or cancelled effects reconcile directly to deterministic engine state.
+> **A caveman should be able to pick it up and play without realizing it is all digital.**
 
-Research artifacts:
+Primary gameplay target is an installed iPhone landscape PWA. Pass 10.3 final geometry remains frozen authority.
 
-- `docs/PASS10_4R_INTERACTION_MOTION_RESEARCH.md`
-- `config/interaction-motion-contract.json`
-- `docs/PASS10_4R_IMPLEMENTATION_BLUEPRINT.md`
-- `docs/PASS10_4R_SOURCE_NOTES.md`
+## Pass 11 — Golden Match
 
-Implementation sequence from 10.4R:
+The Pass 11 candidate now provides one genuine normal Instant Match from menu to rematch:
 
-1. **10.4A Direct Manipulation — complete**
-2. **10.4B Signature Gameplay Choreography — complete / production**
-3. **10.4C Feel / Presentation Polish — complete / production**
-4. **Pass 11 Golden Match / Complete Normal Match — next**
+- legal full-size Northern Realms and Monsters presets;
+- deterministic shuffle plus a real opening draw and two-card mulligan;
+- complete ordinary turn loop, passing/exhaustion, scoring, rounds, faction/life effects, and best-of-three terminal result;
+- production handling for the locked decks' normal choices and signature mechanics;
+- Restart, Resume, Rematch, Main Menu, durable terminal result, and mid-match Continue restore;
+- Standard opponent behavior on the same public legal-action surface as the player;
+- always-readable effective power and card identity;
+- ambiguity-aware input forgiveness, predictive target exposure, and continuous perceived card identity;
+- concrete Web Audio feedback with persisted effects settings and honest capability-gated haptic semantics;
+- truthful save-failure behavior: committed gameplay remains authoritative even when persistence fails, recovery saves exactly that state, and malformed/incompatible saves are rejected safely;
+- serialized opponent scheduling so consecutive bot actions cannot commit through unresolved presentation;
+- coherent installed-PWA core generations so a partial deployment cannot mix new shell files with old cached modules.
 
-## Pass 10.4A — Direct Manipulation
+The service-worker shell generation is `11.golden.2`. The save-format build identifier remains independently versioned because the release-label/cache-generation cleanup does not change save semantics.
 
-The production interaction foundation provides:
+## QA and acceptance
 
-- tap-select → tap legal destination;
-- direct Pointer Events drag;
-- pointer capture + 8 px activation threshold;
-- legal destinations exclusively from engine `legalActions`;
-- one canonical action commit path for tap and drag;
-- invalid-drop zero mutation;
-- source placeholder + drag/landing proxies;
-- FLIP redistribution around Pass 10.3 geometry;
-- inspector as secondary intent;
-- keyboard destination / Escape cancellation;
-- reduced-motion equivalents;
-- presentation-aware bot gating;
-- interruption/failure cleanup and save/restore integrity.
+CI runs the real browser product at the iPhone-landscape target geometry and preserves the earlier regression matrix while adding Pass 11-specific proof. Current gates cover:
 
-## Pass 10.4B — Signature Gameplay Choreography
+- engine/fuzz/catalog and PWA contracts;
+- legal setup/mulligan and lifecycle/choice/rematch;
+- 11.2A readability, 11.2B intent, 11.2C target exposure, and 11.2D card continuity;
+- concrete audio/haptic/PWA platform truth;
+- adversarial old-install → partial-new → healthy-new → offline PWA upgrade behavior;
+- a no-state-injection Golden Match from normal menu to natural best-of-three result, live reload/Continue, and fresh Rematch;
+- direct-manipulation baseline, destination parity, interruption recovery, semantic landing, save/visibility restore, and WebKit/iPhone-targeted behavior;
+- consecutive-bot presentation serialization;
+- **256-trial physical interaction stress**;
+- preserved 10.4B signature/adversarial choreography and 10.4C feel/pacing;
+- dedicated storage-resilience coverage for failed writes, recovery, malformed saves, and bounded legacy compatibility.
 
-Pass 10.4B adds a presentation-only semantic choreography layer without changing classic rules, Pass 10.3 final geometry, or the Pass 10.4A canonical input/action path.
+Automated proof does **not** substitute for human real-device sensory acceptance. Installed-iPhone audible output, background/relaunch behavior, tactile capability/quality, and final physical feel remain external signoff items before Pass 11 is treated as fully released.
 
-Implemented presentation language includes:
+## Key runtime files
 
-- cause-before-consequence sequencing for Scorch, Muster, Spy, Commander’s Horn, Weather/Clear Weather, Medic, Decoy, Tight Bond, Morale, leaders, Hero landings, draw/pass, round resolution, match result, Monster retention, and Skellige/round-start lifecycle effects;
-- presentation-only pre/post visual snapshots so destructive/swap/round effects preserve identity even though engine state has already committed;
-- serialized, cancellable choreography on the existing presentation queue;
-- external Pass/leader/choice/Medic bot gating so opponent state cannot mutate during unresolved player presentation;
-- viewport-clamped cues, reduced-motion equivalents, and interruption-safe cleanup;
-- explicit runtime/PWA load graph rather than semantic-adapter bootstrapping;
-- synchronous Pass 10.3 reconciliation before post-action visual capture so external actions cannot snapshot raw pre-layout DOM geometry.
+- `src/gwent-engine.js` — deterministic classic rules engine.
+- `src/cards-catalog.js` — 216-card catalog.
+- `app.js` — production shell, Golden Match setup/lifecycle, bounded opponent.
+- `src/storage.js` — validated prepared/active/result persistence and save-failure reporting.
+- `src/battlefield-ux.js` — frozen final geometry/reconciliation.
+- `src/gesture-controller.js` + `src/interaction-intent.js` — canonical direct manipulation and intent resolution.
+- `src/target-exposure.js` + `src/card-continuity.js` — presentation-only targeting and identity continuity.
+- `src/presentation-queue.js` + `src/interaction-turn-gate.js` — serialized presentation and opponent mutation gating.
+- `src/presentation-events.js` + `src/gameplay-choreography.js` — semantic cause→effect presentation.
+- `src/presentation-feedback.js` + `src/platform-feedback.js` — semantic feedback routing and concrete browser audio/platform behavior.
+- `sw.js` — coherent versioned installed-PWA shell/runtime caching.
 
-Primary contract:
-
-- `docs/PASS10_4B_CHOREOGRAPHY_CONTRACT.md`
-
-## Pass 10.4C — Feel / Presentation Polish
-
-Pass 10.4C is the final interaction-layer polish pass before Golden Match. It is presentation-only and preserves the deterministic engine, frozen 10.3 geometry, 10.4A canonical action path, and 10.4B choreography causality.
-
-Implemented and now in production:
-
-- tuned motion timing/easing and physical card-weight vocabulary;
-- tactile press state and lifted selection treatment;
-- cleaner legal and active target feedback without the old debug-style selected pill;
-- reduced-motion equivalents that preserve target/action information;
-- semantic feedback adapter for selection, valid destination, card commit, draw, Spy, Horn, Bond, Muster, Medic, Decoy, Scorch, Weather/Clear, Pass, turn, round result, and game result;
-- effects-volume and mute persistence;
-- optional capability-gated web haptics, off by default;
-- semantic audio hooks decoupled from final media assets and rules logic;
-- explicit 10.4C runtime/PWA/deploy graph;
-- visible release-identity ownership moved out of lower 10.4B substrate and into the current presentation layer;
-- player-facing cleanup of integration-era copy such as `ENGINE RESOLVED` / `ENGINE CHOICE` without changing engine logs or developer tooling.
-
-Run #133 / `34617300625` on implementation head `ee600e8b856b9743ad4a58501b7a84b11f40dbb2` passed every inherited and 10.4C-specific gate. Artifact `10270749326` was manually reviewed at 852×393 and approved: selection weight, active targeting, ordinary landing, invalid return, reduced motion, settings, and representative 10.4B mechanic/lifecycle frames showed no release-blocking visual regression.
-
-The final docs-inclusive PR head `e6a357606c6d0e978ceabf93e2f456377b3f6ac2` then passed Run #136 / `34620304920`, and merged production SHA `c25ad6e4d2bf7b5f544a0612e5e770c25d7ce22d` passed Run #137 / `34621157464` with Pages deployment success.
-
-Measured QA evidence on the approved candidate included ~25.7 ms pointer press response and ~237.7 ms invalid-return completion. These are evidence only; hosted-runner timing is not used as a reason to weaken visual or accessibility review.
-
-Primary contract:
-
-- `docs/PASS10_4C_FEEL_PRESENTATION_CONTRACT.md`
-
-## Battlefield / interaction QA matrix
-
-CI drives the live app at 852×393 through sparse rows, ordinary density, swarm density, all six rows populated, all-weather state, passed state, ten-card/three-card hands, inspector-open state, and save/restore. Screenshots are archived for visual review.
-
-Pass 10.4A additionally gates direct manipulation, tap/drag parity, interruption/failure recovery, semantic landing continuity, lifecycle/save-restore behavior, stress trials, and WebKit/iPhone-targeted interaction.
-
-Pass 10.4B additionally gates signature choreography, reduced-motion/cancellation reconciliation, plus an adversarial eight-scenario matrix covering tied multi-row Scorch, 8+ Muster, Spy 10→11 hand pressure, Horn over Tight Bond, all-weather Clear Weather, Medic→Muster nesting, Decoy-on-Spy, and Round 2→3 Monster retention + Skellige resurrection.
-
-Pass 10.4C additionally gates tactile selection/target feedback, ordinary landing/invalid-return pacing, semantic audio/haptic hook dispatch, persisted feedback settings, reduced-motion feel, duplicate-install/transient-leak protection, player-facing copy cleanup, and visual artifact generation.
-
-### Local checks
+## Local checks
 
 ```bash
 npm test
@@ -139,4 +97,4 @@ python -m http.server 4173
 GWENT_TEST_URL=http://127.0.0.1:4173 python tests/ui_smoke.py
 ```
 
-Production deployment occurs only after verification succeeds on `main`.
+Production deployment occurs only after verification succeeds on `main`; pull-request verification does not deploy.
