@@ -23,9 +23,19 @@ def wait_stage_and_player(page, monitor, timeout=30000):
             monitor['last']=stage
             monitor['started']=now if stage is not None else None
             if stage=='round-end':
+                current=state(page)
+                if current and current.get('winner'):
+                    result=page.locator('[data-result]')
+                    assert result.count()==1,'terminal result DOM must exist once engine winner is committed'
+                    assert not result.is_visible(),'terminal result must stay hidden while final round-end choreography is active'
+                    monitor['terminalRoundResultHidden']=True
                 monitor['roundShots']+=1
                 page.screenshot(path=str(QA/f'{10+monitor["roundShots"]:02d}_round_end_{monitor["roundShots"]}.png'))
             elif stage=='match-result':
+                result=page.locator('[data-result]')
+                assert result.count()==1,'terminal result DOM missing during match-result choreography'
+                assert not result.is_visible(),'stable result modal must not overlap the transient match-result cue'
+                monitor['matchResultOverlayHidden']=True
                 monitor['matchShots']+=1
                 page.screenshot(path=str(QA/f'{30+monitor["matchShots"]:02d}_match_result_stage.png'))
         ready=page.evaluate("""()=>{
@@ -174,7 +184,7 @@ with sync_playwright() as p:
     assert len(started['players']['p1']['hand'])==10 and len(started['players']['p2']['hand'])==10
     page.screenshot(path=str(QA/'01_golden_match_start.png'))
 
-    monitor={'last':None,'started':None,'durations':[],'roundShots':0,'matchShots':0}
+    monitor={'last':None,'started':None,'durations':[],'roundShots':0,'matchShots':0,'terminalRoundResultHidden':False,'matchResultOverlayHidden':False}
     actions=[];player_plays_by_round={};choice_count=0;reloaded=False
     wait_stage_and_player(page,monitor)
 
@@ -229,9 +239,13 @@ with sync_playwright() as p:
     assert len(final['roundHistory'])>=2,final['roundHistory']
     assert any(a['type']=='PASS' for a in actions),'ordinary UI path never exercised explicit player pass'
     assert reloaded,'ordinary match never exercised reload/Continue'
+    assert monitor['terminalRoundResultHidden'],'terminal Golden Match never proved result hidden during final round-end'
+    assert monitor['matchResultOverlayHidden'],'terminal Golden Match never proved result hidden during transient match-result cue'
     page.wait_for_function('!window.GwentPresentationQueue.busy',timeout=10000)
     result=page.locator('[data-result]')
     result.wait_for(state='visible',timeout=5000)
+    assert page.locator('.gc-cue').count()==0,'transient cue remained after terminal presentation completed'
+    assert page.locator('.gc-snapshot-ghost').count()==0,'transient card/score ghost remained over stable terminal result'
     saved=page.evaluate('window.GwentStorage.readMatch()')
     assert saved['phase']=='result' and saved['state']==final
     page.screenshot(path=str(QA/'40_terminal_result.png'))
@@ -260,6 +274,10 @@ with sync_playwright() as p:
       'playerActions':actions,
       'playerChoiceCount':choice_count,
       'liveReloadRestoredExactly':reloaded,
+      'terminalRoundResultHidden':monitor['terminalRoundResultHidden'],
+      'matchResultOverlayHidden':monitor['matchResultOverlayHidden'],
+      'terminalResultVisibleAfterQueue':True,
+      'transientTerminalPresentationCleared':True,
       'stageDurations':monitor['durations'],
       'roundEndDurationsMs':round_durations,
       'matchResultDurationsMs':match_durations,
