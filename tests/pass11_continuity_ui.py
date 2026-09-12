@@ -98,7 +98,7 @@ def count_engine(page,zone='board'):
     }""",{'iid':IID,'zone':zone})
 
 
-def trace(page):return page.evaluate('window.GwentCardContinuity.trace.filter(x=>x.iid===arguments[0])',IID)
+def trace(page):return page.evaluate('iid=>window.GwentCardContinuity.trace.filter(x=>x.iid===iid)',IID)
 
 def manual(page):return page.evaluate('iid=>window.GwentCardContinuity.snapshot(iid)',IID)
 
