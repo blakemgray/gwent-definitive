@@ -128,6 +128,20 @@ with sync_playwright() as p:
     page.wait_for_timeout(310)
     assert fingerprint_p2(page)!=frozen2,'bot did not resume after interrupted presentation reconciled'
 
+    # The preceding cancellation scenario intentionally re-arms a bot action and
+    # therefore can still own a presentation here. Quiesce that scenario before
+    # injecting the independent bot->bot fixture: disable auto-bot, clear its
+    # timer, cancel any active presentation, and let the gate cleanup microtask
+    # observe the disabled toggle so it cannot schedule another action.
+    page.evaluate("""()=>{
+      const toggle=document.querySelector('#auto-bot');
+      toggle.checked=false;
+      window.__GWENT_PASS10__.maybeAutoBot();
+      window.GwentPresentationQueue.cancel('qa-reset-before-bot-chain');
+    }""")
+    page.wait_for_timeout(60)
+    assert not page.evaluate('window.GwentPresentationQueue.busy'),'prior scenario presentation did not quiesce'
+
     # Pass 11 F1 regression: once the player has passed, p2 may legally own several
     # consecutive actions. The bot's own first action must now gate the second and
     # every later action exactly as strictly as player -> bot. This fixture gives p1
@@ -151,6 +165,7 @@ with sync_playwright() as p:
         if(options&&typeof options==='object')next={...options,duration:Math.max(760,Number(options.duration)||0)};
         return window.__qaOriginalAnimate.call(this,frames,next);
       };
+      document.querySelector('#auto-bot').checked=true;
     }""");page.wait_for_timeout(70)
     start_count=p2_hand_count(page)
     assert start_count>=4,start_count
