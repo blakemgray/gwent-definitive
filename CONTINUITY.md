@@ -11,10 +11,11 @@
 **Latest verified Pass 11 implementation head:** `d2fb0c3740a7cad0924c4bae44f11fc609fd2cc8`  
 **Latest exact-head workflow:** run #175 / `34654254329` — FULL SUCCESS  
 **Current milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
-**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2 ACTIVE**  
-**Current task:** **11.2 physical-card / targeting architecture**  
+**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A ACTIVE**  
+**Current task:** **11.2A battlefield readability semantics — always-visible effective power + accessible identity, no geometry change**  
+**11.2 architecture contract:** `docs/PASS11_11_2_PHYSICAL_CARD_ARCHITECTURE.md` at commit `f6a754c8044b8a633234c48e21a8454683b2ea21`  
 **Pass 11 planning:** 100%  
-**Pass 11 implementation:** ~28%  
+**Pass 11 implementation:** ~30%  
 **Formally verified/closed:** ~26%  
 **Default model:** GPT-5.6 Sol · High  
 **Last updated:** 2026-09-11 America/New_York
@@ -133,22 +134,27 @@ Independent TinyFish candidate QA: run `c150599b-1ce0-4ebd-a78c-aec73217b8e4` (8
 
 # 6. 11.2 — physical-card / targeting architecture — ACTIVE
 
-Purpose:
+Architecture is locked in `docs/PASS11_11_2_PHYSICAL_CARD_ARCHITECTURE.md` at commit `f6a754c8044b8a633234c48e21a8454683b2ea21`.
 
-- battlefield readability and always-visible current effective power;
-- adaptive card exposure without changing reconciled 10.3 geometry;
-- continuous perceived `iid` identity through hand→flight→destination/effect/reconciliation;
-- geometry-relative forgiveness for unambiguous placement;
-- conservative ambiguity handling for card-specific actions;
-- predictive Decoy target clarity before release;
-- localized reversible neighbor displacement only where needed;
-- tap/drag parity, interruption safety, save integrity, and engine-first authority.
+The locked design preserves four authorities/layers:
 
-Do **not** turn 11.2 into advanced whole-board physics, final throw simulation, or final audiovisual asset work. Those remain rightward unless needed for the minimum Golden Match bar.
+1. **10.3 final geometry** remains the only owner of reconciled card packing.
+2. **10.4A gesture controller** remains the only owner of selection/drag/commit/invalid-return input flow.
+3. A new **pure intent resolver** will score only engine-provided legal destinations from live geometry and return candidate/confidence/reason data; it will not mutate DOM/rules.
+4. A presentation-only **target exposure / actor-lease layer** may apply transient transforms and harden the existing proxy→final-card handoff without becoming rules authority.
 
-Model routing: start GPT-5.6 Sol · High. Recommend GPT-6 Astra · Medium only if persistent actors + live geometry + forgiveness/ambiguity + interruption safety cannot be cleanly separated after source reconstruction; return immediately to Sol High after any architecture decision.
+11.2 implementation slices are locked as:
 
-**Exact next action:** reconstruct the current 10.3/10.4A/10.4B source boundaries around `renderUnit()`/battlefield density, `src/battlefield-ux.js`, `src/gesture-controller.js`, target geometry/selection, proxy/FLIP ownership, and interruption reconciliation. Lock the smallest 11.2 architecture contract before implementation, then deliver controlled slices with permanent regression coverage.
+- **11.2A — battlefield readability semantics:** always render current effective power, semantic/accessibility metadata, density QA; no geometry change.
+- **11.2B — pure intent resolver:** geometry-relative forgiveness/ambiguity/trajectory matrix integrated into existing controller.
+- **11.2C — predictive card-target exposure:** precise Decoy target lock + local reversible neighbor yield.
+- **11.2D — continuity hardening / temporal proof:** explicit proxy identity metadata and source/proxy/final continuity evidence.
+
+Current task is **11.2A**. Do not begin 11.2B until 11.2A is exact-head green and its generated visual evidence is reviewed.
+
+Model routing: GPT-5.6 Sol · High. Astra Medium is only justified if implementation evidence shows continuous identity + live geometry + ambiguity safety cannot coexist without violating a frozen authority.
+
+**Exact next action:** modify only the board-unit rendering/presentation semantics needed for always-visible effective power and accessible current-power identity, add a dedicated density/readability browser gate, wire it into CI, and run targeted then full exact-head verification without changing final Pass 10.3 geometry.
 
 ---
 
@@ -160,6 +166,6 @@ GitHub remains canonical for active development. Reference Drive: `Gwent Classic
 
 > **Rules correctness first → interaction correctness → readable gameplay choreography → premium physical feel → complete normal match → complete access → smarter AI → product maturity.**
 
-**Current Pass 11:** planning 100%; implementation ~28%; formally verified/closed ~26%.  
-**Current phase:** 11.2 physical-card / targeting architecture.  
-**Next action:** reconstruct 11.2 source boundaries and lock the architecture contract before changing gameplay code.
+**Current Pass 11:** planning 100%; implementation ~30%; formally verified/closed ~26%.  
+**Current phase:** 11.2A battlefield readability semantics.  
+**Next action:** implement always-visible effective power/accessibility semantics + dedicated density QA with no final geometry change.
