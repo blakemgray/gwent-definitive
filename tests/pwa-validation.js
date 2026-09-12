@@ -9,7 +9,7 @@ assert(fs.existsSync(path.join(root,'icons/apple-touch-icon.png')),'Apple touch 
 const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
 const precache=[...sw.matchAll(/'\.\/([^']*)'/g)].map(m=>m[1]).filter(Boolean);
 for(const rel of precache){if(rel==='')continue;assert(fs.existsSync(path.join(root,rel)),`service worker precache target missing: ${rel}`);}
-assert(sw.includes("const BUILD='11.golden.4'"),'cache build version not pinned to the Pass 11 runtime-identity shell generation');
+assert(sw.includes("const BUILD='11.golden.5'"),'cache build version not pinned to the battlefield-card-fit shell generation');
 assert(sw.includes('cacheFirstCore')&&sw.includes('ignoreSearch:true'),'versioned core shell must be served coherently from one cache');
 assert(!sw.includes('skipWaiting'),'new service worker must not force mid-match activation');
 assert(sw.includes('raw.githubusercontent.com'),'card-art runtime caching missing');
@@ -51,10 +51,13 @@ for(const rel of ['src/platform-feedback.js']){
   assert(html.includes(rel),`Pass 11 platform feedback runtime not explicitly loaded: ${rel}`);
   assert(sw.includes(rel),`Pass 11 platform feedback runtime not precached: ${rel}`);
 }
+const physical=fs.readFileSync(path.join(root,'physical-card.css'),'utf8');
+assert(/#match-screen \.unit\[data-inspect-board\] img\s*\{[^}]*object-fit\s*:\s*contain/s.test(physical),'placed battlefield card art must preserve the full face with object-fit:contain');
+assert(/\.te-target-actor img\s*\{[^}]*object-fit\s*:\s*contain/s.test(physical),'predictive target actor must preserve the same full card face');
 const eventsIdx=html.indexOf('src/presentation-events.js'),choreoIdx=html.indexOf('src/gameplay-choreography.js'),intentIdx=html.indexOf('src/interaction-intent.js'),gestureIdx=html.indexOf('src/gesture-controller.js'),continuityIdx=html.indexOf('src/card-continuity.js'),exposureIdx=html.indexOf('src/target-exposure.js'),externalIdx=html.indexOf('src/choreography-external-gate.js'),feedbackIdx=html.indexOf('src/presentation-feedback.js'),platformIdx=html.indexOf('src/platform-feedback.js');
 assert(eventsIdx>=0&&choreoIdx>eventsIdx&&intentIdx>choreoIdx&&gestureIdx>intentIdx&&continuityIdx>gestureIdx&&exposureIdx>continuityIdx&&externalIdx>exposureIdx&&feedbackIdx>externalIdx&&platformIdx>feedbackIdx,'10.4B/11.2B/11.2D/11.2C/10.4C/platform runtime load order must be explicit and deterministic');
 const battlefieldIdx=html.indexOf('src/battlefield-ux.js'),readabilityIdx=html.indexOf('src/battlefield-readability.js'),motionIdx=html.indexOf('src/motion-tokens.js');
 assert(battlefieldIdx>=0&&readabilityIdx>battlefieldIdx&&motionIdx>readabilityIdx,'11.2A readability must load after battlefield rendering and before interaction presentation stack');
 const choreoCss=html.indexOf('gameplay-choreography.css'),feelCss=html.indexOf('feel-polish.css'),physicalCss=html.indexOf('physical-card.css');
 assert(choreoCss>=0&&feelCss>choreoCss&&physicalCss>feelCss,'11.2 physical-card presentation overrides must load after 10.4C feel CSS');
-console.log(`pwa-validation: ${precache.length} precache paths valid with coherent Pass 11 Golden Match core shell generation 11.golden.4`);
+console.log(`pwa-validation: ${precache.length} precache paths valid with coherent Pass 11 battlefield-card-fit shell generation 11.golden.5`);
