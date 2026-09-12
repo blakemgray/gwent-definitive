@@ -115,9 +115,9 @@ with sync_playwright() as p:
     page.screenshot(path=str(QA/'07_weather_modified_power.png'))
 
     # Real-device regression: the first contain-only hotfix still left a narrow
-    # face inside the old 0.696 shell. Every placed card on both sides and all
-    # rows must now size its *inner face box* to the actual loaded source-art
-    # aspect. This catches both cover-cropping and future shell/art mismatch.
+    # face inside the old shell. Two shared causes are now locked out: browser
+    # button padding must be zero, and the inner face box must match the actual
+    # loaded source-art aspect on both sides and all three rows.
     set_all_rows_card_fit_state(page)
     fit_cards=page.locator('#match-screen .lane .unit[data-inspect-board]')
     assert fit_cards.count()==6, fit_cards.count()
@@ -130,10 +130,11 @@ with sync_playwright() as p:
             img=card.locator('img')
             assert img.count()==1,(pid,row)
             metrics=card.evaluate("""el=>{
-              const img=el.querySelector('img'),cs=getComputedStyle(img),r=el.getBoundingClientRect(),ir=img.getBoundingClientRect();
+              const img=el.querySelector('img'),ics=getComputedStyle(img),cs=getComputedStyle(el),r=el.getBoundingClientRect(),ir=img.getBoundingClientRect();
               return {
-                fit:cs.objectFit,
-                pos:cs.objectPosition,
+                fit:ics.objectFit,
+                pos:ics.objectPosition,
+                padding:{l:parseFloat(cs.paddingLeft)||0,r:parseFloat(cs.paddingRight)||0,t:parseFloat(cs.paddingTop)||0,b:parseFloat(cs.paddingBottom)||0},
                 natural:{w:img.naturalWidth,h:img.naturalHeight,complete:img.complete},
                 outer:{w:r.width,h:r.height},
                 face:{w:el.clientWidth,h:el.clientHeight},
@@ -142,6 +143,7 @@ with sync_playwright() as p:
             }""")
             assert metrics['fit']=='contain',(pid,row,metrics)
             assert metrics['pos'] in ('50% 50%','center'),(pid,row,metrics)
+            assert all(abs(metrics['padding'][k])<0.01 for k in ('l','r','t','b')),(pid,row,metrics['padding'])
             natural=metrics['natural']
             assert natural['complete'] and natural['w']>0 and natural['h']>0,(pid,row,natural)
             natural_aspect=natural['w']/natural['h']
@@ -150,8 +152,6 @@ with sync_playwright() as p:
             face_aspect=face['w']/face['h']
             assert abs(face_aspect-natural_aspect)<0.015,(pid,row,natural_aspect,face_aspect,metrics)
             assert abs(ux_aspect-natural_aspect)<0.015,(pid,row,ux_aspect,natural_aspect)
-            # The <img> element itself fills the full inner face box; object-fit
-            # then renders the complete source card without material gutters.
             ib=metrics['imageBox']
             assert abs(ib['w']-face['w'])<0.75 and abs(ib['h']-face['h'])<0.75,(pid,row,metrics)
     page.screenshot(path=str(QA/'08_full_card_face_all_rows_both_sides.png'))
@@ -163,4 +163,4 @@ with sync_playwright() as p:
     assert not errors,errors
     browser.close()
 
-print('pass11-readability-ui: power/readability plus canonical battlefield card-face aspect passed')
+print('pass11-readability-ui: power/readability plus unpadded canonical battlefield card-face fitting passed')
