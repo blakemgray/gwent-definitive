@@ -109,7 +109,7 @@ with sync_playwright() as p:
     page.evaluate("""()=>{Element.prototype.animate=window.__qaOriginalAnimate;window.GwentDirectManipulation.reduced(false);}""")
     page.evaluate("""()=>{
       const api=window.__GWENT_PASS10__,s=api.getState();
-      # deterministic fresh player-turn slice, no board/hand assumptions from bot's prior move
+      // deterministic fresh player-turn slice, no board/hand assumptions from bot's prior move
       s.currentPlayerId='p1';s.players.p1.passed=false;s.players.p2.passed=false;s.winner=null;s.pendingChoice=null;
       if(!s.players.p1.hand.length)throw new Error('QA state has no second player card');
       s.players.p1.hand[0].cardId='realms_redania';
