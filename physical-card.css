@@ -88,6 +88,23 @@ body.dm-dragging #match-screen .unit.dm-legal-target:hover:not(.te-locked-target
   transform:none;
 }
 
+/* A trajectory-assisted destination is visually active only while recent
+   velocity remains fresh. The controller retains its internal candidate until
+   the next input sample, but this presentation-only marker demotes the stale
+   emphasis so the UI never promises a throw that is no longer eligible. */
+#match-screen .dm-active-target.te-intent-stale{
+  outline:1px dashed rgba(233,204,151,.62)!important;
+  outline-offset:-2px!important;
+  box-shadow:inset 0 0 0 1px rgba(238,208,154,.08),inset 0 0 18px rgba(196,145,77,.07)!important;
+}
+#match-screen .dm-active-target.te-intent-stale::after{
+  content:"◇ " attr(data-dm-label);
+  border-style:dashed;
+  background:rgba(13,10,7,.78);
+  color:rgba(238,215,176,.86);
+  transform:translate(-50%,-50%) scale(1);
+}
+
 @media (prefers-reduced-motion: reduce){
   #match-screen .unit[data-inspect-board] .u-score{transition:none!important}
   #match-screen .unit[data-inspect-board].te-locked-target{
