@@ -8,16 +8,15 @@
 **Default branch:** `main`  
 **Verified production main:** `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b` — run #145 / `34641027264` full verify + Pages deploy success  
 **Current branch / PR:** `pass-11-golden-match` / PR #11  
-**Latest exact green Pass 11 implementation head:** `e6ccde4ca191bcbf8062404bfbd97d6fbc0a6548`  
-**Latest candidate head tested:** `36f2f5fa5d23b550bfd224d5b0f1b4aadbdd9acf`  
-**Latest exact-head workflow:** run #231 / `34684584267` — FAILED at 11.2D continuity gate; all earlier Pass 11 gates through 11.2C passed  
+**Latest exact green Pass 11 implementation head:** `7e0c95ff3d77092853c89788271a3c69b00a324f`  
+**Latest exact-head implementation workflow:** run #234 / `34685457343` — FULL SUCCESS  
 **Current milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
-**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B CLOSED / 11.2C CLOSED / 11.2D ACTIVE**  
-**Current task:** **11.2D continuity hardening — remove the proven queue-start duplicate-identity frame while preserving the existing engine-first action path, frozen 10.3 geometry, and interruption safety**  
+**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B CLOSED / 11.2C CLOSED / 11.2D CLOSED**  
+**Current task:** **checkpoint before next Pass 11 area; next planned work is player-facing audio/haptic/platform-truth audit, then remaining consequence pacing and complete Golden Match end-to-end acceptance**  
 **11.2 architecture contract:** `docs/PASS11_11_2_PHYSICAL_CARD_ARCHITECTURE.md` at commit `f6a754c8044b8a633234c48e21a8454683b2ea21`  
 **Pass 11 planning:** 100%  
-**Pass 11 implementation:** ~54%  
-**Formally verified/closed:** ~43%  
+**Pass 11 implementation:** ~57%  
+**Formally verified/closed:** ~50%  
 **Default model:** GPT-5.6 Sol · High  
 **Last updated:** 2026-09-12 America/New_York
 
@@ -31,7 +30,7 @@ Before every new implementation task or resumed cycle: read `CONTINUITY.md`, `FU
 
 Never weaken/delete/bypass CI or QA merely to make a candidate green. GitHub is authoritative for source/branches/PRs/CI/artifacts and merge verification. Playwright/CI provides deterministic machine and temporal-browser proof. TinyFish is an independent live-product QA channel for coarse player-facing flows when it can navigate the product reliably; it is not a substitute for deterministic microinteraction QA and should not be repeatedly retried when the agent itself is misnavigating the UI. Precise drag/target/temporal interaction proof belongs to Playwright + telemetry + manually inspected artifacts. Real-device iPhone review remains required for final physical touch/audio/haptic/platform signoff. Merge only the latest exact fully-green head after manual visual evidence review.
 
-Every status update should also include a concise layman’s explanation of what the current engineering work means for the actual game/player experience.
+Every status update should also include a concise **layman’s explanation** of what the current engineering work means for the actual game/player experience.
 
 ---
 
@@ -72,7 +71,7 @@ Key files:
 - `src/interaction-intent.js` — pure 11.2B forgiveness/ambiguity/trajectory resolver; no rules or DOM authority.
 - `src/battlefield-readability.js`, `physical-card.css` — 11.2A always-visible current power / readable identity presentation.
 - `src/target-exposure.js` — 11.2C presentation-only target exposure/local neighbor yield; no rules or commit authority.
-- `src/card-continuity.js` — 11.2D observation-only `iid` continuity telemetry and visibility guard; no rules or geometry authority.
+- `src/card-continuity.js` — 11.2D observation-only `iid` continuity telemetry + final-visibility guard; no rules or geometry authority.
 - `src/presentation-queue.js` — serialized cancellable presentation.
 - `src/presentation-events.js` — semantic before/after adapter.
 - `src/gameplay-choreography.js` — signature consequence choreography.
@@ -121,65 +120,54 @@ Closure head `07b21e88c8958f5c55acc994b41d9fa073a2e227`; run #202 / `34665042268
 
 ## 11.2C — predictive card-target exposure — CLOSED
 
-11.2C began with Decoy because it is the clearest ambiguous target family and live play exposed broad disruptive reflow when Decoy was selected.
-
 Permanent behavior:
 
 - target-specific legal units remain in 10.3 absolute resting geometry; selecting Decoy no longer broad-reflows the row;
 - `src/target-exposure.js` is presentation-only and consumes the existing controller/11.2B winner rather than choosing or committing actions;
-- locked Decoy targets are represented by a presentation-only actor keyed to the target `iid`, raised above the held Decoy while the authoritative resting source remains geometry-stable;
-- target actor preserves recognizable art and current power; normal actor scale is ~1.16× with ~7.2 px lift in the approved canonical evidence;
-- only immediate local neighbors yield, by a few pixels, and restore reversibly;
-- moving to another candidate transfers the actor cleanly; leaving/cancel/interruption restores exactly one resting representation;
-- reduced motion preserves unmistakable target identity without translation;
-- trajectory-only highlight demotes when the 120 ms velocity window expires and late release rejects with zero mutation;
-- intent geometry remains based on stable/resting candidate rectangles, not transient exposure transforms;
+- locked Decoy targets are represented by a presentation-only actor keyed to target `iid`, raised above the held Decoy while authoritative resting geometry remains stable;
+- actor preserves recognizable art/current power; normal scale ~1.16× with ~7.2 px lift in approved evidence;
+- only immediate local neighbors yield slightly and restore reversibly;
+- target transfer/leave/cancel/interruption restores exactly one resting representation;
+- reduced motion preserves unmistakable identity without translation;
+- trajectory-only highlight expires with the 120 ms velocity window; late release rejects with zero mutation;
+- intent geometry uses stable candidate rectangles, not transient exposure transforms;
 - tap/keyboard/canonical `commitAction()` ownership remains unchanged.
 
-Closure implementation head: `e6ccde4ca191bcbf8062404bfbd97d6fbc0a6548`. Run #221 / `34681981459` — **FULL SUCCESS**. The strengthened 11.2C material-visibility gate passed together with frozen 10.3 geometry, Pass 11 setup/lifecycle, 11.2A/11.2B, direct manipulation/parity, bot gate, presentation-failure recovery, **256-trial physical interaction stress**, semantic landing, save/restore lifecycle, WebKit/iPhone-targeted interaction, 10.4B signature + adversarial choreography, and 10.4C feel.
+Closure implementation head `e6ccde4ca191bcbf8062404bfbd97d6fbc0a6548`; run #221 / `34681981459` full success. Approved artifact `10294431189`, digest `sha256:01bd9604178e6931bc13a5d1e9b22b9c1f658adbc3d90211d64ca73ad970803a`, manually reviewed and approved.
 
-Approved exact-head artifact: `10294431189`, digest `sha256:01bd9604178e6931bc13a5d1e9b22b9c1f658adbc3d90211d64ca73ad970803a`. Manual review approved crowded Decoy target lock, target transfer, leave/restore, reduced-motion target identity, and trajectory-highlight expiry. The intended card visibly emerges above the dragged Decoy while the Decoy remains perceptible beneath it; no broad row repacking is visible.
+TinyFish evidence for this precise drag slice remained inconclusive because its runs repeatedly navigated into pause/settings/developer surfaces. That is automation-agent misnavigation, not failed product evidence, and does not override deterministic Playwright/temporal proof. Do not repeatedly retry TinyFish for this microinteraction; use it later for coarse end-to-end flow where reliable.
 
-TinyFish evidence for this slice is **inconclusive, not failed product evidence**. Exact-candidate runs `e1c776d7-0689-4b63-8828-2468470e6297` and `1217f8b0-e9e4-436d-b96d-02f86ac4bb07` both reached Quick Start/mulligan but repeatedly navigated into the pause/settings/developer-controls surface instead of holding the battlefield interaction. The first timed out; the second was cancelled. Because the agent itself could not reliably remain on the required surface, these runs do not override deterministic Playwright/temporal evidence and should not be repeatedly retried for this precise drag microinteraction. Revisit TinyFish at a later coarse end-to-end checkpoint or on deployed UI where its navigation is appropriate.
+## 11.2D — card identity continuity / temporal proof — CLOSED
 
----
+11.2D makes the ordinary source → moving proxy → authoritative final-card handoff explicit and measurable without introducing a rules-bearing actor system or duplicating 10.4B mechanic choreography.
 
-# 5. 11.2D — continuity hardening / temporal proof — ACTIVE
+Permanent behavior / proof:
 
-Goal: make perceived card identity continuity explicit and measurable without creating a global rules-bearing actor system or duplicating 10.4B mechanic choreography.
+- `src/card-continuity.js` observes `iid`, source/proxy/final visibility/rectangles, queue state, engine zone, and lifecycle stages; instrumentation remains observation-only;
+- the final board representation is synchronously guarded before the queue-start sample once engine commit/reconcile has occurred, so the moving proxy remains the sole full-strength perceived card during flight;
+- on queue cancellation/interruption, final-guard release is deferred until the queue's proxy cleanups have run, preventing a final+proxy duplicate seam while preserving engine-first authority;
+- ordinary valid drag and tap preserve one continuous perceived identity;
+- invalid release and pre-commit interruption return to the original hand identity with zero engine mutation;
+- post-commit interruption keeps the already-committed action exactly once and reconciles to one final board representation;
+- reduced-motion path obeys the same identity invariant;
+- frozen Pass 10.3 rest geometry and the single canonical action path remain untouched.
 
-Locked 11.2D requirements from the architecture contract:
+The new gate intentionally exposed two real seams before closure: candidate `36f2f5fa5d23b550bfd224d5b0f1b4aadbdd9acf` / run #231 failed on a duplicate at `queue-start`; candidate `27f7c723ef5c16b90a320c626ce3d1c629f9f235` / run #233 passed that seam but then exposed a post-commit interruption duplicate at `final-revealed`. Neither test was weakened. The implementation was fixed at the presentation handoff boundaries.
 
-- add explicit presentation identity metadata to the existing source/proxy/final-card handoff;
-- prove ordinary hand → drag/tap proxy → authoritative final board element maintains one continuous perceived `iid` identity;
-- record source/proxy/final visibility and rectangles through pickup, commit, flight, settlement, invalid return, and interruption;
-- no frame should contain zero visible representation of the relevant `iid` during ordinary placement;
-- no frame should show two equally authoritative visible identities for the same `iid`;
-- proxy-to-final handoff must survive cancellation/interruption and reconcile to exactly one authoritative DOM representation in the engine-authoritative zone;
-- visual failure cannot roll back, repeat, or duplicate an already committed engine action;
-- observe Decoy/Medic continuity where useful, but do not duplicate or replace 10.4B mechanic choreography ownership;
-- preserve frozen 10.3 resting geometry and the single canonical action path;
-- generated temporal evidence must be manually inspected on the latest exact candidate head.
+**Closure implementation head:** `7e0c95ff3d77092853c89788271a3c69b00a324f`.  
+**Run #234 / `34685457343`: FULL SUCCESS.** The unchanged six-case 11.2D gate passed, followed by preserved direct-manipulation, tap/drag parity, bot gate, presentation-failure recovery, **256-trial physical interaction stress**, semantic landing, save/visibility lifecycle, WebKit/iPhone-targeted interaction, 10.4B signature + adversarial choreography, and 10.4C feel/pacing gates.
 
-### Current 11.2D evidence checkpoint — Run #231
+**Approved exact-head artifact:** `pass11-2d-card-continuity-qa` artifact `10295831164`, digest `sha256:26b04b5139cfd96f5b6c3666c48ace3ec1125786a90f461f1a90d4bee2818c98`.
 
-Candidate head `36f2f5fa5d23b550bfd224d5b0f1b4aadbdd9acf` reached the dedicated 11.2D browser gate after all preceding static/engine/setup/lifecycle/readability/intent/target-exposure gates passed. The new gate failed on the first valid-drag case with:
-
-`('valid-drag', 'duplicate full-strength identity', [('queue-start', 2, 'board:p1:ranged')])`
-
-This is treated as a genuine presentation defect, not a test problem. At `queue-start`, the engine has already committed the card to the player's ranged row, while both the moving proxy and the authoritative final board representation are counted as full-strength visible identities for the same `iid`. The test therefore correctly detected the exact duplicate-frame seam 11.2D exists to prevent. Downstream preserved gates were skipped only because CI stopped at this new failing gate; they must all run again after the defect is fixed.
-
-Run #231 still archived `pass11-2d-card-continuity-qa` artifact `10294819162`, digest `sha256:4f5f9190303537287a0aca7f999d0e71871b41f050885fe8a44cb8cc246fe377`, but this artifact is failure evidence and is not closure evidence.
-
-A separate TinyFish play sanity check also reached Quick Start/mulligan/battlefield and selected a hand card, but again misnavigated into card-inspector/developer-controls surfaces before completing a reliable placement. It remains inconclusive automation evidence and does not alter the deterministic 11.2D failure above.
-
-**Exact next action:** trace the queue-start ownership handoff in `src/card-continuity.js` and `src/gesture-controller.js`; hide or demote the authoritative final representation before the next paint once engine commit has occurred, while preserving the proxy until settlement and guaranteeing cleanup/restoration on cancellation. Then rerun the unchanged six-case 11.2D gate and every preserved downstream regression gate.
+Manual artifact review covered the full 10-frame temporal sequence plus `continuity_matrix.json` / trace evidence: drag pickup → committed guarded flight → settled; tap flight; invalid return; pre-commit interruption before/restored; post-commit interruption guarded/reconciled; reduced-motion settled. No visual duplicate or zero-representation gap was observed in the reviewed evidence. Final matrix states show exactly one full-strength representation in all six cases; invalid/pre-commit cases remain in hand with zero mutation, and post-commit interruption records `committedExactlyOnce: true` before one final board representation.
 
 ---
 
-# 6. Remaining Pass 11 / broader roadmap
+# 5. Remaining Pass 11 / broader roadmap
 
-After 11.2D, continue the Pass 11 contract rather than inventing new major pass numbers. Remaining Golden Match work still includes final audio-path verification/correction, honest haptic semantics/device proof, consequence pacing where required, complete normal-match end-to-end acceptance, and final pre-merge/adversarial review.
+The next Pass 11 work area is the **player-facing audio / haptic / PWA platform-truth audit**. The user previously reported no audible sound at all in the installed iPhone PWA, so semantic cue emission alone is not sufficient. The next cycle must first update this continuity file, then trace and test actual defaults, volume/mute persistence, user-gesture unlock, asset loading/decoding, playback success/failure, background/resume/relaunch behavior, and honest haptic capability semantics. Automated/browser evidence should verify requests/status/capability handling; actual iPhone output and tactile quality remain real-device signoff items.
+
+After audio/haptic truth, remaining Golden Match work includes consequence pacing where still needed, complete normal-match end-to-end acceptance, real-device sensory signoff, adversarial integration review, final exact-head CI/artifact review, and merge/deploy verification.
 
 After Pass 11, exact pass numbers remain intentionally unlocked. Established work includes full deck/collection access, full faction/leader playability, final AI ladder Novice→Standard→Veteran→Master→Grandmaster with `AIKnowledgeState != GameState`, mature persistence/replay/history, modular assists/cheats/sandbox, complete UX shell, richer physical-card ecology, dedicated audiovisual identity, PWA/iPhone productization/native-wrapper option where platform ceilings justify it, controlled local asset pipeline, and exhaustive all-card/all-faction parity.
 
@@ -187,6 +175,6 @@ GitHub remains canonical for active development. Reference Drive: `Gwent Classic
 
 > **Rules correctness first → interaction correctness → readable gameplay choreography → premium physical feel → complete normal match → complete access → smarter AI → product maturity.**
 
-**Current Pass 11:** planning 100%; implementation ~54%; formally verified/closed ~43%.  
-**Current phase:** 11.2D continuity hardening / duplicate-identity seam correction.  
-**Next action:** remove the proven queue-start duplicate representation without changing engine/action/geometry authority, then rerun the unchanged temporal gate.
+**Current Pass 11:** planning 100%; implementation ~57%; formally verified/closed ~50%.  
+**Current phase:** 11.2D closed; awaiting next user-triggered work cycle.  
+**Next action:** on the next user trigger, refresh repository state and update `CONTINUITY.md` first, then begin the evidence-driven player-facing audio/haptic/PWA platform-truth audit before changing implementation.
