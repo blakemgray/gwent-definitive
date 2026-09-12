@@ -105,6 +105,19 @@ body.dm-dragging #match-screen .unit.dm-legal-target:hover:not(.te-locked-target
   transform:translate(-50%,-50%) scale(1);
 }
 
+/* Runtime reduced-motion overrides (used by QA and product settings) must
+   match the system media-query semantics. */
+body.te-reduced #match-screen .unit[data-inspect-board].te-locked-target{
+  transform:none!important;
+  filter:brightness(1.14) saturate(1.06)!important;
+  box-shadow:0 0 0 2px rgba(240,189,97,.30),0 0 12px rgba(232,177,87,.20)!important;
+  transition:none!important;
+}
+body.te-reduced #match-screen .unit[data-inspect-board].te-neighbor-yield{
+  transform:none!important;
+  transition:none!important;
+}
+
 @media (prefers-reduced-motion: reduce){
   #match-screen .unit[data-inspect-board] .u-score{transition:none!important}
   #match-screen .unit[data-inspect-board].te-locked-target{
