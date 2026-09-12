@@ -259,3 +259,15 @@ Incoming exact Run #261 was fully green. Checkpoint Run #262 / 34693124993 was i
 Planning 100%; implementation ~77%; formally verified/closed ~70%. Real-iPhone sensory signoff is still pending. Review completion does not inflate implementation or acceptance percentages.
 
 Next action: switch to GPT-5.6 Sol · High, read the finite review, reproduce F1 in browser and F2 across a two-version PWA upgrade, implement the smallest fixes and recommended storage hardening, perform known release hygiene/test additions, then exact-head CI/artifact inspection. Merge/deploy only under the subsequent authorized release cycle; TinyFish production smoke after deployment. Astra Max is not justified.
+
+## Sol High resumed fix cycle — 2026-09-12
+
+GPT-5.6 Sol · High resumed against the authoritative repository. Required documents `CONTINUITY.md`, `FUTURE_CONTINUITY.md`, `MODEL_ROUTING.md`, and `docs/PASS11_ADVERSARIAL_INTEGRATION_REVIEW.md` were read in full before implementation. Live PR #11 is open/unmerged on `pass-11-golden-match`; incoming handoff head is `a991320946df41e026f264e69e81d63706ceda26`, base `main` remains `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b`.
+
+Run #264 / `34693426367` on `a991320946df41e026f264e69e81d63706ceda26` was checked directly and remained **in progress** at the reconstruction checkpoint, with steps through Golden Match start-to-result complete/success and direct-manipulation regression execution active. It is therefore not claimed green or accepted by inheritance.
+
+Bounded execution remains F1 first, then F2, followed by recommended F3/F4 hardening and release hygiene only after the two P1 reproductions exist. F1 must be reproduced in Playwright as bot→bot mutation during unresolved presentation and fixed at mutation eligibility with exactly-once idle re-arm. F2 must be reproduced as an old-install→new-release two-version PWA upgrade under partial network failure and fixed with coherent versioned core-shell loading plus safe activation. Closed Golden Match terminal choreography remains closed absent genuine regression. Real-iPhone sensory signoff remains pending.
+
+Planning 100%; implementation ~77%; formally verified/closed ~70%. No gameplay/runtime/test implementation changed in this resumed cycle before this checkpoint.
+
+Next action: inspect current `app.js`, presentation queue/gates, service worker, PWA tests/workflow, and existing bot-gate browser coverage; add failing F1 and F2 reproductions before implementing fixes.
