@@ -7,13 +7,18 @@
 
   const VERSION='11.audio.0';
   const MAX_PENDING=8;
+  const RELEASE=Object.freeze({
+    title:'Gwent Classic — Definitive Edition · Pass 11',
+    buildline:'PASS 11 · GOLDEN MATCH · CI-GATED',
+    profileHeading:'Pass 11 Golden Match status'
+  });
   const runtime={
     installed:false,supported:false,contextCreated:false,contextState:'uncreated',
     unlockAttempts:0,unlockSuccesses:0,unlockFailures:0,
     audioRequests:0,audioPlayed:0,audioQueued:0,audioBlocked:0,audioFailures:0,
     lifecycleResumeAttempts:0,lifecycleResumeSuccesses:0,lifecycleResumeFailures:0,
     lastCue:null,lastStatus:null,lastError:null,lastUserActivation:null,lastUserActivationAt:0,
-    pending:0
+    pending:0,releaseIdentityRepairs:0
   };
   let context=null;
   let activationSeen=false;
@@ -25,6 +30,18 @@
   const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
   const AudioCtor=()=>root.AudioContext||root.webkitAudioContext||null;
   const nowMs=()=>Date.now();
+
+  function applyReleaseIdentity(){
+    if(!root.document)return false;
+    let changed=false;
+    if(root.document.title!==RELEASE.title){root.document.title=RELEASE.title;changed=true;}
+    const build=root.document.querySelector?.('.buildline');
+    if(build&&(build.textContent||'').trim()!==RELEASE.buildline){build.textContent=RELEASE.buildline;changed=true;}
+    const heading=root.document.querySelector?.('#profile-screen h2');
+    if(heading&&!/Pass 11/i.test(heading.textContent||'')){heading.textContent=RELEASE.profileHeading;changed=true;}
+    if(changed)runtime.releaseIdentityRepairs++;
+    return changed;
+  }
 
   function snapshot(){
     runtime.contextState=context?.state||runtime.contextState||'uncreated';
@@ -210,6 +227,7 @@
   }
 
   function onVisible(reason){
+    applyReleaseIdentity();
     if(!context||context.state==='running'||!activationSeen)return;
     resume(reason,true);
   }
@@ -227,6 +245,7 @@
       const vis=()=>{if(root.document.visibilityState==='visible')onVisible('visibility');};
       root.document.addEventListener('visibilitychange',vis);removers.push(()=>root.document.removeEventListener('visibilitychange',vis));
     }
+    applyReleaseIdentity();
     runtime.installed=true;return true;
   }
 
@@ -236,7 +255,7 @@
   }
 
   return Object.freeze({
-    version:VERSION,install,uninstall,unlock:(reason='manual')=>resume(reason,false),getStatus:snapshot,
+    version:VERSION,install,uninstall,unlock:(reason='manual')=>resume(reason,false),applyReleaseIdentity,getStatus:snapshot,
     get context(){return context;},
     get stats(){return snapshot();}
   });
