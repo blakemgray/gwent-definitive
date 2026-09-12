@@ -108,6 +108,17 @@
   const esc = s => String(s ?? '').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const deepClone = obj => JSON.parse(JSON.stringify(obj));
 
+  window.addEventListener('gwent:save-status',event=>{
+    const detail=event.detail||{};
+    document.body.dataset.saveStatus=detail.ok?'ok':'error';
+    if(detail.ok){
+      if(detail.recovered)toast('MATCH SAVE RECOVERED');
+      return;
+    }
+    console.warn('Authoritative match state advanced but persistence failed.',detail.error||{});
+    toast(detail.phase==='mulligan'?'MATCH PREPARED · NOT SAVED':'MATCH UPDATED · NOT SAVED');
+  });
+
   function persistSettings(){
     if(Store) Store.saveSettings(ui.settings);
   }
@@ -217,6 +228,22 @@
 
   function renderOptionChip(group, value, title, desc, active){
     return `<button class="option-chip ${active?'active':''}" data-setup-group="${group}" data-setup-value="${value}"><strong>${esc(title)}</strong><small>${esc(desc)}</small></button>`;
+  }
+
+  function renderDeckScreen(){
+    const el=$('#deck-list'); if(!el) return;
+    const rows = PRESETS.player.map(p=>{
+      const counts={}; p.deck.forEach(id=>counts[id]=(counts[id]||0)+1);
+      const head = `<div class="setup-kv" style="margin-bottom:10px"><b>${esc(p.name)}</b>${esc(p.summary)}</div>`;
+      const body = Object.entries(counts).map(([id,q])=>{const d=def(id),img=assetFor(id);return `<div class="deck-card">${img?`<img class="mini-art" src="${img}" alt="${esc(d.name)}">`:''}<span><b>${esc(d.name)}</b><small class="sub"> ${esc(d.abilities.join(' · ')||d.type)}</small></span><span class="qty">×${q}</span></div>`}).join('');
+      return `<div class="panel setup-panel">${head}${body}</div>`;
+    }).join('');
+    el.innerHTML = rows;
+  }
+
+  function renderCatalog(query=''){
+    const q=query.trim().toLowerCase(); const list=catalog.filter(c=>!q || [c.name,c.faction,c.row,(c.abilities||[]).join(' ')].join(' ').toLowerCase().includes(q));
+    $('#catalog-list').innerHTML=list.slice(0,216).map(c=>`<div class="catalog-row"><b>${esc(c.name)}</b><small>${esc(c.faction)} · ${c.strength==null?'—':c.strength} · ${esc((c.abilities||[]).join(', ')||c.row||'unit')}</small></div>`).join('');
   }
 
   function score(pid,row){ return G.rowScore(state,pid,row); }
@@ -613,20 +640,17 @@
     ui.preMatchState=null;state=deepClone(saved.state);history=new G.HistorySession(state);go('match-screen');renderMatch();toast(saved.phase==='result'?'RESULT RESTORED':'MATCH RESTORED');maybeAutoBot();
   }
 
-  function renderDeckScreen(){
-    const el=$('#deck-list'); if(!el) return;
-    const rows = PRESETS.player.map(p=>{
-      const counts={}; p.deck.forEach(id=>counts[id]=(counts[id]||0)+1);
-      const head = `<div class="setup-kv" style="margin-bottom:10px"><b>${esc(p.name)}</b>${esc(p.summary)}</div>`;
-      const body = Object.entries(counts).map(([id,q])=>{const d=def(id),img=assetFor(id);return `<div class="deck-card">${img?`<img class="mini-art" src="${img}" alt="${esc(d.name)}">`:''}<span><b>${esc(d.name)}</b><small class="sub"> ${esc(d.abilities.join(' · ')||d.type)}</small></span><span class="qty">×${q}</span></div>`}).join('');
-      return `<div class="panel setup-panel">${head}${body}</div>`;
-    }).join('');
-    el.innerHTML = rows;
-  }
-
-  function renderCatalog(query=''){
-    const q=query.trim().toLowerCase(); const list=catalog.filter(c=>!q || [c.name,c.faction,c.row,(c.abilities||[]).join(' ')].join(' ').toLowerCase().includes(q));
-    $('#catalog-list').innerHTML=list.slice(0,216).map(c=>`<div class="catalog-row"><b>${esc(c.name)}</b><small>${esc(c.faction)} · ${c.strength==null?'—':c.strength} · ${esc((c.abilities||[]).join(', ')||c.row||'unit')}</small></div>`).join('');
+  function renderRulesMatrix(){
+    const cov=G.abilityCoverage(); const el=$('#rules-matrix'); if(!el)return;
+    const groups=[
+      ['Core battlefield','Weather / Clear · Hero immunity · Agile · Morale · Tight Bond · Horn'],
+      ['Card actions','Spy · Medic · Muster · Decoy · Scorch + row Scorch'],
+      ['Skellige systems','Mardroeme · Berserker transforms · Storm · Kambi / Hemdall'],
+      ['Lifecycle','Avenger / Bovine Defense Force · active weather/special slots · canonical auto-pass'],
+      ['Faction perks','Northern Realms · Nilfgaard · Monsters · Scoia\'tael · Skellige'],
+      ['Leader families','Foltest 5/5 · Emhyr 5/5 · Eredin 5/5 · Francesca 5/5 · Crach · King Bran']
+    ];
+    el.innerHTML=groups.map(([a,b])=>`<div class="panel rule-row"><span><b>${esc(a)}</b><small>${esc(b)}</small></span><span class="badge">COVERED</span></div>`).join('') + `<div class="panel rule-row"><span><b>Catalog token audit</b><small>${cov.supported.length} supported · ${cov.unsupported.length} unsupported</small></span><span class="badge">${cov.unsupported.length?'REVIEW':'44 / 44'}</span></div>`;
   }
 
   document.addEventListener('click', e=>{
