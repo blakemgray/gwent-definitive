@@ -8,15 +8,15 @@
 **Default branch:** `main`  
 **Verified production main:** `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b` — run #145 / `34641027264` full verify + Pages deploy success  
 **Current branch / PR:** `pass-11-golden-match` / PR #11  
-**Latest exact green Pass 11 implementation head:** `0b7b2d3bbcca15771c656ea1e35c91ced114c8b8`  
-**Latest exact-head implementation workflow:** run #257 / `34688258610` — FULL SUCCESS  
+**Latest exact green Pass 11 implementation head:** `30cabd96a1004c7e0e5f896ed84849a0b181e83c`  
+**Latest exact-head implementation workflow:** run #260 / `34689475446` — FULL SUCCESS  
 **Current milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
-**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B CLOSED / 11.2C CLOSED / 11.2D CLOSED / AUTOMATED AUDIO-HAPTIC-PWA PLATFORM TRUTH CLOSED / TRUE GOLDEN MATCH MACHINE+E2E GREEN; TERMINAL VISUAL CHOREOGRAPHY REPAIR ACTIVE; REAL-IPHONE SENSORY SIGNOFF PENDING**  
-**Current task:** **repair the terminal round → match-result presentation overlap revealed by manual Run #257 artifact inspection, then rerun exact-head E2E/visual acceptance without weakening the Golden Match gate**  
+**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B CLOSED / 11.2C CLOSED / 11.2D CLOSED / AUTOMATED AUDIO-HAPTIC-PWA PLATFORM TRUTH CLOSED / TRUE GOLDEN MATCH E2E+VISUAL ACCEPTANCE CLOSED; REAL-IPHONE SENSORY SIGNOFF + FINAL INTEGRATION REVIEW PENDING**  
+**Current task:** **inventory the remaining Pass 11 release blockers, run one independent coarse candidate-flow check where browser tooling is reliable, then perform the planned adversarial integration review before final exact-head release acceptance**  
 **11.2 architecture contract:** `docs/PASS11_11_2_PHYSICAL_CARD_ARCHITECTURE.md` at commit `f6a754c8044b8a633234c48e21a8454683b2ea21`  
 **Pass 11 planning:** 100%  
-**Pass 11 implementation:** ~73%  
-**Formally verified/closed:** ~58%  
+**Pass 11 implementation:** ~77%  
+**Formally verified/closed:** ~70%  
 **Default model:** GPT-5.6 Sol · High  
 **Last updated:** 2026-09-12 America/New_York
 
@@ -187,38 +187,42 @@ Manual artifact review confirmed the replacement 852×393 settings screenshot vi
 
 **Important device boundary:** automation does not prove that a human actually hears speaker output or feels tactile feedback on the installed iPhone. Current PWA/browser haptic capability remains platform-limited and must never be represented as Core Haptics parity. Actual installed-iPhone audible output, background/relaunch behavior, and tactile quality remain required real-device signoff items before final Pass 11 sensory acceptance.
 
-## Golden Match true start-to-result gate — MACHINE/E2E GREEN; VISUAL CLOSURE PENDING
+## Golden Match true start-to-result / E2E visual acceptance — CLOSED
 
-A permanent no-state-injection Golden Match browser gate now starts from the normal menu, opens Instant Match, performs a real mulligan, enters the battlefield, drives ordinary player actions only through the visible card/target/pass UI, allows the normal opponent loop to respond, resolves player choices through the product choice panel when present, exercises one real mid-match reload → Continue restore, reaches a natural best-of-three result, verifies durable terminal persistence, and starts a fresh Rematch mulligan with the seed advanced. A static contract rejects `setStateForQA` or direct save-state injection in this gate.
+A permanent no-state-injection Golden Match browser gate starts from the normal menu, opens Instant Match, performs a real mulligan, enters the battlefield, drives ordinary player actions only through the visible card/target/pass UI, allows the normal opponent loop to respond, resolves player choices through the product choice panel when present, exercises one real mid-match reload → Continue restore, reaches a natural best-of-three result, verifies durable terminal persistence, and starts a fresh Rematch mulligan with the seed advanced. A static contract rejects `setStateForQA` or direct save-state injection in this gate.
 
 The first attempt, run #256 / `34688076377`, correctly failed on a test typo: the engine emits `ROUND_ENDED`, while the new trace assertion initially checked `ROUND_END`. Only that assertion name was corrected; gameplay behavior and acceptance thresholds were not weakened.
 
-**Latest exact green E2E head:** `0b7b2d3bbcca15771c656ea1e35c91ced114c8b8`.  
-**Run #257 / `34688258610`: FULL SUCCESS.** The true Golden Match gate passed, then all preserved direct-manipulation, parity, bot gate, presentation-failure recovery, **256-trial physical interaction stress**, semantic landing, save/visibility lifecycle, WebKit/iPhone-targeted, 10.4B signature/adversarial, and 10.4C feel/pacing gates also passed.
+Run #257 / `34688258610` then proved the full ordinary product path and all preserved regressions green at head `0b7b2d3bbcca15771c656ea1e35c91ced114c8b8`, but manual inspection of artifact `10296306715` rejected visual closure because the stable `MATCH COMPLETE / VICTORY` modal was visible underneath the final `ROUND WON` and subsequent transient `VICTORY` choreography. CI green did not override that visual defect.
 
-**Exact-head artifact:** `pass11-golden-match-e2e-qa` artifact `10296306715`, digest `sha256:1319cd9179877238e9ba1a1139746e205f0ba2890094b91f16330de5d4fb056c`.
+The repair preserved engine-first terminal truth: the result DOM/state may exist immediately after authoritative `winner` commit, but `gameplay-choreography.css` now withholds `.result-overlay` while the existing `PresentationQueue` owns `body.presentation-busy`. This adds no second result state machine and naturally releases on queue completion, cancellation, or failure. The Golden Match gate was strengthened rather than weakened: it now requires the committed result DOM to remain invisible during terminal `round-end`, remain invisible during the transient `match-result` cue, then become visible only after the queue is idle with zero `.gc-cue` and zero `.gc-snapshot-ghost` remnants.
 
-Machine/telemetry evidence from the natural browser match is strong: Round 1 p2 win `10–0`, Round 2 p1 win `16–14`, Round 3 p1 win `16–12`, terminal winner `p1`; explicit player pass occurred; live reload restored state exactly; terminal save phase is `result`; rematch seed advanced. Natural stage durations include round-end ~`1029.8 ms`, `1498.9 ms`, `1026.2 ms` and match-result ~`750.0 ms`, with major mechanic stages such as Scorch/Horn/Weather/Muster/Bond/Decoy also receiving materially legible presentation time. Separate engine-only shape traces prove natural player victory, opponent victory, draw, and contested completion without deadlock.
+**Closure implementation head:** `30cabd96a1004c7e0e5f896ed84849a0b181e83c`.  
+**Run #260 / `34689475446`: FULL SUCCESS.** The strengthened true Golden Match gate passed, followed by all preserved direct-manipulation, destination parity, bot gate, presentation-failure recovery, **256-trial physical interaction stress**, semantic landing, save/visibility lifecycle, WebKit/iPhone-targeted, 10.4B signature/adversarial, and 10.4C feel/pacing gates.
 
-**Manual visual acceptance finding — BLOCKER:** the Run #257 artifact is not visually clean enough to close. Start, before/after live reload, and fresh Rematch mulligan are coherent. Round 1/2 end evidence is understandable. But the terminal transition visibly overlaps presentation layers: on the final round, the `MATCH COMPLETE / VICTORY` result modal is already visible while `ROUND WON` and transient battlefield card ghosts are still playing over it; the subsequent `match-result` stage briefly overlays another `VICTORY` cue across the already-visible result modal. This violates the intended sequential consequence hierarchy (“input response fast; consequences can breathe”) and makes the ending feel like two scenes playing at once. CI green does not override this visual defect.
+**Approved exact-head artifact:** `pass11-golden-match-e2e-qa` artifact `10297056990`, digest `sha256:09500e172489878419f0a6b159b3d79df8157c6a8cbf5e0064e14d19b7891e8e`.
 
-**Required fix boundary:** preserve engine-first committed `winner` state and durable save semantics; repair presentation-only reveal ordering so the terminal result UI remains withheld while round-end consequence choreography runs, then presents the match-result beat cleanly and reveals the stable result modal only after that beat. Do not hide the defect by changing artifact timing or weakening the Golden Match gate.
+Natural browser match evidence remains coherent: Round 1 p2 win `10–0`, Round 2 p1 win `16–14`, Round 3 p1 win `16–12`, terminal winner `p1`; explicit player pass occurred; live reload restored state exactly; terminal save phase is `result`; rematch seed advanced. Replacement telemetry explicitly records `terminalRoundResultHidden: true`, `matchResultOverlayHidden: true`, `terminalResultVisibleAfterQueue: true`, and `transientTerminalPresentationCleared: true`. Natural stage durations remained substantial without global slowdown: round-end ~`1015.9 ms`, `1538.5 ms`, `1027.9 ms`; match-result ~`722.9 ms`; Scorch/Horn/Weather/Muster/Bond/Decoy likewise retain legible consequence time. Separate engine-only shape traces continue to prove player victory, opponent victory, draw, and contested completion without deadlock.
+
+Manual exact-head artifact review approved the complete replacement sequence. `13_round_end_3.png` shows only the battlefield + `ROUND WON` with no stable result modal. `31_match_result_stage.png` shows the transient `VICTORY` beat over the cleared battlefield with no stable result modal. `40_terminal_result.png` then shows the clean stable `MATCH COMPLETE / VICTORY` panel with no transient cue/card ghosts. Match start, before/after live reload, Rounds 1/2, and fresh Rematch mulligan remain coherent. The Run #257 overlap regression is therefore closed.
 
 ---
 
 # 5. Remaining Pass 11 / broader roadmap
 
-Remaining Golden Match work now includes:
+Remaining Pass 11 release work now includes:
 
-- terminal round → match-result choreography sequencing repair identified by manual Run #257 artifact review;
-- rerun exact-head Golden Match E2E and manually approve replacement temporal/result evidence before closing the slice;
-- real-device iPhone audio/sensory signoff;
-- independent coarse live-flow QA where browser tooling is reliable;
-- adversarial integration review;
-- final exact-head CI/artifact review;
-- merge/deploy verification.
+- actual installed-iPhone audible output / background-resume-relaunch / tactile-capability signoff;
+- one independent coarse candidate-flow check through connected live-browser tooling where reliable (menu → Instant Match → mulligan → normal turns/pass/round/result/rematch or the largest reliable subset), without treating browser-agent misnavigation as product failure;
+- planned adversarial integration review across engine/action authority, persistence/lifecycle, presentation sequencing, card continuity, targeting/intent, platform feedback, and release acceptance;
+- any bounded fixes exposed by that review, returning implementation to Sol High;
+- final latest-exact-head CI + manual artifact review;
+- PR merge only after latest exact head is fully green and evidence-approved;
+- post-merge exact `main` verification and Pages deployment smoke check.
 
-Do **not** globally slow consequence timing merely because prior playtest feedback said some animations were too snappy. Run #257 natural-match telemetry already shows substantial round/signature timing. Make further pacing changes only where replacement full-match evidence demonstrates a concrete readability/feel gap.
+Do **not** globally slow consequence timing merely because prior playtest feedback said some animations were too snappy. Run #260 natural-match telemetry shows substantial round/signature timing. Make further pacing changes only where current full-match/device evidence demonstrates a concrete readability/feel gap.
+
+The planned adversarial integration review is the first remaining phase that may justify GPT-6 Astra · Medium under `MODEL_ROUTING.md`. Do not silently consume Astra. Reach a clean checkpoint, explain the exact review question and expected benefit, and let the user switch if desired. Any implementation/fix work identified by that review should return to GPT-5.6 Sol · High unless a new genuinely hard cross-system problem appears.
 
 After Pass 11, exact pass numbers remain intentionally unlocked. Established work includes full deck/collection access, full faction/leader playability, final AI ladder Novice→Standard→Veteran→Master→Grandmaster with `AIKnowledgeState != GameState`, mature persistence/replay/history, modular assists/cheats/sandbox, complete UX shell, richer physical-card ecology, dedicated audiovisual identity, PWA/iPhone productization/native-wrapper option where platform ceilings justify it, controlled local asset pipeline, and exhaustive all-card/all-faction parity.
 
@@ -226,6 +230,6 @@ GitHub remains canonical for active development. Reference Drive: `Gwent Classic
 
 > **Rules correctness first → interaction correctness → readable gameplay choreography → premium physical feel → complete normal match → complete access → smarter AI → product maturity.**
 
-**Current Pass 11:** planning 100%; implementation ~73%; formally verified/closed ~58%.  
-**Current phase:** true Golden Match machine/E2E proof is green; terminal visual choreography repair is active; real-iPhone sensory signoff remains pending.  
-**Next action:** make the smallest presentation-only terminal result reveal-order fix, add/strengthen temporal assertions so a result modal cannot coexist with `round-end` or transient match-result cue states, then rerun exact-head CI and manually inspect the replacement Golden Match artifact before closing the slice.
+**Current Pass 11:** planning 100%; implementation ~77%; formally verified/closed ~70%.  
+**Current phase:** true Golden Match E2E/visual acceptance is closed; remaining release acceptance is real-iPhone sensory signoff + independent coarse live flow + adversarial integration/final review.  
+**Next action:** inventory the remaining release blockers against current exact head `30cabd96a1004c7e0e5f896ed84849a0b181e83c`, perform one independent coarse live-product check if browser tooling is reliable, then stop at the clean pre-adversarial-review checkpoint and recommend whether GPT-6 Astra · Medium is justified.
