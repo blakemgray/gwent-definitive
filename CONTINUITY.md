@@ -11,8 +11,8 @@
 **Latest exact green Pass 11 implementation head:** `30cabd96a1004c7e0e5f896ed84849a0b181e83c`  
 **Latest exact-head implementation workflow:** run #260 / `34689475446` — FULL SUCCESS  
 **Current milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
-**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B CLOSED / 11.2C CLOSED / 11.2D CLOSED / AUTOMATED AUDIO-HAPTIC-PWA PLATFORM TRUTH CLOSED / TRUE GOLDEN MATCH E2E+VISUAL ACCEPTANCE CLOSED; REAL-IPHONE SENSORY SIGNOFF + FINAL INTEGRATION REVIEW PENDING**  
-**Current task:** **inventory the remaining Pass 11 release blockers, run one independent coarse candidate-flow check where browser tooling is reliable, then perform the planned adversarial integration review before final exact-head release acceptance**  
+**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B CLOSED / 11.2C CLOSED / 11.2D CLOSED / AUTOMATED AUDIO-HAPTIC-PWA PLATFORM TRUTH CLOSED / TRUE GOLDEN MATCH E2E+VISUAL ACCEPTANCE CLOSED; ADVERSARIAL REVIEW COMPLETE WITH F1/F2 OPEN; REAL-IPHONE SENSORY SIGNOFF + FINAL RELEASE VERIFICATION PENDING**  
+**Current task:** **bounded Astra adversarial review complete; hold merge for consecutive-bot presentation gating and coherent installed-PWA core loading; return fixes and release work to GPT-5.6 Sol · High**  
 **11.2 architecture contract:** `docs/PASS11_11_2_PHYSICAL_CARD_ARCHITECTURE.md` at commit `f6a754c8044b8a633234c48e21a8454683b2ea21`  
 **Pass 11 planning:** 100%  
 **Pass 11 implementation:** ~77%  
@@ -241,3 +241,21 @@ User-authorized bounded GPT-6 Astra · Medium review is now active. Read CONTINU
 Scope: finite, prioritized cross-system findings with source/test evidence, coverage gaps, merge impact, and smallest safe fixes. No gameplay implementation changes, test weakening, merge, or deployment during this review. No PR Pages preview exists: defer TinyFish production smoke until after authorized merge/deploy. Known release-label, cache BUILD 11.audio.0, and README cleanup are hygiene, not the primary review. Real-iPhone sensory signoff remains pending. Planning 100%; implementation ~77%; formally verified/closed ~70%.
 
 Next action: reconstruct PR integration boundaries and challenge lifecycle, terminal interruption/recovery, stale actions, presentation/bot gating, platform feedback, and deployment/cache consistency. Return implementation and release execution to GPT-5.6 Sol · High when the review is complete.
+
+
+## Adversarial review closeout — 2026-09-12
+
+Finite review saved in `docs/PASS11_ADVERSARIAL_INTEGRATION_REVIEW.md` at e6f82c3e23ee9fce383d526c832ac2168498ae46. Review implementation remains 30cabd96a1004c7e0e5f896ed84849a0b181e83c; this cycle changes documentation only.
+
+- F1 P1 / merge blocker: app.js bot scheduler can commit consecutive p2 actions at 220 ms while prior presentation remains busy; external observer consumes/skips those events. Existing gate proves player-to-first-bot protection, not bot-to-bot serialization.
+- F2 P1 / merge blocker: network-first core fetches can combine fresh application files with cached old modules. A BUILD bump alone is insufficient; require coherent versioned shell loading and safe update activation.
+- F3 P2 / non-blocking hardening: uncaught save failure occurs after authoritative commit and before render/scheduler, leaving stale UI and misleading rejection messaging.
+- F4 P2 / non-blocking contract gap: malformed same-schema saves with missing player structures are accepted; no explicit save-build compatibility policy. Do not claim malformed/incompatible-save acceptance closed.
+
+Diagnostic source probes confirmed these code paths with controlled clock/render/storage/network substitutes; no new browser visual reproduction is claimed. Local Chromium download timed out and was stopped. Approved Run #260 ZIP digest was independently verified and its three terminal frames reinspected: the previous overlap repair remains accepted. Natural E2E summary has playerChoiceCount=0; player choice proof comes from separate lifecycle coverage, not that specific natural trace.
+
+Incoming exact Run #261 was fully green. Checkpoint Run #262 / 34693124993 was in progress when last checked. Subsequent documentation commits require their own exact-head CI checks; none are claimed approved by inheritance. No merge/deploy/TinyFish or runtime/test changes occurred.
+
+Planning 100%; implementation ~77%; formally verified/closed ~70%. Real-iPhone sensory signoff is still pending. Review completion does not inflate implementation or acceptance percentages.
+
+Next action: switch to GPT-5.6 Sol · High, read the finite review, reproduce F1 in browser and F2 across a two-version PWA upgrade, implement the smallest fixes and recommended storage hardening, perform known release hygiene/test additions, then exact-head CI/artifact inspection. Merge/deploy only under the subsequent authorized release cycle; TinyFish production smoke after deployment. Astra Max is not justified.
