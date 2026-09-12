@@ -13,10 +13,10 @@
 **Current branch:** `hotfix/battlefield-card-crop`  
 **Current PR:** #12 — `Hotfix: preserve full battlefield card faces`  
 **Current milestone:** **Pass 11 — Golden Match / Complete Normal Match — DEPLOYED**  
-**Current phase:** **BATTLEFIELD CARD-FACE HOTFIX — FIRST CANDIDATE AUTOMATED-GREEN BUT VISUALLY REJECTED; ROOT CAUSE REFINED**  
-**Current task:** **correct the shared battlefield card-shell aspect so the loaded Witcher card face fills its placed-card body without cropping or side gutters, while preserving row/lane geometry, dense packing semantics, rules authority, and interaction behavior**  
-**Hotfix implementation:** 75%  
-**Hotfix verification:** 85% — first candidate full CI green, but exact-head manual visual acceptance failed  
+**Current phase:** **BATTLEFIELD CARD-FACE HOTFIX — IMPLEMENTATION + AUTOMATED + VISUAL ACCEPTANCE COMPLETE / MERGE AUTHORIZATION PENDING**  
+**Current task:** **preserve this exact hotfix candidate, verify this docs-inclusive head, and do not merge/deploy until the user explicitly authorizes it**  
+**Hotfix implementation:** 100%  
+**Hotfix verification:** 100% on implementation head; docs-inclusive exact-head verification pending this continuity commit  
 **Default model:** GPT-5.6 Sol · High  
 **Last updated:** 2026-09-12 America/New_York
 
@@ -29,15 +29,13 @@ Before substantive resumed work:
 1. Read this file in full.
 2. Read `FUTURE_CONTINUITY.md` in full.
 3. Read `MODEL_ROUTING.md` in full.
-4. Reconcile current `main`, current open PRs, and latest workflow state against this file.
+4. Reconcile current `main`, PR #12 head, and exact-head workflows against this file.
 5. Treat GitHub as authoritative over chat memory or assumptions.
-6. Before implementation changes, write a fresh continuity checkpoint if repository state has moved materially.
+6. Do not merge/deploy from a generic `continue`, `finish`, or similar instruction. Merge/deploy requires explicit authorization.
 
 Precedence: current user instruction → current repository / exact-head green CI → this file → `FUTURE_CONTINUITY.md` → current contracts/config → `MODEL_ROUTING.md` → older archives/chat.
 
-Never weaken, delete, or bypass CI/QA merely to make a candidate green. Playwright/CI owns deterministic machine and temporal-browser proof. TinyFish is useful for independent live-product QA where reliable, but not as the primary interface for precise GitHub operations or microinteraction proof. Real-device iPhone review remains required for final physical touch/audio/haptic/platform observations.
-
-Every user-facing progress update should include **Implementation %**, **Verified %**, a concise **Layman’s terms** explanation, and the exact **Next** action.
+Never weaken, delete, or bypass CI/QA merely to make a candidate green. Exact-head visual evidence remains mandatory for player-facing rendering fixes.
 
 ---
 
@@ -63,152 +61,199 @@ Interaction north star:
 
 Primary gameplay target: installed iPhone landscape PWA.
 
-**Pass 10.3 Battlefield Geometry Contract v2 remains authoritative for row order, lanes, rail ownership, final resting placement, and packing.** Final row order remains Opponent Siege / Ranged / Close / Weather / Player Close / Ranged / Siege.
-
-The roadmap permits reopening a closed pass when current evidence proves a genuine regression in that pass's responsibility. This hotfix therefore may correct the **placed-card shell aspect inside Pass 10.3** because the real-device defect and artifact review now prove that the existing `0.696` board-card aspect is not faithful to the canonical card face. Do not change row geometry, row ownership, legal destinations, rules, scoring, or engine state.
+Pass 10.3 remains authoritative for battlefield row/lane/rail ownership, final resting placement, and deterministic packing. This hotfix narrowly corrects the **placed-card body aspect/padding inside that geometry** because real-device and artifact evidence proved those values themselves were defective. It does not change row order, lane bounds, legal destinations, scoring, rules, or engine state.
 
 ---
 
-# 2. Pass 11 production state
+# 2. Production state and versioning
 
-Pass 11 is deployed and supplies a genuine normal Instant Match from menu to fresh rematch with legal full-size decks, opening draw/mulligan, complete turn/round/result lifecycle, choices, persistence, readable power/identity, intent forgiveness, predictive targeting, card continuity, Web Audio/platform handling, serialized opponent scheduling, coherent PWA updates, and the closed Pass 10.3/10.4 interaction stack.
+Production `main` remains `8b2085530e25ef5f05d99a25b00dc4fb307f4127` until PR #12 is explicitly merged.
 
 Production installed-PWA shell generation remains **`11.golden.4`**.
 
-Hotfix PR #12 currently carries candidate shell generation **`11.golden.5`**. It has not been deployed, so further corrections within PR #12 may remain under `11.golden.5` until release as long as the exact final candidate is fully reverified.
+PR #12 carries candidate installed-PWA shell generation **`11.golden.5`**, necessary because the precached battlefield runtime changed. No PR workflow deployed it.
 
-Current save format remains independently versioned:
+Save semantics are unchanged:
 
 - format: `pass11-normal-v1`
 - save build: `11.golden.1`
 - bounded legacy builds: `11.1A`, `11.1B`
 
-Do not bump save format/build for this presentation/geometry hotfix; save semantics have not changed.
+No save-format/build bump is warranted.
 
 ---
 
-# 3. Confirmed real-device regression — placed battlefield card face
+# 3. Confirmed regression
 
-**Source:** real installed-iPhone production play after Pass 11 deployment.
+Real installed-iPhone production play showed that placed battlefield cards did not preserve the expected complete physical card face/frame. The defect reproduced equivalently on:
 
-**Observed:** played battlefield cards do not preserve the expected full physical card face/frame after placement. The defect is visible in normal play and weakens persistent card identity.
+- player close / ranged / siege;
+- opponent close / ranged / siege.
 
-**Reproduction scope confirmed by user:**
+This proved a shared placed-card rendering defect rather than a faction, row, side, or individual-card issue.
 
-- all three player rows are affected equivalently;
-- all three opponent rows are affected equivalently;
-- both player and enemy placed cards are affected;
-- therefore the defect is global/shared rather than faction-, row-, side-, or card-specific.
-
-**Expected:** the complete canonical card face/frame remains visible and the placed-card shell itself has the same proportions as the card art. Dense rows may overlap/compress horizontally through the existing packing algorithm, but an individual card body must not crop, stretch, or sit as a narrow face inside an incorrectly wide shell.
+Expected behavior: the placed-card body itself should have the same proportions as the loaded Witcher card art, with the complete face/frame visible. Dense rows may overlap through the existing deterministic packer, but individual cards must not crop, stretch, or appear as a narrow strip inside a padded/wide shell.
 
 ---
 
-# 4. First hotfix candidate — automated green, visual rejection
+# 4. Rejected first candidate — important QA lesson
 
-Initial candidate head before the refined diagnosis:
+First candidate head:
 
 `4a358d57a560caaa86487a48b0aada089d9ab7e2`
 
-Changes in that candidate:
+It changed battlefield art from `object-fit: cover` to `contain`, added an all-six-rows test, and advanced the candidate shell to `11.golden.5`.
 
-- `physical-card.css`: battlefield card art changed from `object-fit: cover` to `object-fit: contain` + centered positioning;
-- target-exposure actor received the same full-face fit;
-- all-six-rows browser regression case added;
-- PWA shell generation advanced to `11.golden.5`;
-- shell-generation contracts updated.
+It was automated-green:
 
-Exact-head evidence:
+- Main #302 / `34707761039` — SUCCESS;
+- Storage #17 / `34707761133` — SUCCESS.
 
-- Main Verify Run #302 / `34707761039` — **SUCCESS**;
-- Storage Resilience Run #17 / `34707761133` — **SUCCESS**;
-- PR deploy job — **SKIPPED** as intended;
-- readability artifact `pass11-2a-battlefield-readability-qa` ID `10302168100`, digest `sha256:7c6fc09d5951c4c6e60e7995a41975b06f870752f083ca118ffc62a86d9ccf22`.
+But manual review of exact-head readability artifact `10302168100` (`sha256:7c6fc09d5951c4c6e60e7995a41975b06f870752f083ca118ffc62a86d9ccf22`) **rejected** the candidate: the image was no longer cropped, but the face still rendered as a narrow strip with material side gutters inside the card shell.
 
-**Manual artifact verdict: REJECTED.**
-
-The new `08_full_card_face_all_rows_both_sides.png` proved the test was incomplete: the whole source image loaded, but the visible card face remained materially narrower than the battlefield card shell, leaving side gutters. Automated green status was therefore not accepted as release evidence.
-
-This is exactly why exact-head visual artifact inspection remains mandatory.
+This demonstrated why green CSS/property assertions are not sufficient without inspecting the generated player-facing artifact.
 
 ---
 
-# 5. Refined root cause
+# 5. Final root cause
 
-Source tracing after the rejected artifact found:
+Three shared factors combined:
 
-- `src/battlefield-ux.js` hard-codes battlefield card width as `cardH * 0.696`;
-- the same file also uses `0.696` for hand cards, but this hotfix is scoped to the confirmed placed-battlefield defect;
-- Arun's canonical Witcher card presentation uses approximately **`16.1 / 30.4 ≈ 0.5296`** for the full card face (`.card-lg`), consistent with the tall/narrow source card artwork;
-- therefore the battlefield shell is substantially too wide for the actual card face;
-- `object-fit: cover` hid that mismatch by filling the wide shell through cropping;
-- switching only to `contain` correctly stopped cropping but exposed the underlying shell-aspect defect as side gutters/narrow-face presentation.
+1. `physical-card.css` used `object-fit: cover`, which cropped a mismatched source face to fill its box.
+2. `src/battlefield-ux.js` hard-coded battlefield card width as `cardH * 0.696`, substantially wider than the canonical/source-art card face (~`16.1 / 30.4 ≈ 0.5296`).
+3. Placed units are `<button class="unit">` elements, but the authoritative board-card surface did not reset browser/UA button padding. On a very small battlefield card, horizontal button padding could consume a large share of the visible card face, especially on WebKit/iPhone.
 
-**Correct repair direction:**
-
-1. keep `object-fit: contain` so the source face cannot be cropped;
-2. change the **battlefield placed-card shell only** to the canonical card-face aspect;
-3. leave hand-card geometry untouched in this hotfix;
-4. keep the existing rail width, lane geometry, centering, row order, packing algorithm, minimum exposure logic, and dense-row overlap semantics;
-5. strengthen QA to compare each placed card shell's rendered aspect against its loaded image's `naturalWidth / naturalHeight`, rather than merely asserting a hard-coded `0.696` shell plus `contain`.
+The first `contain` fix merely exposed factors 2 and 3.
 
 ---
 
-# 6. Hotfix acceptance contract
+# 6. Final implementation
 
-1. Fix the shared placed-card renderer once; no per-row/per-side exceptions.
-2. Preserve Pass 10.3 row/lane/rail geometry, ownership, centering, and dense packing behavior.
-3. Permit the narrow correction of the battlefield **card-shell aspect** because current evidence proves the old value itself is the regression.
-4. Do not alter hand-card geometry in this hotfix unless new evidence proves it is necessary for the reported battlefield defect.
-5. Preserve card identity, current-power overlays, targeting, tap/drag parity, choreography, presentation interruption safety, and engine authority.
-6. Every representative player/opponent row must show a shell aspect matching the loaded source art closely enough that `contain` does not create material side/top gutters.
-7. Browser QA must use the actual loaded image natural dimensions to catch future source/shell aspect mismatch.
-8. Inspect the exact-head all-six-rows screenshot after the corrected implementation.
-9. Exact-head Main + Storage workflows must both be green after the corrected implementation.
-10. Do not merge/deploy without explicit user authorization.
+Implementation head before this docs-only closeout:
 
----
+**`c8b728425bed4ec637c155c9d462bd72a4c866b2`**
 
-# 7. Key runtime boundaries
+### `src/battlefield-ux.js`
 
-Directly relevant:
+- added canonical board-face aspect `16.1 / 30.4`;
+- board card outer width is calculated so the **inner face box**, after borders under global `border-box` sizing, matches that aspect;
+- applies only to placed battlefield cards;
+- existing hand-card `0.696` geometry remains untouched by this hotfix;
+- rail width, row order, centering, pack algorithm, minimum exposure, overlap behavior, and final resting ownership remain unchanged;
+- exposes `GwentBattlefieldUX.boardCardAspect` for QA observation only.
 
-- `src/battlefield-ux.js` — authoritative final battlefield card sizing/packing; now proven to contain the bad board-card aspect constant.
-- `physical-card.css` — image fitting; `contain` remains appropriate.
-- `tests/pass11_readability_ui.py` — must be strengthened from hard-coded `0.696` acceptance to loaded-art aspect parity.
-- `src/target-exposure.js` / `physical-card.css` target actor — should inherit corrected source card body dimensions without becoming rules authority.
-- `sw.js` + PWA contracts — candidate shell generation `11.golden.5` already covers this unreleased hotfix branch.
+### `physical-card.css`
 
-Closed systems should remain untouched unless exact-head regression evidence proves otherwise:
+- authoritative placed battlefield unit buttons now have `padding:0`;
+- placed art uses `object-fit:contain` and centered positioning as a no-crop guard;
+- predictive target actor preserves the same uncropped full-face presentation.
 
-- engine/rules;
-- save schema;
-- interaction intent legality;
-- gesture commit path;
-- presentation queue/opponent gate;
-- round/result lifecycle.
+### `tests/pass11_readability_ui.py`
 
----
+The regression test now populates **all six battlefield rows** and, for every player/opponent row, requires:
 
-# 8. Verified production evidence before hotfix
+- zero computed card-button padding;
+- loaded source art with valid natural dimensions;
+- `object-fit: contain` + centered positioning;
+- inner card-face aspect matching the image's actual `naturalWidth / naturalHeight` within tight tolerance;
+- exposed board-card aspect matching that same loaded-art aspect;
+- image element filling the entire inner card-face box.
 
-- Pass 11 exact functional head `20183a10f68b4fff7084936e5aa3194c5a55a7c2`: Main Verify Run #297 / `34700148543` **SUCCESS**; Storage Run #14 / `34700148554` **SUCCESS**.
-- Docs-inclusive PR head `2e45b401238f7b4363684a8eca6027035b60a32f`: Main Run #299 / `34700876842` **SUCCESS**; Storage Run #16 / `34700876857` **SUCCESS**.
-- PR #11 merged as `aa8b6043d68c42ae2dc5310b57106a5a5808a150`.
-- Production Run #300 / `34701697634`: full Verify + Pages deploy **SUCCESS**.
-- Docs-only production closeout `8b2085530e25ef5f05d99a25b00dc4fb307f4127`.
-- Run #301 / `34702404779`: full Verify + Pages deploy **SUCCESS**.
-- Live site served `Gwent Classic — Definitive Edition · Pass 11` after deployment.
+This stronger test would fail both the original production defect and the first green-but-visually-wrong hotfix candidate.
+
+All prior density/readability, touch, targeting, choreography, lifecycle, PWA, Golden Match, stress, and storage gates remain intact.
 
 ---
 
-# 9. Exact next action
+# 7. Exact implementation-head evidence
 
-1. Amend `src/battlefield-ux.js` so **board** card width uses the canonical card-face aspect (~`16.1/30.4`) while hand-card sizing remains unchanged.
-2. Strengthen `tests/pass11_readability_ui.py` so each of the six placed cards must match its loaded image natural aspect within a tight tolerance, in addition to requiring `object-fit: contain` and loaded art.
-3. Run PR exact-head Main + Storage workflows.
-4. Download and manually inspect the fresh `08_full_card_face_all_rows_both_sides.png` artifact.
-5. Update PR #12 body and continuity with exact final evidence.
-6. Stop at merge-ready. Merge/deploy only after explicit user authorization.
+Implementation head: `c8b728425bed4ec637c155c9d462bd72a4c866b2`
 
-Do not reopen broader gameplay architecture unless the corrected exact-head evidence proves this localized repair insufficient.
+- Main Verify Run #309 / `34709726806` — **SUCCESS**
+- Storage Resilience Run #24 / `34709726754` — **SUCCESS**
+- PR deploy job — **SKIPPED** as intended
+
+Main #309 cleared, among other gates:
+
+- battlefield geometry/density;
+- strengthened Pass 11.2A full-face/readability regression;
+- intent/target exposure/card continuity;
+- platform truth and coherent PWA upgrade;
+- complete Golden Match;
+- direct manipulation + destination parity;
+- presentation-aware opponent gate;
+- presentation failure recovery;
+- **256 physical stress trials**;
+- save/visibility lifecycle;
+- **WebKit/iPhone-targeted interaction**;
+- signature/adversarial choreography;
+- 10.4C feel/pacing;
+- all visual artifact archives.
+
+Exact-head readability artifact:
+
+- name: `pass11-2a-battlefield-readability-qa`
+- ID: `10302553573`
+- digest: `sha256:57981c2e117e687948c08d7117d4ed392f6371f882eb931b72e6746cbf7890d0`
+
+Exact-head storage artifact:
+
+- ID: `10303035858`
+- digest: `sha256:f711447dab05c57c7e13a61bab737721c0a3eab02d41053b34e0bffc9f067459`
+
+---
+
+# 8. Manual visual acceptance — PASS
+
+Manually inspected from the exact implementation-head artifact:
+
+- `08_full_card_face_all_rows_both_sides.png`
+- `05_density_12.png`
+
+Verdict: **PASS**.
+
+Observed:
+
+- the actual card face now fills its physical card body instead of appearing as a narrow central strip;
+- full card art/frame remains visible;
+- player and opponent rows are consistent across all six row positions;
+- power badges remain readable;
+- the 12-card dense row remains centered, coherent, and deterministic;
+- lane/rail/row geometry remains intact;
+- no broad reflow or gameplay-layout regression was introduced.
+
+This is the first hotfix candidate that satisfies both automated and human visual acceptance.
+
+---
+
+# 9. PR #12 state
+
+PR #12 is open, mergeable, and unmerged.
+
+Its body has been updated to the final diagnosis, implementation, exact implementation-head CI, artifact IDs/digests, and manual visual PASS.
+
+No production deploy occurred from PR verification.
+
+---
+
+# 10. Final docs-inclusive closeout protocol
+
+This continuity update is intentionally docs-only and moves the branch head beyond the verified implementation head.
+
+Exact next action after this commit:
+
+1. identify the new docs-inclusive PR head;
+2. require Main Verify + Storage Resilience to succeed on that exact head;
+3. confirm PR #12 remains open/mergeable/unmerged and production `main` remains unchanged;
+4. stop at **merge-ready**;
+5. merge/deploy only after explicit user authorization.
+
+After explicit merge/deploy authorization only:
+
+- reconcile PR head and workflows again;
+- merge using the expected exact head SHA to prevent a race;
+- observe post-merge Main verification and Pages deployment to completion;
+- verify production `main` and hosted build;
+- update continuity with the final production merge/deploy SHA and evidence.
+
+Do not infer merge/deploy authorization from `continue`, `finish`, or other generic continuation language.
