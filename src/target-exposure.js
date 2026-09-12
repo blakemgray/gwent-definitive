@@ -52,7 +52,7 @@
     runtime.meta=null;
     runtime.lastClearReason=reason;
     if(hadState)runtime.clears++;
-    document.body.classList.remove('te-has-card-target');
+    document.body.classList.remove('te-has-card-target','te-reduced');
     return true;
   }
   function clearStaleMarks(){
@@ -103,6 +103,7 @@
       runtime.meta=normalized;
       target.dataset.teConfidence=normalized.confidence.toFixed(3);
       target.dataset.teReason=normalized.reason;
+      document.body.classList.toggle('te-reduced',normalized.reduced);
       runtime.updates++;
       return snapshot();
     }
@@ -118,6 +119,7 @@
     target.dataset.teConfidence=normalized.confidence.toFixed(3);
     target.dataset.teReason=normalized.reason;
     document.body.classList.add('te-has-card-target');
+    document.body.classList.toggle('te-reduced',normalized.reduced);
 
     if(!normalized.reduced){
       for(const entry of immediateNeighbors(target)){
