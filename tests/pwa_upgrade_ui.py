@@ -16,6 +16,7 @@ QA.mkdir(parents=True, exist_ok=True)
 
 class ReleaseState:
     phase = 'old'  # old | new-broken | new | offline
+    requests = []
 
 
 STATE = ReleaseState()
@@ -65,6 +66,7 @@ class Handler(BaseHTTPRequestHandler):
         rel = self.path.split('?', 1)[0].lstrip('/')
         if rel == '':
             rel = 'index.html'
+        STATE.requests.append({'phase': STATE.phase, 'path': self.path})
 
         # An offline relaunch must be served entirely by the already-installed
         # coherent core cache. Force every origin network request to reject.
@@ -138,6 +140,7 @@ BASE = f'http://127.0.0.1:{server.server_address[1]}/'
 matrix = {
     'oldInstalled': False,
     'partialUpdateKeptCoherent': False,
+    'partialProbeReachedNetwork': False,
     'healthyUpdateActivated': False,
     'offlineRelaunchCoherent': False,
     'saveRetainedExactly': False,
@@ -180,12 +183,27 @@ try:
         # Publish NEW, but fail the engine transport while the new worker tries
         # to install. The incumbent old worker must serve ALL-OLD core content;
         # it may not network-refresh app.js while falling back to OLD engine.
+        #
+        # The app probe carries a cache-busting query on purpose. An unfixed
+        # network-first incumbent will reach the NEW network app here, while its
+        # exact engine request falls back to OLD cache. A coherent core worker
+        # must ignore the query for shell lookup and serve OLD app from OLD CORE.
         STATE.phase = 'new-broken'
+        STATE.requests.clear()
         update_registration(page)
         page.wait_for_timeout(1400)
         controller_after_failed_install = page.evaluate('navigator.serviceWorker.controller.scriptURL')
-        mixed_app = get_release(page, './app.js')
+        mixed_app = get_release(page, './app.js?qa-core-probe=1')
         mixed_engine = get_release(page, './src/gwent-engine.js')
+        probe_network = any(
+            r['phase'] == 'new-broken' and r['path'].startswith('/app.js?qa-core-probe=1')
+            for r in STATE.requests
+        )
+        matrix['partialProbeReachedNetwork'] = probe_network
+        assert not probe_network, (
+            'F2 reproduced: incumbent worker fetched fresh core app instead of pinning its versioned CORE',
+            STATE.requests,
+        )
         assert mixed_app == mixed_engine == 'old', (
             'F2 reproduced: installed worker mixed core releases under partial deployment',
             mixed_app,
@@ -199,7 +217,7 @@ try:
         STATE.phase = 'new'
         update_registration(page)
         wait_for_waiting(page)
-        assert get_release(page, './app.js') == 'old'
+        assert get_release(page, './app.js?qa-core-probe=2') == 'old'
         assert get_release(page, './src/gwent-engine.js') == 'old'
 
         # Leave the controlled client. With no live old client, the complete
@@ -208,7 +226,7 @@ try:
         time.sleep(1.0)
         page.goto(BASE, wait_until='load')
         wait_for_controller(page)
-        new_app = get_release(page, './app.js')
+        new_app = get_release(page, './app.js?qa-core-probe=3')
         new_engine = get_release(page, './src/gwent-engine.js')
         assert new_app == new_engine == 'new', (new_app, new_engine)
         matrix['healthyUpdateActivated'] = True
@@ -223,7 +241,7 @@ try:
         page.goto('about:blank')
         page.goto(BASE, wait_until='load', timeout=12000)
         wait_for_controller(page)
-        offline_app = get_release(page, './app.js')
+        offline_app = get_release(page, './app.js?qa-core-probe=4')
         offline_engine = get_release(page, './src/gwent-engine.js')
         assert offline_app == offline_engine == 'new', (offline_app, offline_engine)
         assert page.evaluate('key=>localStorage.getItem(key)', save_key) == saved_raw
@@ -237,4 +255,4 @@ finally:
     thread.join(timeout=2)
     (QA / 'pwa_upgrade_matrix.json').write_text(json.dumps(matrix, indent=2), encoding='utf-8')
 
-print('pwa-upgrade-ui: old install stays all-old during partial release; complete update activates only after client boundary; next/offline launch is all-new with exact save retained')
+print('pwa-upgrade-ui: old install pins one complete core during partial release; complete update activates only after client boundary; next/offline launch is all-new with exact save retained')
