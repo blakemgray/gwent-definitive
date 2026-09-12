@@ -7,6 +7,10 @@
   const $ = (s, root=document) => root.querySelector(s);
   const $$ = (s, root=document) => [...root.querySelectorAll(s)];
   const factionNames = {realms:'NORTHERN REALMS',monsters:'MONSTERS',nilfgaard:'NILFGAARD',scoiatael:"SCOIA'TAEL",skellige:'SKELLIGE'};
+  // Canonical Witcher card-face proportions from the source presentation
+  // (.card-lg = 16.1vw x 30.4vw). Keep this correction scoped to placed
+  // battlefield cards; hand geometry remains on the existing Pass 10.3 path.
+  const BOARD_CARD_ASPECT=16.1/30.4;
   let scheduled = false;
 
   function esc(value){
@@ -122,7 +126,7 @@
     const w=rail.clientWidth, h=rail.clientHeight;
     if(!w || !h) return;
     const cardH=Math.max(28,Math.min(40,h-3));
-    const cardW=cardH*0.696;
+    const cardW=cardH*BOARD_CARD_ASPECT;
     const pack=computePack(cards.length,w,cardW,cards.length<=4?4:2,Math.max(9,cardW*.31));
     rail.dataset.packWidth=pack.packWidth.toFixed(2);
     rail.dataset.cardWidth=cardW.toFixed(2);
@@ -198,6 +202,7 @@
   window.GwentBattlefieldUX={
     version:'10.3.0',
     contractVersion:'2.0',
+    boardCardAspect:BOARD_CARD_ASPECT,
     computePack,
     relayout:schedule,
     reconcile,
