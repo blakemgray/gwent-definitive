@@ -57,6 +57,11 @@ with sync_playwright() as p:
     browser=p.webkit.launch();ctx=browser.new_context(viewport={'width':852,'height':393},has_touch=True,is_mobile=True);page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)));enter(page)
     assert page.evaluate("window.GwentDirectManipulation?.version==='10.4A.0'")
     assert page.evaluate("CSS.supports('touch-action','none')")
+    assert page.evaluate("window.GwentPlatformFeedback?.version==='11.audio.0'&&window.GwentPlatformFeedback.stats.installed")
+    page.wait_for_function("window.GwentPlatformFeedback.context?.state === 'running'",timeout=5000)
+    platform_before=page.evaluate('window.GwentPlatformFeedback.getStatus()')
+    assert platform_before['supported'] and platform_before['unlockSuccesses']>=1,platform_before
+
     base=state(page);base['players']['p2']['passed']=True;base['currentPlayerId']='p1'
     # This inherited 10.4A gate measures generic direct-manipulation latency and
     # parity, not authored ability choreography. The deterministic quick-start
@@ -68,9 +73,11 @@ with sync_playwright() as p:
     item=first_ordinary(page);assert item and item['cardId']=='realms_redania' and item['abilities']==[],item
 
     # Real touch taps on WebKit must select and commit without the inspector stealing intent.
+    audio_before=page.evaluate('window.GwentPlatformFeedback.stats.audioPlayed')
     card=page.locator(f'#hand [data-card-iid="{item["iid"]}"]');touch_tap(page,card);page.wait_for_timeout(55)
     assert page.evaluate('iid=>window.GwentDirectManipulation.selectedIid===iid',item['iid'])
     assert page.locator('#card-inspector').count()==0
+    assert page.evaluate('window.GwentPlatformFeedback.stats.audioPlayed')>audio_before
     t=target(page,item['action']);touch_tap(page,t);wait_idle(page);tap_state=state(page)
 
     # Pointer/mouse drag through WebKit must resolve exactly the same state.
@@ -94,8 +101,25 @@ with sync_playwright() as p:
     assert state(page)==tap_state
     last=page.evaluate('window.GwentPresentationQueue.lastCompleted');assert last and last['durationMs']<450,last
 
+    # WebKit/PWA platform truth: recover a previously unlocked context after suspension,
+    # and never claim unsupported vibration as a successful haptic.
+    page.evaluate('window.GwentPlatformFeedback.context.suspend()')
+    page.wait_for_function("window.GwentPlatformFeedback.context.state === 'suspended'")
+    life_before=page.evaluate('window.GwentPlatformFeedback.stats.lifecycleResumeSuccesses')
+    page.evaluate("dispatchEvent(new Event('pageshow'))")
+    page.wait_for_function("window.GwentPlatformFeedback.context.state === 'running'",timeout=5000)
+    assert page.evaluate('window.GwentPlatformFeedback.stats.lifecycleResumeSuccesses')>life_before
+    hcap=page.evaluate('window.GwentPresentationFeedback.hapticCapable()')
+    if not hcap:
+        page.evaluate("window.GwentPresentationFeedback.updateSettings({haptics:true});window.GwentPresentationFeedback.emit('UI_CARD_SELECT',{qa:'webkit-platform-truth'})")
+        page.wait_for_timeout(25)
+        hstats=page.evaluate('window.GwentPresentationFeedback.stats')
+        assert hstats['hapticUnsupported']>=1 and hstats['hapticSuccesses']==0,hstats
+
     stats=page.evaluate('window.GwentDirectManipulation.stats');assert stats['errors']==0 and stats['tapCommits']>=2 and stats['dragCommits']>=1 and stats['invalidDrops']>=1,stats
+    platform_after=page.evaluate('window.GwentPlatformFeedback.getStatus()')
+    assert platform_after['audioPlayed']>0 and platform_after['audioFailures']==0,platform_after
     assert not errors,errors
     ctx.close();browser.close()
 
-print('direct-manipulation-webkit: WebKit touch-tap, drag parity, invalid return, cleanup, and generic reduced-motion gate passed')
+print('direct-manipulation-webkit: WebKit touch/drag parity + real audio unlock/resume + honest haptic capability gate passed')
