@@ -17,11 +17,13 @@ ok(/interrupted|context\.state/.test(platformSrc),'context state is observed for
 for(const cue of ['UI_CARD_SELECT','VALID_DESTINATION','CARD_COMMIT_CLOSE','SCORCH_TRIGGER','WEATHER_FROST','HORN_TRIGGER','MEDIC_TRIGGER','DECOY_TRIGGER','ROUND_WIN','GAME_WIN'])ok(platformSrc.includes(`case '${cue}'`),`missing synthesized cue ${cue}`);
 ok(/audioRequests/.test(platformSrc)&&/audioPlayed/.test(platformSrc)&&/audioQueued/.test(platformSrc)&&/audioBlocked/.test(platformSrc)&&/audioFailures/.test(platformSrc),'playback outcome diagnostics exist');
 ok(!/gwent-engine|legalActions|playAction\(/i.test(platformSrc),'platform output cannot own rules/actions');
+ok(/applyReleaseIdentity/.test(platformSrc)&&/Gwent Classic — Definitive Edition · Pass 11/.test(platformSrc)&&/PASS 11 · GOLDEN MATCH · CI-GATED/.test(platformSrc),'latest Pass 11 runtime must restore authoritative shell identity after closed lower layers install');
+ok(/releaseIdentityRepairs/.test(platformSrc),'release-identity repair must remain observable');
 ok(/gwent:haptic-status/.test(feedbackSrc),'haptic outcome telemetry exists');
 ok(/hapticUnsupported/.test(feedbackSrc)&&/hapticSuccesses/.test(feedbackSrc)&&/hapticFailures/.test(feedbackSrc),'haptic outcomes distinguish unsupported/success/failure');
 ok(/Unavailable in this browser/.test(feedbackSrc),'unsupported haptics are stated honestly in settings');
 ok(html.includes('src/platform-feedback.js'),'platform feedback runtime explicitly loaded');
-ok(html.indexOf('src/platform-feedback.js')>html.indexOf('src/presentation-feedback.js'),'platform output loads after semantic feedback adapter');
-ok(sw.includes("const BUILD='11.golden.3'"),'PWA cache build includes the current coherent Golden Match release shell while preserving platform feedback');
+ok(html.indexOf('src/platform-feedback.js')>html.indexOf('src/presentation-feedback.js')&&html.indexOf('src/platform-feedback.js')>html.indexOf('src/gesture-controller.js'),'Pass 11 platform/runtime guard loads after closed interaction and semantic-feedback layers');
+ok(sw.includes("const BUILD='11.golden.4'"),'PWA cache build includes the current coherent Golden Match release shell while preserving platform feedback');
 ok(sw.includes('./src/platform-feedback.js'),'platform output is precached');
 console.log(`platform-feedback-contract: ${n} assertions passed`);
