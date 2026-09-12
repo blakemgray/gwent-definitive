@@ -119,6 +119,14 @@
     return {count,left:(railWidth-packWidth)/2,step,packWidth,cardWidth};
   }
 
+  function boardCardWidthForHeight(card,cardH){
+    const css=getComputedStyle(card);
+    const borderX=(parseFloat(css.borderLeftWidth)||0)+(parseFloat(css.borderRightWidth)||0);
+    const borderY=(parseFloat(css.borderTopWidth)||0)+(parseFloat(css.borderBottomWidth)||0);
+    const faceH=Math.max(1,cardH-borderY);
+    return faceH*BOARD_CARD_ASPECT+borderX;
+  }
+
   function layoutBoardRail(rail){
     const cards=$$('.unit',rail).filter(c=>c.parentElement===rail);
     rail.classList.remove('overlap-pack');
@@ -126,7 +134,10 @@
     const w=rail.clientWidth, h=rail.clientHeight;
     if(!w || !h) return;
     const cardH=Math.max(28,Math.min(40,h-3));
-    const cardW=cardH*BOARD_CARD_ASPECT;
+    // Global border-box sizing means the source image lives inside the card
+    // border. Size the outer shell so that its inner face—not the border box—
+    // matches the canonical art aspect exactly.
+    const cardW=boardCardWidthForHeight(cards[0],cardH);
     const pack=computePack(cards.length,w,cardW,cards.length<=4?4:2,Math.max(9,cardW*.31));
     rail.dataset.packWidth=pack.packWidth.toFixed(2);
     rail.dataset.cardWidth=cardW.toFixed(2);
