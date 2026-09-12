@@ -154,7 +154,7 @@ with sync_playwright() as p:
         assert trace['classification']=='classic',trace
         assert trace['rounds']>=2,trace
         assert trace['steps']<300,trace
-        assert trace['eventCounts'].get('ROUND_END',0)>=2,trace
+        assert trace['eventCounts'].get('ROUND_ENDED',0)>=2,trace
 
     # Ordinary product path: no state injection, no developer controls.
     page.locator('#main-screen [data-nav="play-screen"]').click()
