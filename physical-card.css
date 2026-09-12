@@ -32,10 +32,21 @@
   box-shadow:0 1px 4px rgba(0,0,0,.58),0 0 0 1px rgba(124,171,199,.18),inset 0 1px 0 rgba(255,255,255,.55);
 }
 
+/* Placed units are buttons. Browser/UA button padding was silently consuming
+   much of the tiny battlefield face width, especially on iOS/WebKit. The card
+   body is a physical-card surface, not a padded text control. */
+#match-screen .unit[data-inspect-board]{
+  padding:0;
+}
+
+/* Real-device acceptance proved the placed-card face and shell had diverged.
+   battlefield-ux.js now sizes the board shell to the canonical source-card
+   aspect; contain remains the no-crop guard so the complete face/frame survives. */
 #match-screen .unit[data-inspect-board] img{
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:contain;
+  object-position:center;
   display:block;
 }
 
@@ -47,8 +58,8 @@
 }
 
 /* 11.2C target identity uses a presentation-only body actor. The authoritative
-   board element stays at untouched 10.3 geometry and is merely hidden while
-   the actor represents that same iid above the held Decoy. */
+   board element stays at the corrected 10.3 resting geometry and is merely
+   hidden while the actor represents that same iid above the held Decoy. */
 #match-screen .unit[data-inspect-board].te-locked-target{
   z-index:170!important;
   outline:2px solid rgba(255,230,174,.98)!important;
@@ -83,7 +94,8 @@
 .te-target-actor img{
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:contain;
+  object-position:center;
   display:block;
   border-radius:inherit;
   pointer-events:none;

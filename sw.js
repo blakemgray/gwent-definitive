@@ -1,4 +1,4 @@
-const BUILD='11.golden.4';
+const BUILD='11.golden.5';
 const CORE=`gwent-definitive-core-${BUILD}`;
 const RUNTIME=`gwent-definitive-runtime-${BUILD}`;
 const PRECACHE=[

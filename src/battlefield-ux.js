@@ -7,6 +7,10 @@
   const $ = (s, root=document) => root.querySelector(s);
   const $$ = (s, root=document) => [...root.querySelectorAll(s)];
   const factionNames = {realms:'NORTHERN REALMS',monsters:'MONSTERS',nilfgaard:'NILFGAARD',scoiatael:"SCOIA'TAEL",skellige:'SKELLIGE'};
+  // Canonical Witcher card-face proportions from the source presentation
+  // (.card-lg = 16.1vw x 30.4vw). Keep this correction scoped to placed
+  // battlefield cards; hand geometry remains on the existing Pass 10.3 path.
+  const BOARD_CARD_ASPECT=16.1/30.4;
   let scheduled = false;
 
   function esc(value){
@@ -115,6 +119,14 @@
     return {count,left:(railWidth-packWidth)/2,step,packWidth,cardWidth};
   }
 
+  function boardCardWidthForHeight(card,cardH){
+    const css=getComputedStyle(card);
+    const borderX=(parseFloat(css.borderLeftWidth)||0)+(parseFloat(css.borderRightWidth)||0);
+    const borderY=(parseFloat(css.borderTopWidth)||0)+(parseFloat(css.borderBottomWidth)||0);
+    const faceH=Math.max(1,cardH-borderY);
+    return faceH*BOARD_CARD_ASPECT+borderX;
+  }
+
   function layoutBoardRail(rail){
     const cards=$$('.unit',rail).filter(c=>c.parentElement===rail);
     rail.classList.remove('overlap-pack');
@@ -122,7 +134,10 @@
     const w=rail.clientWidth, h=rail.clientHeight;
     if(!w || !h) return;
     const cardH=Math.max(28,Math.min(40,h-3));
-    const cardW=cardH*0.696;
+    // Global border-box sizing means the source image lives inside the card
+    // border. Size the outer shell so that its inner face—not the border box—
+    // matches the canonical art aspect exactly.
+    const cardW=boardCardWidthForHeight(cards[0],cardH);
     const pack=computePack(cards.length,w,cardW,cards.length<=4?4:2,Math.max(9,cardW*.31));
     rail.dataset.packWidth=pack.packWidth.toFixed(2);
     rail.dataset.cardWidth=cardW.toFixed(2);
@@ -198,6 +213,7 @@
   window.GwentBattlefieldUX={
     version:'10.3.0',
     contractVersion:'2.0',
+    boardCardAspect:BOARD_CARD_ASPECT,
     computePack,
     relayout:schedule,
     reconcile,

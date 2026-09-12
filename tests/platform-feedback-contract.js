@@ -24,6 +24,6 @@ ok(/hapticUnsupported/.test(feedbackSrc)&&/hapticSuccesses/.test(feedbackSrc)&&/
 ok(/Unavailable in this browser/.test(feedbackSrc),'unsupported haptics are stated honestly in settings');
 ok(html.includes('src/platform-feedback.js'),'platform feedback runtime explicitly loaded');
 ok(html.indexOf('src/platform-feedback.js')>html.indexOf('src/presentation-feedback.js')&&html.indexOf('src/platform-feedback.js')>html.indexOf('src/gesture-controller.js'),'Pass 11 platform/runtime guard loads after closed interaction and semantic-feedback layers');
-ok(sw.includes("const BUILD='11.golden.4'"),'PWA cache build includes the current coherent Golden Match release shell while preserving platform feedback');
+ok(sw.includes("const BUILD='11.golden.5'"),'PWA cache build includes the current coherent Golden Match hotfix shell while preserving platform feedback');
 ok(sw.includes('./src/platform-feedback.js'),'platform output is precached');
 console.log(`platform-feedback-contract: ${n} assertions passed`);

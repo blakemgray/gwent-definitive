@@ -43,6 +43,26 @@ def set_readability_state(page,count,weather=False):
     page.wait_for_timeout(100)
 
 
+def set_all_rows_card_fit_state(page):
+    page.evaluate("""()=>{
+      const api=window.__GWENT_PASS10__, G=api.engine, s=api.getState();
+      for(const pid of ['p1','p2']){
+        const p=s.players[pid];
+        const pool=[...p.hand,...p.deck,...p.grave,...p.board.close,...p.board.ranged,...p.board.siege];
+        const source=pool.find(inst=>G.CARD_DB[inst.cardId]?.type==='unit');
+        if(!source)throw new Error(`No ${pid} unit available for battlefield card-fit QA`);
+        for(const row of G.ROWS){
+          p.board[row]=[{...source,iid:`qa-fit-${pid}-${row}`}];
+        }
+      }
+      s.weather={close:false,ranged:false,siege:false};
+      api.setStateForQA(s);
+      window.GwentBattlefieldUX?.reconcile?.();
+      window.GwentBattlefieldReadability?.refresh?.();
+    }""")
+    page.wait_for_timeout(120)
+
+
 def expected_power(page,iid):
     return page.evaluate("""iid=>{
       const api=window.__GWENT_PASS10__,G=api.engine,s=api.getState();
@@ -94,11 +114,53 @@ with sync_playwright() as p:
     assert card.locator('.u-score.modified-power').count()==1
     page.screenshot(path=str(QA/'07_weather_modified_power.png'))
 
-    # Existing 10.3 geometry remains the final authority; the readability layer
-    # must not write inline final-slot geometry.
+    # Real-device regression: the first contain-only hotfix still left a narrow
+    # face inside the old shell. Two shared causes are now locked out: browser
+    # button padding must be zero, and the inner face box must match the actual
+    # loaded source-art aspect on both sides and all three rows.
+    set_all_rows_card_fit_state(page)
+    fit_cards=page.locator('#match-screen .lane .unit[data-inspect-board]')
+    assert fit_cards.count()==6, fit_cards.count()
+    ux_aspect=page.evaluate('window.GwentBattlefieldUX?.boardCardAspect')
+    assert ux_aspect and 0.50 < ux_aspect < 0.56, ux_aspect
+    for pid in ('p1','p2'):
+        for row in ('close','ranged','siege'):
+            card=page.locator(f'#match-screen .lane[data-pid="{pid}"][data-row="{row}"] .unit[data-inspect-board]').first
+            assert card.count()==1,(pid,row)
+            img=card.locator('img')
+            assert img.count()==1,(pid,row)
+            metrics=card.evaluate("""el=>{
+              const img=el.querySelector('img'),ics=getComputedStyle(img),cs=getComputedStyle(el),r=el.getBoundingClientRect(),ir=img.getBoundingClientRect();
+              return {
+                fit:ics.objectFit,
+                pos:ics.objectPosition,
+                padding:{l:parseFloat(cs.paddingLeft)||0,r:parseFloat(cs.paddingRight)||0,t:parseFloat(cs.paddingTop)||0,b:parseFloat(cs.paddingBottom)||0},
+                natural:{w:img.naturalWidth,h:img.naturalHeight,complete:img.complete},
+                outer:{w:r.width,h:r.height},
+                face:{w:el.clientWidth,h:el.clientHeight},
+                imageBox:{w:ir.width,h:ir.height}
+              };
+            }""")
+            assert metrics['fit']=='contain',(pid,row,metrics)
+            assert metrics['pos'] in ('50% 50%','center'),(pid,row,metrics)
+            assert all(abs(metrics['padding'][k])<0.01 for k in ('l','r','t','b')),(pid,row,metrics['padding'])
+            natural=metrics['natural']
+            assert natural['complete'] and natural['w']>0 and natural['h']>0,(pid,row,natural)
+            natural_aspect=natural['w']/natural['h']
+            face=metrics['face']
+            assert face['w']>0 and face['h']>0,(pid,row,face)
+            face_aspect=face['w']/face['h']
+            assert abs(face_aspect-natural_aspect)<0.015,(pid,row,natural_aspect,face_aspect,metrics)
+            assert abs(ux_aspect-natural_aspect)<0.015,(pid,row,ux_aspect,natural_aspect)
+            ib=metrics['imageBox']
+            assert abs(ib['w']-face['w'])<0.75 and abs(ib['h']-face['h'])<0.75,(pid,row,metrics)
+    page.screenshot(path=str(QA/'08_full_card_face_all_rows_both_sides.png'))
+
+    # Existing 10.3 geometry remains final authority for resting placement; the
+    # readability layer must not write independent slot geometry.
     geometry_writes=page.evaluate("""()=>[...document.querySelectorAll('#match-screen .unit[data-inspect-board]')].some(el=>el.style.getPropertyValue('--readability-left')||el.style.getPropertyValue('--readability-top'))""")
     assert not geometry_writes
     assert not errors,errors
     browser.close()
 
-print('pass11-readability-ui: always-visible effective power and accessible battlefield identity passed')
+print('pass11-readability-ui: power/readability plus unpadded canonical battlefield card-face fitting passed')
