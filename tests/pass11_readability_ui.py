@@ -114,33 +114,53 @@ with sync_playwright() as p:
     assert card.locator('.u-score.modified-power').count()==1
     page.screenshot(path=str(QA/'07_weather_modified_power.png'))
 
-    # Real-device regression: every placed card, on both sides and all rows,
-    # must preserve the full card face instead of cover-cropping its left/right edges.
-    # Geometry stays owned by Pass 10.3; this only locks the image fitting behavior.
+    # Real-device regression: the first contain-only hotfix still left a narrow
+    # face inside the old 0.696 shell. Every placed card on both sides and all
+    # rows must now size its *inner face box* to the actual loaded source-art
+    # aspect. This catches both cover-cropping and future shell/art mismatch.
     set_all_rows_card_fit_state(page)
     fit_cards=page.locator('#match-screen .lane .unit[data-inspect-board]')
     assert fit_cards.count()==6, fit_cards.count()
+    ux_aspect=page.evaluate('window.GwentBattlefieldUX?.boardCardAspect')
+    assert ux_aspect and 0.50 < ux_aspect < 0.56, ux_aspect
     for pid in ('p1','p2'):
         for row in ('close','ranged','siege'):
             card=page.locator(f'#match-screen .lane[data-pid="{pid}"][data-row="{row}"] .unit[data-inspect-board]').first
             assert card.count()==1,(pid,row)
             img=card.locator('img')
             assert img.count()==1,(pid,row)
-            fit=img.evaluate("el=>getComputedStyle(el).objectFit")
-            pos=img.evaluate("el=>getComputedStyle(el).objectPosition")
-            natural=img.evaluate("el=>({w:el.naturalWidth,h:el.naturalHeight,complete:el.complete})")
-            rect=card.bounding_box();assert rect
-            assert fit=='contain',(pid,row,fit)
-            assert pos in ('50% 50%','center'),(pid,row,pos)
+            metrics=card.evaluate("""el=>{
+              const img=el.querySelector('img'),cs=getComputedStyle(img),r=el.getBoundingClientRect(),ir=img.getBoundingClientRect();
+              return {
+                fit:cs.objectFit,
+                pos:cs.objectPosition,
+                natural:{w:img.naturalWidth,h:img.naturalHeight,complete:img.complete},
+                outer:{w:r.width,h:r.height},
+                face:{w:el.clientWidth,h:el.clientHeight},
+                imageBox:{w:ir.width,h:ir.height}
+              };
+            }""")
+            assert metrics['fit']=='contain',(pid,row,metrics)
+            assert metrics['pos'] in ('50% 50%','center'),(pid,row,metrics)
+            natural=metrics['natural']
             assert natural['complete'] and natural['w']>0 and natural['h']>0,(pid,row,natural)
-            assert abs((rect['width']/rect['height'])-0.696)<0.03,(pid,row,rect)
+            natural_aspect=natural['w']/natural['h']
+            face=metrics['face']
+            assert face['w']>0 and face['h']>0,(pid,row,face)
+            face_aspect=face['w']/face['h']
+            assert abs(face_aspect-natural_aspect)<0.015,(pid,row,natural_aspect,face_aspect,metrics)
+            assert abs(ux_aspect-natural_aspect)<0.015,(pid,row,ux_aspect,natural_aspect)
+            # The <img> element itself fills the full inner face box; object-fit
+            # then renders the complete source card without material gutters.
+            ib=metrics['imageBox']
+            assert abs(ib['w']-face['w'])<0.75 and abs(ib['h']-face['h'])<0.75,(pid,row,metrics)
     page.screenshot(path=str(QA/'08_full_card_face_all_rows_both_sides.png'))
 
-    # Existing 10.3 geometry remains the final authority; the readability layer
-    # must not write inline final-slot geometry.
+    # Existing 10.3 geometry remains final authority for resting placement; the
+    # readability layer must not write independent slot geometry.
     geometry_writes=page.evaluate("""()=>[...document.querySelectorAll('#match-screen .unit[data-inspect-board]')].some(el=>el.style.getPropertyValue('--readability-left')||el.style.getPropertyValue('--readability-top'))""")
     assert not geometry_writes
     assert not errors,errors
     browser.close()
 
-print('pass11-readability-ui: power/readability plus full battlefield card-face fitting passed')
+print('pass11-readability-ui: power/readability plus canonical battlefield card-face aspect passed')
