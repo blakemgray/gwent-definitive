@@ -55,7 +55,7 @@ The Pass 11 candidate now provides one genuine normal Instant Match from menu to
 - serialized opponent scheduling so consecutive bot actions cannot commit through unresolved presentation;
 - coherent installed-PWA core generations so a partial deployment cannot mix new shell files with old cached modules.
 
-The service-worker shell generation is `11.golden.2`. The save-format build identifier remains independently versioned because the release-label/cache-generation cleanup does not change save semantics.
+The service-worker shell generation is `11.golden.3`. The save-format build identifier remains independently versioned because the release-label/cache-generation cleanup does not change save semantics.
 
 ## QA and acceptance
 

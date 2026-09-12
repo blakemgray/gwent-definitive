@@ -134,9 +134,9 @@
     if(hook)emit(hook,{iid:meta.iid||meta.action?.iid||null,row,inputMethod:meta.inputMethod||'unknown'});
   }
 
-  // 10.4C owns player-facing presentation language. Older integration-layer copy
-  // deliberately exposed engine diagnostics while the match shell was being built;
-  // normalize those strings before paint without changing semantic logs or state.
+  // 10.4C owns player-facing presentation language, but not milestone identity.
+  // The current product shell owns release/title/build marks so a closed lower
+  // presentation layer cannot silently downgrade a later Pass 11 release label.
   function polishLegacyCopy(){
     if(!root.document)return false;
     let changed=false;
@@ -202,21 +202,13 @@
     root.document.querySelector('#haptic-feedback')?.addEventListener('change',e=>updateSettings({haptics:e.target.checked}));
     syncSettingsUI();
   }
-  function installVersionMarks(){
-    if(!root.document)return;
-    root.document.title='Gwent Classic — Definitive Edition · Pass 10.4C';
-    const build=root.document.querySelector('.buildline');if(build)build.textContent='BUILD 10.4C · FEEL / PRESENTATION POLISH · CI-GATED';
-    const eyebrow=root.document.querySelector('#profile-screen .eyebrow');if(eyebrow)eyebrow.textContent='PASS 10.4C';
-    const heading=root.document.querySelector('#profile-screen h2');if(heading)heading.textContent='Pass 10.4C feel / presentation status';
-    const milestone=[...root.document.querySelectorAll('#profile-screen .stat')].find(x=>x.querySelector('small')?.textContent==='Milestone')?.querySelector('b');if(milestone)milestone.textContent='10.4C';
-  }
   function install(){
     if(runtime.installed||!root.document)return false;
     const q=root.GwentPresentationQueue;if(!q?.subscribe)return false;
     runtime.unsubscribeQueue=q.subscribe(onQueue);
     runtime.observer=new MutationObserver(()=>{inspectStage();inspectInteraction();});
     runtime.observer.observe(root.document.body,{subtree:true,attributes:true,attributeFilter:['class','data-gc-stage','data-dm-action-key']});
-    installSettings();installVersionMarks();installCopyPolish();inspectStage();inspectInteraction();runtime.installed=true;return true;
+    installSettings();installCopyPolish();inspectStage();inspectInteraction();runtime.installed=true;return true;
   }
   function uninstall(){
     runtime.unsubscribeQueue?.();runtime.unsubscribeQueue=null;runtime.observer?.disconnect?.();runtime.observer=null;runtime.copyObserver?.disconnect?.();runtime.copyObserver=null;runtime.installed=false;runtime.lastStage=null;runtime.lastSelected=null;runtime.lastActive=null;
