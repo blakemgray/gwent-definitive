@@ -1,4 +1,4 @@
-/* Pass 11.2A — Battlefield readability semantics.
+/* Pass 11.2A/11.2C — Battlefield readability + predictive target exposure.
    Presentation only. Pass 10.3 continues to own final card packing and geometry. */
 
 #match-screen .unit[data-inspect-board] .u-score{
@@ -41,10 +41,63 @@
 
 #match-screen .unit[data-inspect-board]:focus-visible .u-score,
 #match-screen .unit[data-inspect-board]:hover .u-score,
-#match-screen .unit[data-inspect-board].dm-active-target .u-score{
+#match-screen .unit[data-inspect-board].dm-active-target .u-score,
+#match-screen .unit[data-inspect-board].te-locked-target .u-score{
   transform:scale(1.04);
+}
+
+/* 11.2C predictive card-target exposure. These transforms are transient only;
+   left/top/width/height remain entirely owned by the 10.3 compositor. */
+#match-screen .unit[data-inspect-board].te-locked-target{
+  z-index:170!important;
+  transform:translateY(-5px) scale(1.16)!important;
+  transform-origin:50% 72%;
+  filter:brightness(1.13) saturate(1.08)!important;
+  outline:2px solid rgba(255,230,174,.98)!important;
+  outline-offset:1px!important;
+  box-shadow:0 12px 24px rgba(0,0,0,.72),0 0 0 2px rgba(240,189,97,.22),0 0 18px rgba(232,177,87,.30)!important;
+  transition:transform 120ms cubic-bezier(.16,.88,.24,1.02),filter 105ms ease,box-shadow 120ms ease!important;
+}
+
+#match-screen .unit[data-inspect-board].te-locked-target::after{
+  content:"◆ SWAP";
+  opacity:1;
+  top:-10px;
+  transform:translate(-50%,-50%) scale(1.02);
+  background:rgba(67,45,20,.97);
+  color:#fff2ce;
+  border-color:rgba(247,212,149,.72);
+}
+
+#match-screen .unit[data-inspect-board].te-neighbor-yield{
+  transform:translateX(var(--te-yield-x,0px))!important;
+  transition:transform 120ms cubic-bezier(.16,.88,.24,1.02),filter 105ms ease!important;
+}
+
+/* Keep legal options visible but subordinate to the one predictive lock. */
+body.te-has-card-target #match-screen .unit.dm-legal-target:not(.te-locked-target)::after{
+  opacity:.44;
+}
+body.te-has-card-target #match-screen .unit.dm-legal-target:not(.te-locked-target){
+  filter:brightness(.92) saturate(.88);
+}
+
+/* During a drag, the predictive owner supersedes ordinary hover lift so the
+   candidate and local yield remain stable under the pointer. */
+body.dm-dragging #match-screen .unit.dm-legal-target:hover:not(.te-locked-target):not(.te-neighbor-yield){
+  transform:none;
 }
 
 @media (prefers-reduced-motion: reduce){
   #match-screen .unit[data-inspect-board] .u-score{transition:none!important}
+  #match-screen .unit[data-inspect-board].te-locked-target{
+    transform:none!important;
+    filter:brightness(1.14) saturate(1.06)!important;
+    box-shadow:0 0 0 2px rgba(240,189,97,.30),0 0 12px rgba(232,177,87,.20)!important;
+    transition:none!important;
+  }
+  #match-screen .unit[data-inspect-board].te-neighbor-yield{
+    transform:none!important;
+    transition:none!important;
+  }
 }
