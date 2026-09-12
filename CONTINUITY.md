@@ -233,3 +233,11 @@ GitHub remains canonical for active development. Reference Drive: `Gwent Classic
 **Current Pass 11:** planning 100%; implementation ~77%; formally verified/closed ~70%.  
 **Current phase:** true Golden Match E2E/visual acceptance is closed; remaining release acceptance is real-iPhone sensory signoff + independent coarse live flow + adversarial integration/final review.  
 **Next action:** inventory the remaining release blockers against current exact head `30cabd96a1004c7e0e5f896ed84849a0b181e83c`, perform one independent coarse live-product check if browser tooling is reliable, then stop at the clean pre-adversarial-review checkpoint and recommend whether GPT-6 Astra · Medium is justified.
+
+## Resumed adversarial integration review — 2026-09-12
+
+User-authorized bounded GPT-6 Astra · Medium review is now active. Read CONTINUITY.md, FUTURE_CONTINUITY.md, and MODEL_ROUTING.md in full. Live PR #11 is open/unmerged on pass-11-golden-match at 24c14efa5714ad5f3943663ade3fc28bdcabba11; base main remains f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b. Run #261 / 34690086333 on that exact head completed SUCCESS; every verify step succeeded and deploy was intentionally skipped for pull_request. Handoff matches repository evidence. Run #260 remains the manually accepted implementation artifact; no new visual acceptance is claimed.
+
+Scope: finite, prioritized cross-system findings with source/test evidence, coverage gaps, merge impact, and smallest safe fixes. No gameplay implementation changes, test weakening, merge, or deployment during this review. No PR Pages preview exists: defer TinyFish production smoke until after authorized merge/deploy. Known release-label, cache BUILD 11.audio.0, and README cleanup are hygiene, not the primary review. Real-iPhone sensory signoff remains pending. Planning 100%; implementation ~77%; formally verified/closed ~70%.
+
+Next action: reconstruct PR integration boundaries and challenge lifecycle, terminal interruption/recovery, stale actions, presentation/bot gating, platform feedback, and deployment/cache consistency. Return implementation and release execution to GPT-5.6 Sol · High when the review is complete.
