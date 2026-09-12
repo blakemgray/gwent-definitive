@@ -110,6 +110,8 @@ with sync_playwright() as p:
     results.append({'case':'agile-boundary','reason':d['reason'],'margin':d['margin']})
 
     # 4. Immediate fast overshoot: one singular row may use the most recent segment, but only within bounded distance.
+    # Do not insert screenshot latency between trajectory recognition and pointer-up: that would intentionally expire
+    # the 120 ms recent-motion window and no longer represent an immediate release.
     base=make_scenario(page,'realms_keira');reset(page,base);a=action(page,row='ranged');assert a
     start_drag(page);tb=target_box(page,a)
     y=tb['y']+tb['height']/2
@@ -117,8 +119,9 @@ with sync_playwright() as p:
     page.mouse.move(inside_x,y,steps=8);page.wait_for_timeout(34)
     page.mouse.move(tb['x']+tb['width']+28,y,steps=1);page.wait_for_timeout(18)
     d=intent(page);assert d and d['reason']=='trajectory_singular' and d['candidate'] and d['trajectoryConsidered'],d
+    page.mouse.up();wait_idle(page)
+    after=state(page);assert any(c['iid']=='qa-intent-card' for c in after['players']['p1']['board']['ranged'])
     page.screenshot(path=str(QA/'04_singular_trajectory_overshoot.png'))
-    page.mouse.up();wait_idle(page);after=state(page);assert any(c['iid']=='qa-intent-card' for c in after['players']['p1']['board']['ranged'])
     results.append({'case':'singular-overshoot','reason':d['reason'],'confidence':d['confidence']})
 
     assert not errors,errors
