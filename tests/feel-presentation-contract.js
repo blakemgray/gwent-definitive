@@ -47,7 +47,7 @@ const externalIdx=html.indexOf('src/choreography-external-gate.js'),feedbackIdx=
 ok(feelIdx>choreoCss,'feel CSS must load after choreography styles');
 ok(feedbackIdx>externalIdx,'feedback subscriber must load after established presentation/action gates');
 ok(platformIdx>feedbackIdx,'Pass 11 runtime identity guard must load after the closed 10.4C presentation layer');
-ok(sw.includes("const BUILD='11.golden.4'"),'PWA cache generation must advance when the precached Pass 11 runtime changes');
+ok(sw.includes("const BUILD='11.golden.5'"),'PWA cache generation must advance when the precached Pass 11 runtime changes');
 for(const rel of ['feel-polish.css','src/presentation-feedback.js'])ok(sw.includes(rel),`PWA must precache ${rel}`);
 ok(/not more animation/i.test(contract)&&/60 fps/i.test(contract),'10.4C contract preserves mission/performance target');
 console.log(`feel-presentation-contract: ${n} assertions passed`);
