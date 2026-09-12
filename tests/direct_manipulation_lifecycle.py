@@ -28,16 +28,19 @@ def state(page):return page.evaluate('window.__GWENT_PASS10__.getState()')
 
 def base_scenario(page,one_card=False):
     return page.evaluate("""one=>{
-      const api=window.__GWENT_PASS10__,G=api.engine,s=api.getState();
-      for(const pid of ['p1','p2']){
-        for(const row of G.ROWS){s.players[pid].board[row]=[];s.players[pid].board.special[row]=null;s.players[pid].board.leaderHorn[row]=false;}
-        s.players[pid].passed=false;
-      }
-      s.weather={close:false,ranged:false,siege:false};s.weatherCards=[];s.pendingChoice=null;s.pendingResume=null;s.winner=null;s.round=1;s.currentPlayerId='p1';
-      s.players.p1.health=2;s.players.p2.health=2;
-      s.players.p1.hand=[{iid:'qa-life-card',cardId:'realms_keira'}];
-      if(!one)s.players.p1.hand.push({iid:'qa-life-filler',cardId:'realms_blue_stripes'});
-      s.players.p2.hand=[{iid:'qa-life-p2',cardId:'monsters_cockatrice'}];
+      const api=window.__GWENT_PASS10__,G=api.engine;
+      const s=G.createMatch({
+        p1Faction:'realms',p2Faction:'monsters',
+        p1Deck:one?['realms_keira']:['realms_keira','realms_blue_stripes'],
+        p2Deck:['monsters_cockatrice'],
+        handSize:one?1:2,firstPlayerId:'p1',seed:10401,autoPass:!!one
+      });
+      // Keep deterministic selectors without fabricating zones around a full seeded
+      // match. The fixture itself must remain a state the current persistence
+      // contract would accept before lifecycle behavior is tested.
+      if(s.players.p1.hand[0])s.players.p1.hand[0].iid='qa-life-card';
+      if(!one&&s.players.p1.hand[1])s.players.p1.hand[1].iid='qa-life-filler';
+      if(s.players.p2.hand[0])s.players.p2.hand[0].iid='qa-life-p2';
       s.players.p2.passed=!!one;
       // autoPass is correctly suppressed while an active leader remains playable.
       // The one-card lifecycle case therefore spends the leader first so the tested
@@ -48,7 +51,6 @@ def base_scenario(page,one_card=False):
 
 
 def action(page):return page.evaluate("window.GwentDirectManipulation.actionsFor('qa-life-card')[0]")
-
 def key(page,a):return page.evaluate('a=>window.GwentDirectManipulation.actionKey(a)',a)
 
 
@@ -78,7 +80,9 @@ with sync_playwright() as p:
     # the just-played unit before presentation reads the new DOM. Tap and drag must
     # still agree and the flight must use snapshotted row intent rather than a
     # board-center guess.
-    base=base_scenario(page,True);reset(page,base);a=action(page);assert a
+    base=base_scenario(page,True)
+    assert page.evaluate('s=>window.GwentStorage.validateState(s)',base),'last-card lifecycle fixture violates current save contract'
+    reset(page,base);a=action(page);assert a
     tap(page,a);tap_state=state(page);tap_settle=page.evaluate('window.GwentDirectManipulation.lastSettlement')
     assert tap_state['round']>=2 or tap_state['winner'] is not None,tap_state['round']
     assert tap_settle['destination']['kind']=='row' and tap_settle['resolvedBy']=='semantic-destination',tap_settle
@@ -89,14 +93,18 @@ with sync_playwright() as p:
     # Save occurs on authoritative commit, not animation completion. Stretch the
     # presentation, interrupt it via an actual visibilitychange path, then restore
     # from persisted state and demand exact state equivalence with zero transient DOM.
-    base=base_scenario(page,False);reset(page,base);a=action(page);assert a
+    base=base_scenario(page,False)
+    assert page.evaluate('s=>window.GwentStorage.validateState(s)',base),'save-restore lifecycle fixture violates current save contract'
+    reset(page,base);a=action(page);assert a
     page.evaluate("""()=>{
       window.__qaLifeAnimate=Element.prototype.animate;
       Element.prototype.animate=function(frames,options){let next=options;if(options&&typeof options==='object')next={...options,duration:Math.max(850,Number(options.duration)||0)};return window.__qaLifeAnimate.call(this,frames,next);};
     }""")
     page.locator('#hand [data-card-iid="qa-life-card"]').click();page.locator(f'[data-dm-action-key="{key(page,a)}"]').click();page.wait_for_timeout(90)
     assert page.evaluate('window.GwentPresentationQueue.busy'),'stretched presentation never became active'
-    committed=state(page);saved=page.evaluate('window.GwentStorage.readMatch()?.state||null');assert saved==committed,'persisted state lagged authoritative engine commit'
+    committed=state(page)
+    assert page.evaluate('s=>window.GwentStorage.validateState(s)',committed),'authoritative post-commit state violates current save contract'
+    saved=page.evaluate('window.GwentStorage.readMatch()?.state||null');assert saved==committed,'persisted state lagged authoritative engine commit'
     page.evaluate("""()=>{
       Object.defineProperty(document,'hidden',{configurable:true,value:true});
       document.dispatchEvent(new Event('visibilitychange'));
@@ -117,4 +125,4 @@ with sync_playwright() as p:
     assert not errors,errors
     browser.close()
 
-print('direct-manipulation-lifecycle: true last-legal-action auto-pass/round-resolution tap-drag parity + visibility interruption + persisted Continue Match restore all passed')
+print('direct-manipulation-lifecycle: persistence-valid true last-legal-action auto-pass/round-resolution tap-drag parity + visibility interruption + persisted Continue Match restore all passed')
