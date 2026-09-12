@@ -45,6 +45,10 @@ def fingerprint_p2(page):
     return page.evaluate("""()=>{const s=window.__GWENT_PASS10__.getState();return JSON.stringify({turn:s.currentPlayerId,hand:s.players.p2.hand.map(x=>x.iid),board:['close','ranged','siege'].map(r=>s.players.p2.board[r].map(x=>x.iid)),passed:s.players.p2.passed,round:s.round,winner:s.winner});}""")
 
 
+def p2_hand_count(page):
+    return page.evaluate("window.__GWENT_PASS10__.getState().players.p2.hand.length")
+
+
 def select_and_commit(page,item):
     page.locator(f'#hand [data-card-iid="{item["iid"]}"]').click()
     key=page.evaluate('a=>window.GwentDirectManipulation.actionKey(a)',item['action'])
@@ -124,7 +128,70 @@ with sync_playwright() as p:
     page.wait_for_timeout(310)
     assert fingerprint_p2(page)!=frozen2,'bot did not resume after interrupted presentation reconciled'
 
+    # Pass 11 F1 regression: once the player has passed, p2 may legally own several
+    # consecutive actions. The bot's own first action must now gate the second and
+    # every later action exactly as strictly as player -> bot. This fixture gives p1
+    # a durable lead and normalizes the entire p2 hand to low ordinary units so the
+    # bot must keep playing instead of immediately passing.
+    page.evaluate("""()=>{
+      Element.prototype.animate=window.__qaOriginalAnimate;
+      const api=window.__GWENT_PASS10__,s=api.getState();
+      for(const pid of ['p1','p2'])for(const row of ['close','ranged','siege'])s.players[pid].board[row]=[];
+      s.weather={close:false,ranged:false,siege:false};s.weatherCards=[];
+      s.pendingChoice=null;s.winner=null;s.currentPlayerId='p2';
+      s.players.p1.passed=true;s.players.p2.passed=false;
+      if(!s.players.p1.hand.length)throw new Error('QA state has no lead card');
+      const lead=s.players.p1.hand.shift();lead.cardId='realms_esterad';s.players.p1.board.close.push(lead);
+      while(s.players.p2.hand.length<4&&s.players.p2.deck.length)s.players.p2.hand.push(s.players.p2.deck.shift());
+      if(s.players.p2.hand.length<4)throw new Error('QA state cannot provide four bot cards');
+      s.players.p2.hand.forEach(c=>c.cardId='realms_redania');
+      api.setStateForQA(s);window.GwentBattlefieldUX.reconcile();
+      Element.prototype.animate=function(frames,options){
+        let next=options;
+        if(options&&typeof options==='object')next={...options,duration:Math.max(760,Number(options.duration)||0)};
+        return window.__qaOriginalAnimate.call(this,frames,next);
+      };
+    }""");page.wait_for_timeout(70)
+    start_count=p2_hand_count(page)
+    assert start_count>=4,start_count
+    page.evaluate('window.__GWENT_PASS10__.botMove()')
+    page.wait_for_timeout(80)
+    assert page.evaluate('window.GwentPresentationQueue.busy'),'first bot presentation did not become busy'
+    after_first=p2_hand_count(page)
+    assert after_first==start_count-1,(start_count,after_first)
+    frozen_bot_chain=fingerprint_p2(page)
+
+    # Current unfixed F1 mutates again at the legacy 220ms timer while this first
+    # bot presentation is still unresolved. This assertion is the adversarial repro.
+    page.wait_for_timeout(360)
+    assert page.evaluate('window.GwentPresentationQueue.busy'),'first bot presentation ended before F1 observation window'
+    assert fingerprint_p2(page)==frozen_bot_chain,'F1 reproduced: consecutive bot action mutated while prior bot presentation was still busy'
+
+    # Once presentation cleanup is truly idle, exactly one next bot action may be
+    # re-armed. It must not happen synchronously with cleanup.
+    page.wait_for_function('!window.GwentPresentationQueue.busy',timeout=7000)
+    idle_count=p2_hand_count(page)
+    assert idle_count==after_first,(idle_count,after_first)
+    page.wait_for_timeout(320)
+    second_count=p2_hand_count(page)
+    assert second_count==after_first-1,(after_first,second_count)
+    assert page.evaluate('window.GwentPresentationQueue.busy'),'second bot presentation did not become busy'
+    frozen_second=fingerprint_p2(page)
+    page.wait_for_timeout(320)
+    assert page.evaluate('window.GwentPresentationQueue.busy'),'second bot presentation ended too early'
+    assert fingerprint_p2(page)==frozen_second,'third bot action mutated during second bot presentation'
+
+    # Cancellation is a cleanup boundary too: no immediate mutation, followed by
+    # one deferred eligible bot action on the normal delay.
+    page.evaluate("window.GwentPresentationQueue.cancel('qa-bot-chain-interruption')");page.wait_for_timeout(45)
+    assert not page.evaluate('window.GwentPresentationQueue.busy')
+    cancel_count=p2_hand_count(page)
+    assert cancel_count==second_count,(cancel_count,second_count)
+    page.wait_for_timeout(320)
+    assert p2_hand_count(page)==second_count-1,'bot did not re-arm exactly once after bot-presentation cancellation cleanup'
+
+    page.evaluate("Element.prototype.animate=window.__qaOriginalAnimate")
     assert not errors,errors
     browser.close()
 
-print('presentation-turn-gate-ui: bot mutation blocked past legacy 220ms delay during presentation; completion and interruption both re-arm bot only after reconciliation')
+print('presentation-turn-gate-ui: player->bot and bot->bot mutation remain serialized behind presentation cleanup; completion and interruption re-arm one eligible opponent action')
