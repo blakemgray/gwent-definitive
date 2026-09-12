@@ -8,15 +8,15 @@
 **Default branch:** `main`  
 **Verified production main:** `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b` — run #145 / `34641027264` full verify + Pages deploy success  
 **Current branch / PR:** `pass-11-golden-match` / PR #11  
-**Latest exact green Pass 11 candidate head:** `351b234bee8627bccfdfb48bd7a0c77dc7cfacc3`  
-**Latest exact-head workflow:** run #216 / `34680311476` — FULL SUCCESS  
+**Latest exact green Pass 11 implementation head:** `e6ccde4ca191bcbf8062404bfbd97d6fbc0a6548`  
+**Latest exact-head workflow:** run #221 / `34681981459` — FULL SUCCESS  
 **Current milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
-**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B CLOSED / 11.2C ACTIVE**  
-**Current task:** **11.2C visual-acceptance correction — make the predictive Decoy target visibly emerge from behind the dragged card while keeping intent scoring on stable resting geometry**  
+**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B CLOSED / 11.2C CLOSED / 11.2D ACTIVE**  
+**Current task:** **11.2D continuity hardening / temporal proof — explicitly prove source → proxy → authoritative final-card identity continuity, invalid return, and interruption cleanup without duplicating 10.4B mechanic choreography**  
 **11.2 architecture contract:** `docs/PASS11_11_2_PHYSICAL_CARD_ARCHITECTURE.md` at commit `f6a754c8044b8a633234c48e21a8454683b2ea21`  
 **Pass 11 planning:** 100%  
-**Pass 11 implementation:** ~45%  
-**Formally verified/closed:** ~37%  
+**Pass 11 implementation:** ~48%  
+**Formally verified/closed:** ~43%  
 **Default model:** GPT-5.6 Sol · High  
 **Last updated:** 2026-09-12 America/New_York
 
@@ -28,7 +28,7 @@ Precedence: current user instruction → current repository/green CI → this fi
 
 Before every new implementation task or resumed cycle: read `CONTINUITY.md`, `FUTURE_CONTINUITY.md`, and `MODEL_ROUTING.md`; then write an actual checkpoint to this file before changing implementation code. Every work update includes completion percentage, model recommendation, escalation/return trigger, and an exact **Next action**.
 
-Never weaken/delete/bypass CI or QA merely to make a candidate green. GitHub is authoritative for source/branches/PRs/CI/artifacts and merge verification. Playwright/CI provides deterministic machine and temporal-browser proof. TinyFish is the independent live-product QA channel at meaningful checkpoints, not the primary repository interface. Merge only the latest exact fully-green head after manual visual evidence review. Real-device iPhone review remains required for final sensory/platform signoff.
+Never weaken/delete/bypass CI or QA merely to make a candidate green. GitHub is authoritative for source/branches/PRs/CI/artifacts and merge verification. Playwright/CI provides deterministic machine and temporal-browser proof. TinyFish is an independent live-product QA channel for coarse player-facing flows when it can navigate the product reliably; it is not a substitute for deterministic microinteraction QA and should not be repeatedly retried when the agent itself is misnavigating the UI. Precise drag/target/temporal interaction proof belongs to Playwright + telemetry + manually inspected artifacts. Real-device iPhone review remains required for final physical touch/audio/haptic/platform signoff. Merge only the latest exact fully-green head after manual visual evidence review.
 
 ---
 
@@ -68,7 +68,7 @@ Key files:
 - `src/gesture-controller.js` — canonical direct manipulation and 11.2B intent consumption.
 - `src/interaction-intent.js` — pure 11.2B forgiveness/ambiguity/trajectory resolver; no rules or DOM authority.
 - `src/battlefield-readability.js`, `physical-card.css` — 11.2A always-visible current power / readable identity presentation.
-- `src/target-exposure.js` — 11.2C presentation-only target lock/local neighbor yield; no rules or commit authority.
+- `src/target-exposure.js` — 11.2C presentation-only target exposure/local neighbor yield; no rules or commit authority.
 - `src/presentation-queue.js` — serialized cancellable presentation.
 - `src/presentation-events.js` — semantic before/after adapter.
 - `src/gameplay-choreography.js` — signature consequence choreography.
@@ -91,7 +91,7 @@ It is not accepted merely because the engine can technically reach `winner`.
 
 Minimum production bar also requires readable played cards/current power, predictive target clarity, ambiguity-aware forgiveness, continuous perceived card identity, actual player-facing audio, honest haptic capability semantics, and legible major-effect pacing while preserving frozen final geometry and engine authority.
 
-QA doctrine: **machine proof + temporal visual proof + live-browser proof + real-device proof**. Playwright artifacts and telemetry must be inspected on the latest exact candidate head; TinyFish independently operates the candidate/deployed player experience at meaningful checkpoints; real iPhone remains final authority for physical touch/audio/haptic/platform feel.
+QA doctrine: **machine proof + temporal visual proof + independent live-flow proof where tool-appropriate + real-device proof**. Use the strongest tool for the evidence type rather than forcing one browser agent onto every interaction. Playwright owns precise deterministic interaction/temporal proof; TinyFish independently operates coarse live player flows where reliable; real iPhone remains final authority for physical feel and platform-specific behavior.
 
 ---
 
@@ -115,65 +115,57 @@ Typed pending-choice routing, deterministic opponent choice, safe unsupported-ch
 
 Closure head `07b21e88c8958f5c55acc994b41d9fa073a2e227`; run #202 / `34665042268` full success. Node intent contract: **5,178 assertions across deterministic matrix + 2,500 randomized trials**. Preserved direct-manipulation, parity, failure recovery, 256-trial stress, WebKit/iPhone-targeted interaction, 10.4B signature/adversarial, and 10.4C feel gates all passed. Artifact `10289035781`, digest `sha256:14145a2eccb2024edc8dda10cc7f946df6f85fee845bc8cc1e942b26a74a9fa2`, manually approved.
 
----
+## 11.2C — predictive card-target exposure — CLOSED
 
-# 5. 11.2C — predictive card-target exposure — ACTIVE
+11.2C began with Decoy because it is the clearest ambiguous target family and live play exposed broad disruptive reflow when Decoy was selected.
 
-11.2C starts with Decoy because it is the clearest ambiguous target family and live play exposed broad disruptive reflow when Decoy was selected.
+Permanent behavior:
 
-Implemented candidate foundation at exact green head `351b234bee8627bccfdfb48bd7a0c77dc7cfacc3`:
+- target-specific legal units remain in 10.3 absolute resting geometry; selecting Decoy no longer broad-reflows the row;
+- `src/target-exposure.js` is presentation-only and consumes the existing controller/11.2B winner rather than choosing or committing actions;
+- locked Decoy targets are represented by a presentation-only actor keyed to the target `iid`, raised above the held Decoy while the authoritative resting source remains geometry-stable;
+- target actor preserves recognizable art and current power; normal actor scale is ~1.16× with ~7.2 px lift in the approved canonical evidence;
+- only immediate local neighbors yield, by a few pixels, and restore reversibly;
+- moving to another candidate transfers the actor cleanly; leaving/cancel/interruption restores exactly one resting representation;
+- reduced motion preserves unmistakable target identity without translation;
+- trajectory-only highlight demotes when the 120 ms velocity window expires and late release rejects with zero mutation;
+- intent geometry remains based on stable/resting candidate rectangles, not transient exposure transforms;
+- tap/keyboard/canonical `commitAction()` ownership remains unchanged.
 
-- `src/target-exposure.js` presentation-only target lock + immediate-neighbor yield;
-- `physical-card.css` predictive target/neighbor presentation;
-- target-specific legal units remain `position:absolute`, fixing the earlier broad Decoy row reflow caused by generic `.dm-legal-target { position:relative; }` overriding 10.3 absolute packing;
-- target exposure consumes the existing controller winner and does not choose/commit actions;
-- velocity-only target emphasis is re-evaluated after the 120 ms freshness window so visual state cannot outlive 11.2B intent truth;
-- reduced-motion path preserves target emphasis while suppressing neighbor displacement;
-- dedicated `tests/pass11_target_exposure_ui.py` + archived artifact gate added; PWA/service-worker/deploy wiring advanced to 11.2C.
+Closure implementation head: `e6ccde4ca191bcbf8062404bfbd97d6fbc0a6548`. Run #221 / `34681981459` — **FULL SUCCESS**. The strengthened 11.2C material-visibility gate passed together with frozen 10.3 geometry, Pass 11 setup/lifecycle, 11.2A/11.2B, direct manipulation/parity, bot gate, presentation-failure recovery, **256-trial physical interaction stress**, semantic landing, save/restore lifecycle, WebKit/iPhone-targeted interaction, 10.4B signature + adversarial choreography, and 10.4C feel.
 
-Exact machine proof on `351b234bee8627bccfdfb48bd7a0c77dc7cfacc3`:
+Approved exact-head artifact: `10294431189`, digest `sha256:01bd9604178e6931bc13a5d1e9b22b9c1f658adbc3d90211d64ca73ad970803a`. Manual review approved crowded Decoy target lock, target transfer, leave/restore, reduced-motion target identity, and trajectory-highlight expiry. The intended card visibly emerges above the dragged Decoy while the Decoy remains perceptible beneath it; no broad row repacking is visible.
 
-- run #216 / `34680311476` — **FULL SUCCESS**;
-- Node/engine/PWA contracts all success;
-- 10.3 geometry success;
-- Pass 11 setup/lifecycle success;
-- 11.2A readability success;
-- 11.2B intent success;
-- new **11.2C predictive card-target exposure/local-yield gate success**;
-- preserved direct manipulation/parity/bot gate/failure recovery/**256-trial stress**/semantic landing/save-restore/WebKit success;
-- 10.4B signature + adversarial success;
-- 10.4C feel success.
-
-Exact-head 11.2C artifact: `10293703549`, digest `sha256:e0e4fb74beddbb7dd5fed77080acdbc25411b643e46ff03d5597d8209e32c0e6`.
-
-**Manual visual acceptance result: NOT YET APPROVED.** The artifact proves broad Decoy reflow is gone, candidate transfer/local neighbor behavior is deterministic, leave/cancel/reduced-motion cleanup is correct, and trajectory highlight expiry is truthful. However, the dragged Decoy still visually occludes too much of the locked target card. The target is technically selected but does not yet satisfy the stronger product requirement that the intended unit visibly emerge/raise so its identity and current power are unmistakable before release.
-
-Therefore 11.2C remains ACTIVE despite a full-green exact head. Do not spend TinyFish on this known-deficient candidate; TinyFish comes after the corrected exact head is internally green and its temporal artifact passes manual visual review.
-
-### 11.2C locked correction requirements
-
-- engine/controller legal actions remain the only source of candidate targets;
-- 11.2B remains the only intent scorer; 11.2C is presentation only;
-- intent scoring must use stable/resting candidate geometry rather than geometry displaced by transient target-exposure transforms;
-- the locked Decoy target must visibly emerge around/above the held card enough that artwork/current power/identity are recognizable before release;
-- only immediate local neighbors may yield; no broad row repacking/reflow;
-- transforms are transient/reversible and must not change 10.3 `left/top/width/height` resting authority;
-- moving away/losing confidence/ambiguity/cancel/interruption/reduced motion restores untouched resting geometry;
-- reduced motion must still make the exact target unmistakable without requiring animated displacement;
-- target visual state must not outlive current valid predictive intent;
-- tap/keyboard semantics and canonical `commitAction()` ownership remain unchanged;
-- corrected QA must assert **material target visibility/exposure**, not merely class presence or neighbor movement;
-- after exact-head full CI and manual artifact approval, run an independent TinyFish live-product QA check before closing 11.2C.
-
-Model routing: **GPT-5.6 Sol · High**. Escalate to Astra Medium only if making the target visibly emerge cannot be separated from authoritative intent geometry or otherwise forces a frozen-authority conflict.
-
-**Exact next action:** implement target emergence from stable resting rectangles, add a deterministic visual/geometry assertion that the target remains materially visible around the dragged Decoy, rerun the complete exact-head workflow, manually inspect replacement temporal evidence, then use TinyFish for independent live-product QA if and only if the artifact is clean.
+TinyFish evidence for this slice is **inconclusive, not failed product evidence**. Exact-candidate runs `e1c776d7-0689-4b63-8828-2468470e6297` and `1217f8b0-e9e4-436d-b96d-02f86ac4bb07` both reached Quick Start/mulligan but repeatedly navigated into the pause/settings/developer-controls surface instead of holding the battlefield interaction. The first timed out; the second was cancelled. Because the agent itself could not reliably remain on the required surface, these runs do not override deterministic Playwright/temporal evidence and should not be repeatedly retried for this precise drag microinteraction. Revisit TinyFish at a later coarse end-to-end checkpoint or on deployed UI where its navigation is appropriate.
 
 ---
 
-# 6. Remaining 11.2 and broader roadmap
+# 5. 11.2D — continuity hardening / temporal proof — ACTIVE
 
-**11.2D — continuity hardening / temporal proof** remains next after 11.2C closure: explicit proxy presentation identity metadata, source/proxy/final continuity evidence, ordinary placement + invalid return + interruption proof, and observation around Decoy/Medic without duplicating 10.4B ownership.
+Goal: make perceived card identity continuity explicit and measurable without creating a global rules-bearing actor system or duplicating 10.4B mechanic choreography.
+
+Locked 11.2D requirements from the architecture contract:
+
+- add explicit presentation identity metadata to the existing source/proxy/final-card handoff;
+- prove ordinary hand → drag/tap proxy → authoritative final board element maintains one continuous perceived `iid` identity;
+- record source/proxy/final visibility and rectangles through pickup, commit, flight, settlement, invalid return, and interruption;
+- no frame should contain zero visible representation of the relevant `iid` during ordinary placement;
+- no frame should show two equally authoritative visible identities for the same `iid`;
+- proxy-to-final handoff must survive cancellation/interruption and reconcile to exactly one authoritative DOM representation in the engine-authoritative zone;
+- visual failure cannot roll back, repeat, or duplicate an already committed engine action;
+- observe Decoy/Medic continuity where useful, but do not duplicate or replace 10.4B mechanic choreography ownership;
+- preserve frozen 10.3 resting geometry and the single canonical action path;
+- generated temporal evidence must be manually inspected on the latest exact candidate head.
+
+Model routing: **GPT-5.6 Sol · High**. Escalate to Astra Medium only if explicit identity continuity cannot be proven using the existing source/proxy/final handoff without introducing a competing state owner.
+
+**Exact next action:** reconstruct the existing source-placeholder/proxy/final-element lifecycle in `src/gesture-controller.js`, `src/battlefield-ux.js`, and presentation cleanup paths; define the minimum observation-only identity telemetry and temporal acceptance matrix; then checkpoint the implementation contract before changing runtime code.
+
+---
+
+# 6. Remaining Pass 11 / broader roadmap
+
+After 11.2D, continue the Pass 11 contract rather than inventing new major pass numbers. Remaining Golden Match work still includes final audio-path verification/correction, honest haptic semantics/device proof, consequence pacing where required, complete normal-match end-to-end acceptance, and final pre-merge/adversarial review.
 
 After Pass 11, exact pass numbers remain intentionally unlocked. Established work includes full deck/collection access, full faction/leader playability, final AI ladder Novice→Standard→Veteran→Master→Grandmaster with `AIKnowledgeState != GameState`, mature persistence/replay/history, modular assists/cheats/sandbox, complete UX shell, richer physical-card ecology, dedicated audiovisual identity, PWA/iPhone productization/native-wrapper option where platform ceilings justify it, controlled local asset pipeline, and exhaustive all-card/all-faction parity.
 
@@ -181,6 +173,6 @@ GitHub remains canonical for active development. Reference Drive: `Gwent Classic
 
 > **Rules correctness first → interaction correctness → readable gameplay choreography → premium physical feel → complete normal match → complete access → smarter AI → product maturity.**
 
-**Current Pass 11:** planning 100%; implementation ~45%; formally verified/closed ~37%.  
-**Current phase:** 11.2C predictive card-target exposure visual-acceptance correction.  
-**Next action:** expose the locked Decoy target more clearly without feeding transient transforms back into intent geometry; then full exact-head CI → manual visual review → TinyFish live-product QA.
+**Current Pass 11:** planning 100%; implementation ~48%; formally verified/closed ~43%.  
+**Current phase:** 11.2D continuity hardening / temporal proof.  
+**Next action:** reconstruct and instrument the existing source/proxy/final `iid` lifecycle before changing any action or geometry authority.
