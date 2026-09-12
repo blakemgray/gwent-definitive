@@ -1,0 +1,27 @@
+'use strict';
+const fs=require('fs'),path=require('path'),assert=require('assert');
+const ROOT=path.resolve(__dirname,'..');
+const Platform=require('../src/platform-feedback.js');
+const platformSrc=fs.readFileSync(path.join(ROOT,'src/platform-feedback.js'),'utf8');
+const feedbackSrc=fs.readFileSync(path.join(ROOT,'src/presentation-feedback.js'),'utf8');
+const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
+const sw=fs.readFileSync(path.join(ROOT,'sw.js'),'utf8');
+let n=0;const ok=(v,m)=>{assert.ok(v,m);n++;},eq=(a,b,m)=>{assert.deepStrictEqual(a,b,m);n++;};
+
+eq(Platform.version,'11.audio.0','platform feedback version');
+ok(/AudioContext|webkitAudioContext/.test(platformSrc),'real Web Audio output path exists');
+ok(/gwent:audio-hook/.test(platformSrc)&&/gwent:audio-status/.test(platformSrc),'semantic audio has real consumer + status telemetry');
+ok(/pointerdown/.test(platformSrc)&&/touchstart/.test(platformSrc)&&/keydown/.test(platformSrc),'trusted user-activation unlock paths exist');
+ok(/visibilitychange/.test(platformSrc)&&/pageshow/.test(platformSrc),'PWA lifecycle resume paths exist');
+ok(/interrupted|context\.state/.test(platformSrc),'context state is observed for iOS/WebKit recovery');
+for(const cue of ['UI_CARD_SELECT','VALID_DESTINATION','CARD_COMMIT_CLOSE','SCORCH_TRIGGER','WEATHER_FROST','HORN_TRIGGER','MEDIC_TRIGGER','DECOY_TRIGGER','ROUND_WIN','GAME_WIN'])ok(platformSrc.includes(`case '${cue}'`),`missing synthesized cue ${cue}`);
+ok(/audioRequests/.test(platformSrc)&&/audioPlayed/.test(platformSrc)&&/audioQueued/.test(platformSrc)&&/audioBlocked/.test(platformSrc)&&/audioFailures/.test(platformSrc),'playback outcome diagnostics exist');
+ok(!/gwent-engine|legalActions|playAction\(/i.test(platformSrc),'platform output cannot own rules/actions');
+ok(/gwent:haptic-status/.test(feedbackSrc),'haptic outcome telemetry exists');
+ok(/hapticUnsupported/.test(feedbackSrc)&&/hapticSuccesses/.test(feedbackSrc)&&/hapticFailures/.test(feedbackSrc),'haptic outcomes distinguish unsupported/success/failure');
+ok(/Unavailable in this browser/.test(feedbackSrc),'unsupported haptics are stated honestly in settings');
+ok(html.includes('src/platform-feedback.js'),'platform feedback runtime explicitly loaded');
+ok(html.indexOf('src/platform-feedback.js')>html.indexOf('src/presentation-feedback.js'),'platform output loads after semantic feedback adapter');
+ok(sw.includes("const BUILD='11.audio.0'"),'PWA cache build advanced to audio platform truth slice');
+ok(sw.includes('./src/platform-feedback.js'),'platform output is precached');
+console.log(`platform-feedback-contract: ${n} assertions passed`);
