@@ -99,7 +99,12 @@
     final.style.visibility='hidden';
     guarded.set(iid,final);
     sample('final-guarded',iid);
-    if(Queue.busy)Queue.registerCleanup(()=>releaseGuard(iid,'queue-cleanup'));
+    // PresentationQueue executes registered cleanups in insertion order. The
+    // continuity guard is registered before the controller's proxy cleanup, so
+    // revealing synchronously here would briefly expose final + proxy together
+    // during cancellation. Defer release to the microtask checkpoint after all
+    // queue cleanups have run; the engine state remains authoritative throughout.
+    if(Queue.busy)Queue.registerCleanup(()=>Promise.resolve().then(()=>releaseGuard(iid,'queue-cleanup')));
   }
   function releaseGuard(iid,reason='released'){
     const final=guarded.get(iid);
