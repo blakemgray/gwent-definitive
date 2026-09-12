@@ -9,7 +9,7 @@ assert(fs.existsSync(path.join(root,'icons/apple-touch-icon.png')),'Apple touch 
 const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
 const precache=[...sw.matchAll(/'\.\/([^']*)'/g)].map(m=>m[1]).filter(Boolean);
 for(const rel of precache){if(rel==='')continue;assert(fs.existsSync(path.join(root,rel)),`service worker precache target missing: ${rel}`);}
-assert(sw.includes("const BUILD='11.2A.0'"),'cache build version not pinned to Pass 11.2A');
+assert(sw.includes("const BUILD='11.2B.0'"),'cache build version not pinned to Pass 11.2B');
 assert(sw.includes('raw.githubusercontent.com'),'card-art runtime caching missing');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert(html.includes('apple-touch-icon'),'apple-touch-icon link missing');
@@ -31,10 +31,14 @@ for(const rel of ['physical-card.css','src/battlefield-readability.js']){
   assert(html.includes(rel),`Pass 11.2A readability runtime not explicitly loaded: ${rel}`);
   assert(sw.includes(rel),`Pass 11.2A readability runtime not precached: ${rel}`);
 }
-const eventsIdx=html.indexOf('src/presentation-events.js'),choreoIdx=html.indexOf('src/gameplay-choreography.js'),gestureIdx=html.indexOf('src/gesture-controller.js'),externalIdx=html.indexOf('src/choreography-external-gate.js'),feedbackIdx=html.indexOf('src/presentation-feedback.js');
-assert(eventsIdx>=0&&choreoIdx>eventsIdx&&gestureIdx>choreoIdx&&externalIdx>gestureIdx&&feedbackIdx>externalIdx,'10.4B/10.4C runtime load order must be explicit and deterministic');
+for(const rel of ['src/interaction-intent.js']){
+  assert(html.includes(rel),`Pass 11.2B intent runtime not explicitly loaded: ${rel}`);
+  assert(sw.includes(rel),`Pass 11.2B intent runtime not precached: ${rel}`);
+}
+const eventsIdx=html.indexOf('src/presentation-events.js'),choreoIdx=html.indexOf('src/gameplay-choreography.js'),intentIdx=html.indexOf('src/interaction-intent.js'),gestureIdx=html.indexOf('src/gesture-controller.js'),externalIdx=html.indexOf('src/choreography-external-gate.js'),feedbackIdx=html.indexOf('src/presentation-feedback.js');
+assert(eventsIdx>=0&&choreoIdx>eventsIdx&&intentIdx>choreoIdx&&gestureIdx>intentIdx&&externalIdx>gestureIdx&&feedbackIdx>externalIdx,'10.4B/11.2B/10.4C runtime load order must be explicit and deterministic');
 const battlefieldIdx=html.indexOf('src/battlefield-ux.js'),readabilityIdx=html.indexOf('src/battlefield-readability.js'),motionIdx=html.indexOf('src/motion-tokens.js');
 assert(battlefieldIdx>=0&&readabilityIdx>battlefieldIdx&&motionIdx>readabilityIdx,'11.2A readability must load after battlefield rendering and before interaction presentation stack');
 const choreoCss=html.indexOf('gameplay-choreography.css'),feelCss=html.indexOf('feel-polish.css'),physicalCss=html.indexOf('physical-card.css');
 assert(choreoCss>=0&&feelCss>choreoCss&&physicalCss>feelCss,'11.2A physical-card presentation overrides must load after 10.4C feel CSS');
-console.log(`pwa-validation: ${precache.length} precache paths valid with explicit Pass 11.2A readability runtime`);
+console.log(`pwa-validation: ${precache.length} precache paths valid with explicit Pass 11.2B intent runtime`);
