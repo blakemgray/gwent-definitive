@@ -32,10 +32,14 @@
   box-shadow:0 1px 4px rgba(0,0,0,.58),0 0 0 1px rgba(124,171,199,.18),inset 0 1px 0 rgba(255,255,255,.55);
 }
 
+/* Real-device acceptance found that cover-cropping removed the left/right card
+   frame on every battlefield row. Keep the frozen 10.3 slot geometry, but fit
+   the complete card face inside it so placed cards retain full visual identity. */
 #match-screen .unit[data-inspect-board] img{
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:contain;
+  object-position:center;
   display:block;
 }
 
@@ -83,7 +87,8 @@
 .te-target-actor img{
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:contain;
+  object-position:center;
   display:block;
   border-radius:inherit;
   pointer-events:none;
