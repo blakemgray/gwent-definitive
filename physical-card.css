@@ -1,0 +1,50 @@
+/* Pass 11.2A — Battlefield readability semantics.
+   Presentation only. Pass 10.3 continues to own final card packing and geometry. */
+
+#match-screen .unit[data-inspect-board] .u-score{
+  position:absolute;
+  left:1px;
+  top:1px;
+  z-index:6;
+  width:16px;
+  height:16px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  border:1px solid rgba(16,13,9,.68);
+  background:rgba(244,235,211,.97);
+  color:#100f0d;
+  font:800 9px/1 Georgia,"Times New Roman",serif;
+  text-shadow:none;
+  box-shadow:0 1px 4px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.58);
+  pointer-events:none;
+}
+
+#match-screen .unit[data-power-direction="up"] .u-score{
+  background:rgba(235,208,141,.98);
+  border-color:rgba(91,61,24,.82);
+  box-shadow:0 1px 4px rgba(0,0,0,.58),0 0 0 1px rgba(229,188,94,.20),inset 0 1px 0 rgba(255,247,215,.54);
+}
+
+#match-screen .unit[data-power-direction="down"] .u-score{
+  background:rgba(205,224,235,.98);
+  border-color:rgba(44,69,86,.82);
+  box-shadow:0 1px 4px rgba(0,0,0,.58),0 0 0 1px rgba(124,171,199,.18),inset 0 1px 0 rgba(255,255,255,.55);
+}
+
+#match-screen .unit[data-inspect-board] img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+#match-screen .unit[data-inspect-board]:focus-visible .u-score,
+#match-screen .unit[data-inspect-board]:hover .u-score,
+#match-screen .unit[data-inspect-board].dm-active-target .u-score{
+  transform:scale(1.04);
+}
+
+@media (prefers-reduced-motion: reduce){
+  #match-screen .unit[data-inspect-board] .u-score{transition:none!important}
+}
