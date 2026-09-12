@@ -8,15 +8,15 @@
 **Default branch:** `main`  
 **Verified production main:** `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b` — run #145 / `34641027264` full verify + Pages deploy success  
 **Current branch / PR:** `pass-11-golden-match` / PR #11  
-**Latest verified Pass 11 implementation head:** `d2fb0c3740a7cad0924c4bae44f11fc609fd2cc8`  
-**Latest exact-head workflow:** run #175 / `34654254329` — FULL SUCCESS  
+**Latest verified Pass 11 implementation head:** `2865c8d520c0e961a594918672c3121c31b5b524`  
+**Latest exact-head workflow:** run #187 / `34662963707` — FULL SUCCESS  
 **Current milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
-**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A ACTIVE**  
-**Current task:** **11.2A battlefield readability semantics — always-visible effective power + accessible identity, no geometry change**  
+**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B ACTIVE**  
+**Current task:** **11.2B pure intent resolver — geometry-relative forgiveness + ambiguity-safe candidate scoring with no rules authority**  
 **11.2 architecture contract:** `docs/PASS11_11_2_PHYSICAL_CARD_ARCHITECTURE.md` at commit `f6a754c8044b8a633234c48e21a8454683b2ea21`  
 **Pass 11 planning:** 100%  
-**Pass 11 implementation:** ~30%  
-**Formally verified/closed:** ~26%  
+**Pass 11 implementation:** ~34%  
+**Formally verified/closed:** ~31%  
 **Default model:** GPT-5.6 Sol · High  
 **Last updated:** 2026-09-11 America/New_York
 
@@ -145,16 +145,29 @@ The locked design preserves four authorities/layers:
 
 11.2 implementation slices are locked as:
 
-- **11.2A — battlefield readability semantics:** always render current effective power, semantic/accessibility metadata, density QA; no geometry change.
-- **11.2B — pure intent resolver:** geometry-relative forgiveness/ambiguity/trajectory matrix integrated into existing controller.
+- **11.2A — battlefield readability semantics — CLOSED:** always render current effective power, semantic/accessibility metadata, density QA; no geometry change.
+- **11.2B — pure intent resolver — ACTIVE:** geometry-relative forgiveness/ambiguity/trajectory matrix integrated into existing controller.
 - **11.2C — predictive card-target exposure:** precise Decoy target lock + local reversible neighbor yield.
 - **11.2D — continuity hardening / temporal proof:** explicit proxy identity metadata and source/proxy/final continuity evidence.
 
-Current task is **11.2A**. Do not begin 11.2B until 11.2A is exact-head green and its generated visual evidence is reviewed.
+## 11.2A closure evidence
 
-Model routing: GPT-5.6 Sol · High. Astra Medium is only justified if implementation evidence shows continuous identity + live geometry + ambiguity safety cannot coexist without violating a frozen authority.
+Implemented as an additive presentation layer (`src/battlefield-readability.js` + `physical-card.css`) with dedicated Playwright coverage and explicit PWA/CI/deploy wiring. It does not own rules, card packing, or final geometry.
 
-**Exact next action:** modify only the board-unit rendering/presentation semantics needed for always-visible effective power and accessible current-power identity, add a dedicated density/readability browser gate, wire it into CI, and run targeted then full exact-head verification without changing final Pass 10.3 geometry.
+Exact closure proof on `2865c8d520c0e961a594918672c3121c31b5b524`:
+
+- run #187 / `34662963707` — full workflow success;
+- new Pass 11.2A battlefield readability/current-power gate success;
+- all preserved setup/lifecycle/10.3/10.4A/10.4B/10.4C/WebKit/stress gates success;
+- readability artifact `10287892839`, digest `sha256:17bd23ee5a6dc6ea739aa2ca65e8a024642c74b6e5ece25af77622661da73772`, manually approved.
+
+Visual review confirmed 1/2/4/8/12-card rows preserve centered/no-cutoff resting geometry while every played unit exposes current effective power and retains card art. The weather proof correctly changes a 6-power close unit to displayed power 1 and row score 1. Dense 12-card rows remain intentionally compact at rest; temporary interaction exposure belongs to 11.2C rather than altering frozen resting geometry.
+
+Current task is **11.2B**. It must remain a deterministic pure scoring/resolution layer over the legal destinations already supplied by the engine/controller. It may consider pointer position, release velocity/trajectory, live destination geometry, target family, and ambiguity, but it may not invent legality, mutate state, or bypass the existing `commitAction()` path.
+
+Model routing: GPT-5.6 Sol · High. Astra Medium is only justified if deterministic ambiguity-safe intent cannot be expressed cleanly without violating frozen action/geometry authority.
+
+**Exact next action:** implement and fuzz-test a pure intent resolver first, covering precision zone, forgiveness zone, unambiguous overshoot/trajectory support, ambiguous target rejection, and invalid return. Only after the resolver contract is green should `src/gesture-controller.js` consume its result on drag release.
 
 ---
 
@@ -166,6 +179,6 @@ GitHub remains canonical for active development. Reference Drive: `Gwent Classic
 
 > **Rules correctness first → interaction correctness → readable gameplay choreography → premium physical feel → complete normal match → complete access → smarter AI → product maturity.**
 
-**Current Pass 11:** planning 100%; implementation ~30%; formally verified/closed ~26%.  
-**Current phase:** 11.2A battlefield readability semantics.  
-**Next action:** implement always-visible effective power/accessibility semantics + dedicated density QA with no final geometry change.
+**Current Pass 11:** planning 100%; implementation ~34%; formally verified/closed ~31%.  
+**Current phase:** 11.2B pure intent resolver.  
+**Next action:** implement the pure resolver + deterministic/fuzz coverage before integrating release behavior into the existing controller.
