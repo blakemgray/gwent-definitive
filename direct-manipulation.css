@@ -87,11 +87,18 @@ body.dm-dragging #match-screen .state-toast{
 
 /* Legal intent is shape + text + luminance, never color alone. */
 #match-screen .dm-legal-target{
-  position:relative;
   outline:1px dashed rgba(233,204,151,.62);
   outline-offset:-2px;
   box-shadow:inset 0 0 0 1px rgba(238,208,154,.08),inset 0 0 18px rgba(196,145,77,.07);
 }
+/* Pseudo-labels need a containing block, but board units must retain the
+   absolute positioning owned by Pass 10.3. Applying position:relative to every
+   legal target was the source of the old broad Decoy row reflow. */
+#match-screen .lane.dm-legal-target,
+#match-screen .special-slot-wrap.dm-legal-target,
+#match-screen .weather.dm-legal-target{position:relative;}
+#match-screen .unit.dm-legal-target{position:absolute;}
+
 #match-screen .dm-legal-target::after{
   content:"◇ " attr(data-dm-label);
   position:absolute;
