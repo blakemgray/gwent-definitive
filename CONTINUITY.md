@@ -10,9 +10,10 @@
 **Current branch / PR:** `pass-11-golden-match` / PR #11  
 **Latest exact green Pass 11 implementation head:** `7e0c95ff3d77092853c89788271a3c69b00a324f`  
 **Latest exact-head implementation workflow:** run #234 / `34685457343` — FULL SUCCESS  
+**Current branch head before this checkpoint:** `9c9ca00f8f8a3adcbc59883ab638a8fc91088069` — 11.2D closure continuity only  
 **Current milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
-**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B CLOSED / 11.2C CLOSED / 11.2D CLOSED**  
-**Current task:** **checkpoint before next Pass 11 area; next planned work is player-facing audio/haptic/platform-truth audit, then remaining consequence pacing and complete Golden Match end-to-end acceptance**  
+**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B CLOSED / 11.2C CLOSED / 11.2D CLOSED / AUDIO-HAPTIC-PWA PLATFORM-TRUTH AUDIT ACTIVE**  
+**Current task:** **trace the real player-facing audio and haptic path end-to-end before changing behavior: defaults/persistence → user-gesture unlock → asset/context creation → semantic cue request → playback/haptic attempt → success/failure/capability diagnostics → background/resume/relaunch**  
 **11.2 architecture contract:** `docs/PASS11_11_2_PHYSICAL_CARD_ARCHITECTURE.md` at commit `f6a754c8044b8a633234c48e21a8454683b2ea21`  
 **Pass 11 planning:** 100%  
 **Pass 11 implementation:** ~57%  
@@ -163,9 +164,31 @@ Manual artifact review covered the full 10-frame temporal sequence plus `continu
 
 ---
 
-# 5. Remaining Pass 11 / broader roadmap
+# 5. Pass 11 audio / haptic / PWA platform-truth audit — ACTIVE
 
-The next Pass 11 work area is the **player-facing audio / haptic / PWA platform-truth audit**. The user previously reported no audible sound at all in the installed iPhone PWA, so semantic cue emission alone is not sufficient. The next cycle must first update this continuity file, then trace and test actual defaults, volume/mute persistence, user-gesture unlock, asset loading/decoding, playback success/failure, background/resume/relaunch behavior, and honest haptic capability semantics. Automated/browser evidence should verify requests/status/capability handling; actual iPhone output and tactile quality remain real-device signoff items.
+This work cycle begins from closed 11.2D evidence, before any audio/haptic behavior change.
+
+Known player evidence: an installed iPhone PWA session previously produced **no audible sound at all**. Existing semantic audio/haptic hooks are therefore not accepted as proof of player-facing output.
+
+Audit first; implementation only after evidence identifies the actual gap. Trace and test:
+
+- effects mute/default state and persisted volume/mute restoration;
+- user-gesture audio unlock and AudioContext/media lifecycle state;
+- whether any real audio assets/buffers or synthesized sound path actually exists and is reachable;
+- semantic cue request → playback attempt → success/failure/rejection diagnostics;
+- iOS/WebKit autoplay/user-activation constraints;
+- installed-PWA background → resume and full relaunch behavior;
+- whether haptic calls are genuinely supported by the browser/PWA rather than merely capability-assumed;
+- duplicate suppression/timing of pickup, target acquire, settle, reject, and major-effect haptic requests;
+- explicit platform-ceiling reporting when web iPhone cannot deliver the desired tactile vocabulary.
+
+Automated/browser evidence may prove request flow, state, errors, and capability handling. It **cannot** prove that a human hears or feels output on the actual iPhone. Real-device validation remains mandatory before Pass 11 sensory signoff.
+
+**Exact next action:** inspect `src/presentation-feedback.js`, settings persistence/UI, PWA lifecycle wiring, runtime asset graph, and existing 10.4C audio/haptic tests to reconstruct the actual current path before deciding what must change.
+
+---
+
+# 6. Remaining Pass 11 / broader roadmap
 
 After audio/haptic truth, remaining Golden Match work includes consequence pacing where still needed, complete normal-match end-to-end acceptance, real-device sensory signoff, adversarial integration review, final exact-head CI/artifact review, and merge/deploy verification.
 
@@ -176,5 +199,5 @@ GitHub remains canonical for active development. Reference Drive: `Gwent Classic
 > **Rules correctness first → interaction correctness → readable gameplay choreography → premium physical feel → complete normal match → complete access → smarter AI → product maturity.**
 
 **Current Pass 11:** planning 100%; implementation ~57%; formally verified/closed ~50%.  
-**Current phase:** 11.2D closed; awaiting next user-triggered work cycle.  
-**Next action:** on the next user trigger, refresh repository state and update `CONTINUITY.md` first, then begin the evidence-driven player-facing audio/haptic/PWA platform-truth audit before changing implementation.
+**Current phase:** audio / haptic / PWA platform-truth audit active; no behavior change yet in this cycle.  
+**Next action:** reconstruct the real current audio/haptic path from source/tests/PWA lifecycle evidence, then implement only the gaps demonstrated by that audit.
