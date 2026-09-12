@@ -26,7 +26,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Engine, fuzz, PWA, motion, direct-manipulation, choreography, feel, and platform-feedback validation
+      - name: Engine, fuzz, PWA, motion, direct-manipulation, choreography, feel, platform-feedback, and Golden Match validation
         run: npm test
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -74,6 +74,10 @@ jobs:
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
         run: python tests/pass11_platform_feedback_ui.py
+      - name: Pass 11 complete Golden Match start-to-result and rematch gate
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+        run: python tests/pass11_golden_match_ui.py
       - name: Direct manipulation baseline, overlap, parity, interruption, reduced-motion, and touch gate
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
@@ -172,6 +176,14 @@ jobs:
         with:
           name: pass11-platform-feedback-qa
           path: qa/pass11_platform_feedback
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Archive Pass 11 Golden Match end-to-end QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass11-golden-match-e2e-qa
+          path: qa/pass11_golden_match
           if-no-files-found: warn
           retention-days: 30
       - name: Archive Pass 10.3 battlefield visual QA
