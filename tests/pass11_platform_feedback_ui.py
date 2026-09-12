@@ -102,6 +102,7 @@ with sync_playwright() as p:
         hs=page.evaluate('window.__hapticStatuses')
         assert hs and hs[-1]['reason']=='unsupported' and not hs[-1]['success'],hs
         assert feedback_stats(page)['hapticUnsupported']>=1,feedback_stats(page)
+    haptic.scroll_into_view_if_needed();page.wait_for_timeout(25)
     page.screenshot(path=str(QA/'01_platform_feedback_settings.png'))
 
     # Separate browser page with a capability stub proves one supported vibration request is attempted once.
