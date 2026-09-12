@@ -147,7 +147,7 @@ with sync_playwright() as p:
     x=deepcopy(valid);del x['state']['players']['p1']['board']['close'];malformed.append(('missing-zone',x))
     x=deepcopy(valid);x['state']['currentPlayerId']='p3';malformed.append(('bad-current-player',x))
     x=deepcopy(valid);x['state']['players']['p1']['grave'].append({'iid':'qa-unknown','cardId':'not_a_real_card'});malformed.append(('unknown-card',x))
-    x=deepcopy(valid);dup=x['state']['players']['p1']['board']['close'][0];x['state']['players']['p1']['grave'].append(deepcopy(dup));malformed.append(('duplicate-iid',x))
+    x=deepcopy(valid);dup={'iid':'qa-duplicate','cardId':'realms_redania'};x['state']['players']['p1']['grave'].append(deepcopy(dup));x['state']['players']['p2']['grave'].append(deepcopy(dup));malformed.append(('duplicate-iid',x))
     x=deepcopy(valid);x['state']['pendingChoice']={'type':'medic','playerId':'p1','candidateIids':['missing-iid']};malformed.append(('bad-pending-choice',x))
     x=deepcopy(valid);x['format']='future-save-format';malformed.append(('unsupported-format',x))
     x=deepcopy(valid);x.pop('format',None);x['build']='incompatible';malformed.append(('unsupported-legacy-build',x))
