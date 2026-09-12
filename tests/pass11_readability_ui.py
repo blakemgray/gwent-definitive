@@ -43,6 +43,26 @@ def set_readability_state(page,count,weather=False):
     page.wait_for_timeout(100)
 
 
+def set_all_rows_card_fit_state(page):
+    page.evaluate("""()=>{
+      const api=window.__GWENT_PASS10__, G=api.engine, s=api.getState();
+      for(const pid of ['p1','p2']){
+        const p=s.players[pid];
+        const pool=[...p.hand,...p.deck,...p.grave,...p.board.close,...p.board.ranged,...p.board.siege];
+        const source=pool.find(inst=>G.CARD_DB[inst.cardId]?.type==='unit');
+        if(!source)throw new Error(`No ${pid} unit available for battlefield card-fit QA`);
+        for(const row of G.ROWS){
+          p.board[row]=[{...source,iid:`qa-fit-${pid}-${row}`}];
+        }
+      }
+      s.weather={close:false,ranged:false,siege:false};
+      api.setStateForQA(s);
+      window.GwentBattlefieldUX?.reconcile?.();
+      window.GwentBattlefieldReadability?.refresh?.();
+    }""")
+    page.wait_for_timeout(120)
+
+
 def expected_power(page,iid):
     return page.evaluate("""iid=>{
       const api=window.__GWENT_PASS10__,G=api.engine,s=api.getState();
@@ -94,6 +114,28 @@ with sync_playwright() as p:
     assert card.locator('.u-score.modified-power').count()==1
     page.screenshot(path=str(QA/'07_weather_modified_power.png'))
 
+    # Real-device regression: every placed card, on both sides and all rows,
+    # must preserve the full card face instead of cover-cropping its left/right edges.
+    # Geometry stays owned by Pass 10.3; this only locks the image fitting behavior.
+    set_all_rows_card_fit_state(page)
+    fit_cards=page.locator('#match-screen .lane .unit[data-inspect-board]')
+    assert fit_cards.count()==6, fit_cards.count()
+    for pid in ('p1','p2'):
+        for row in ('close','ranged','siege'):
+            card=page.locator(f'#match-screen .lane[data-pid="{pid}"][data-row="{row}"] .unit[data-inspect-board]').first
+            assert card.count()==1,(pid,row)
+            img=card.locator('img')
+            assert img.count()==1,(pid,row)
+            fit=img.evaluate("el=>getComputedStyle(el).objectFit")
+            pos=img.evaluate("el=>getComputedStyle(el).objectPosition")
+            natural=img.evaluate("el=>({w:el.naturalWidth,h:el.naturalHeight,complete:el.complete})")
+            rect=card.bounding_box();assert rect
+            assert fit=='contain',(pid,row,fit)
+            assert pos in ('50% 50%','center'),(pid,row,pos)
+            assert natural['complete'] and natural['w']>0 and natural['h']>0,(pid,row,natural)
+            assert abs((rect['width']/rect['height'])-0.696)<0.03,(pid,row,rect)
+    page.screenshot(path=str(QA/'08_full_card_face_all_rows_both_sides.png'))
+
     # Existing 10.3 geometry remains the final authority; the readability layer
     # must not write inline final-slot geometry.
     geometry_writes=page.evaluate("""()=>[...document.querySelectorAll('#match-screen .unit[data-inspect-board]')].some(el=>el.style.getPropertyValue('--readability-left')||el.style.getPropertyValue('--readability-top'))""")
@@ -101,4 +143,4 @@ with sync_playwright() as p:
     assert not errors,errors
     browser.close()
 
-print('pass11-readability-ui: always-visible effective power and accessible battlefield identity passed')
+print('pass11-readability-ui: power/readability plus full battlefield card-face fitting passed')
