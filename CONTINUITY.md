@@ -9,13 +9,14 @@
 **Verified production main:** `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b` — run #145 / `34641027264` full verify + Pages deploy success  
 **Current branch / PR:** `pass-11-golden-match` / PR #11  
 **Latest exact green Pass 11 implementation head:** `e6ccde4ca191bcbf8062404bfbd97d6fbc0a6548`  
-**Latest exact-head workflow:** run #221 / `34681981459` — FULL SUCCESS  
+**Latest candidate head tested:** `36f2f5fa5d23b550bfd224d5b0f1b4aadbdd9acf`  
+**Latest exact-head workflow:** run #231 / `34684584267` — FAILED at 11.2D continuity gate; all earlier Pass 11 gates through 11.2C passed  
 **Current milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
 **Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B CLOSED / 11.2C CLOSED / 11.2D ACTIVE**  
-**Current task:** **11.2D continuity hardening / temporal proof — explicitly prove source → proxy → authoritative final-card identity continuity, invalid return, and interruption cleanup without duplicating 10.4B mechanic choreography**  
+**Current task:** **11.2D continuity hardening — remove the proven queue-start duplicate-identity frame while preserving the existing engine-first action path, frozen 10.3 geometry, and interruption safety**  
 **11.2 architecture contract:** `docs/PASS11_11_2_PHYSICAL_CARD_ARCHITECTURE.md` at commit `f6a754c8044b8a633234c48e21a8454683b2ea21`  
 **Pass 11 planning:** 100%  
-**Pass 11 implementation:** ~48%  
+**Pass 11 implementation:** ~54%  
 **Formally verified/closed:** ~43%  
 **Default model:** GPT-5.6 Sol · High  
 **Last updated:** 2026-09-12 America/New_York
@@ -26,9 +27,11 @@
 
 Precedence: current user instruction → current repository/green CI → this file → `FUTURE_CONTINUITY.md` → current contracts/config → `MODEL_ROUTING.md` for model choice → older archives/chat.
 
-Before every new implementation task or resumed cycle: read `CONTINUITY.md`, `FUTURE_CONTINUITY.md`, and `MODEL_ROUTING.md`; then write an actual checkpoint to this file before changing implementation code. Every work update includes completion percentage, model recommendation, escalation/return trigger, and an exact **Next action**.
+Before every new implementation task or resumed cycle: read `CONTINUITY.md`, `FUTURE_CONTINUITY.md`, and `MODEL_ROUTING.md`; then write an actual checkpoint to this file before changing implementation code. Every work update includes completion percentage and an exact **Next action**. Model/effort recommendation is surfaced only when a change is actually justified by evidence or task risk.
 
 Never weaken/delete/bypass CI or QA merely to make a candidate green. GitHub is authoritative for source/branches/PRs/CI/artifacts and merge verification. Playwright/CI provides deterministic machine and temporal-browser proof. TinyFish is an independent live-product QA channel for coarse player-facing flows when it can navigate the product reliably; it is not a substitute for deterministic microinteraction QA and should not be repeatedly retried when the agent itself is misnavigating the UI. Precise drag/target/temporal interaction proof belongs to Playwright + telemetry + manually inspected artifacts. Real-device iPhone review remains required for final physical touch/audio/haptic/platform signoff. Merge only the latest exact fully-green head after manual visual evidence review.
+
+Every status update should also include a concise layman’s explanation of what the current engineering work means for the actual game/player experience.
 
 ---
 
@@ -69,6 +72,7 @@ Key files:
 - `src/interaction-intent.js` — pure 11.2B forgiveness/ambiguity/trajectory resolver; no rules or DOM authority.
 - `src/battlefield-readability.js`, `physical-card.css` — 11.2A always-visible current power / readable identity presentation.
 - `src/target-exposure.js` — 11.2C presentation-only target exposure/local neighbor yield; no rules or commit authority.
+- `src/card-continuity.js` — 11.2D observation-only `iid` continuity telemetry and visibility guard; no rules or geometry authority.
 - `src/presentation-queue.js` — serialized cancellable presentation.
 - `src/presentation-events.js` — semantic before/after adapter.
 - `src/gameplay-choreography.js` — signature consequence choreography.
@@ -157,9 +161,19 @@ Locked 11.2D requirements from the architecture contract:
 - preserve frozen 10.3 resting geometry and the single canonical action path;
 - generated temporal evidence must be manually inspected on the latest exact candidate head.
 
-Model routing: **GPT-5.6 Sol · High**. Escalate to Astra Medium only if explicit identity continuity cannot be proven using the existing source/proxy/final handoff without introducing a competing state owner.
+### Current 11.2D evidence checkpoint — Run #231
 
-**Exact next action:** reconstruct the existing source-placeholder/proxy/final-element lifecycle in `src/gesture-controller.js`, `src/battlefield-ux.js`, and presentation cleanup paths; define the minimum observation-only identity telemetry and temporal acceptance matrix; then checkpoint the implementation contract before changing runtime code.
+Candidate head `36f2f5fa5d23b550bfd224d5b0f1b4aadbdd9acf` reached the dedicated 11.2D browser gate after all preceding static/engine/setup/lifecycle/readability/intent/target-exposure gates passed. The new gate failed on the first valid-drag case with:
+
+`('valid-drag', 'duplicate full-strength identity', [('queue-start', 2, 'board:p1:ranged')])`
+
+This is treated as a genuine presentation defect, not a test problem. At `queue-start`, the engine has already committed the card to the player's ranged row, while both the moving proxy and the authoritative final board representation are counted as full-strength visible identities for the same `iid`. The test therefore correctly detected the exact duplicate-frame seam 11.2D exists to prevent. Downstream preserved gates were skipped only because CI stopped at this new failing gate; they must all run again after the defect is fixed.
+
+Run #231 still archived `pass11-2d-card-continuity-qa` artifact `10294819162`, digest `sha256:4f5f9190303537287a0aca7f999d0e71871b41f050885fe8a44cb8cc246fe377`, but this artifact is failure evidence and is not closure evidence.
+
+A separate TinyFish play sanity check also reached Quick Start/mulligan/battlefield and selected a hand card, but again misnavigated into card-inspector/developer-controls surfaces before completing a reliable placement. It remains inconclusive automation evidence and does not alter the deterministic 11.2D failure above.
+
+**Exact next action:** trace the queue-start ownership handoff in `src/card-continuity.js` and `src/gesture-controller.js`; hide or demote the authoritative final representation before the next paint once engine commit has occurred, while preserving the proxy until settlement and guaranteeing cleanup/restoration on cancellation. Then rerun the unchanged six-case 11.2D gate and every preserved downstream regression gate.
 
 ---
 
@@ -173,6 +187,6 @@ GitHub remains canonical for active development. Reference Drive: `Gwent Classic
 
 > **Rules correctness first → interaction correctness → readable gameplay choreography → premium physical feel → complete normal match → complete access → smarter AI → product maturity.**
 
-**Current Pass 11:** planning 100%; implementation ~48%; formally verified/closed ~43%.  
-**Current phase:** 11.2D continuity hardening / temporal proof.  
-**Next action:** reconstruct and instrument the existing source/proxy/final `iid` lifecycle before changing any action or geometry authority.
+**Current Pass 11:** planning 100%; implementation ~54%; formally verified/closed ~43%.  
+**Current phase:** 11.2D continuity hardening / duplicate-identity seam correction.  
+**Next action:** remove the proven queue-start duplicate representation without changing engine/action/geometry authority, then rerun the unchanged temporal gate.
