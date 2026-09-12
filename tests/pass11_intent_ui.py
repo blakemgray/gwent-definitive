@@ -76,7 +76,7 @@ with sync_playwright() as p:
 
     # 1. Geometry-relative singular forgiveness: 10 px beyond a row edge is outside the old fixed 7 px rule.
     base=make_scenario(page,'realms_keira');reset(page,base);a=action(page,row='ranged');assert a
-    tb=target_box(page,a);start_drag(page)
+    start_drag(page);tb=target_box(page,a)
     x,y=tb['x']+tb['width']+10,tb['y']+tb['height']/2
     page.mouse.move(x,y,steps=8);page.wait_for_timeout(30)
     d=intent(page);assert d and d['reason']=='forgiven_singular' and d['candidate'],d
@@ -87,7 +87,7 @@ with sync_playwright() as p:
 
     # 2. Card-specific precision: 5 px outside a Decoy target must reject and preserve state byte-for-byte.
     base=make_scenario(page,'special_decoy',1);reset(page,base);before=state(page);a=action(page,target='qa-target-0');assert a
-    tb=target_box(page,a);start_drag(page)
+    start_drag(page);tb=target_box(page,a)
     x,y=tb['x']+tb['width']+5,tb['y']+tb['height']/2
     page.mouse.move(x,y,steps=8);page.wait_for_timeout(30)
     d=intent(page);assert d and d['candidate'] is None and d['reason'] in ('outside','low_confidence'),d
@@ -100,7 +100,7 @@ with sync_playwright() as p:
     agile=page.evaluate("""()=>Object.values(window.__GWENT_PASS10__.engine.CARD_DB).find(d=>d.type==='unit'&&d.row==='agile'&&!d.abilities.includes('spy'))?.id||null""");assert agile
     base=make_scenario(page,agile);reset(page,base);before=state(page)
     close=action(page,row='close');ranged=action(page,row='ranged');assert close and ranged
-    cb=target_box(page,close);rb=target_box(page,ranged);start_drag(page)
+    start_drag(page);cb=target_box(page,close);rb=target_box(page,ranged)
     x=(cb['x']+cb['width']/2+rb['x']+rb['width']/2)/2
     y=(cb['y']+cb['height']+rb['y'])/2
     page.mouse.move(x,y,steps=8);page.wait_for_timeout(30)
@@ -111,7 +111,7 @@ with sync_playwright() as p:
 
     # 4. Immediate fast overshoot: one singular row may use the most recent segment, but only within bounded distance.
     base=make_scenario(page,'realms_keira');reset(page,base);a=action(page,row='ranged');assert a
-    tb=target_box(page,a);start_drag(page)
+    start_drag(page);tb=target_box(page,a)
     y=tb['y']+tb['height']/2
     inside_x=tb['x']+tb['width']-2
     page.mouse.move(inside_x,y,steps=8);page.wait_for_timeout(34)
