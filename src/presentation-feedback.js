@@ -23,7 +23,12 @@
     GAME_WIN:[10,8,18],GAME_LOSE:[18,8,10],GAME_DRAW:12
   });
 
-  const runtime={installed:false,observer:null,copyObserver:null,unsubscribeQueue:null,lastStage:null,lastSelected:null,lastActive:null,hooks:0,audioDispatches:0,hapticAttempts:0,settingsWrites:0,copyPolishes:0};
+  const runtime={
+    installed:false,observer:null,copyObserver:null,unsubscribeQueue:null,lastStage:null,lastSelected:null,lastActive:null,
+    hooks:0,audioDispatches:0,
+    hapticRequests:0,hapticAttempts:0,hapticSuccesses:0,hapticFailures:0,hapticUnsupported:0,hapticDisabled:0,lastHapticStatus:null,
+    settingsWrites:0,copyPolishes:0
+  };
   const listeners=new Set();
   let settings=loadSettings();
 
@@ -45,10 +50,23 @@
     const payload={name,gain:settings.effectsVolume,detail:copy(detail)||null};
     try{root.dispatchEvent?.(new CustomEvent('gwent:audio-hook',{detail:payload}));runtime.audioDispatches++;return true;}catch(_){return false;}
   }
+  function publishHaptic(packet){
+    runtime.lastHapticStatus=copy(packet);
+    try{root.dispatchEvent?.(new CustomEvent('gwent:haptic-status',{detail:copy(packet)}));}catch(_){/* observation only */}
+  }
   function dispatchHaptic(name){
-    if(!settings.haptics||!hapticCapable())return false;
     const pattern=HAPTIC_PATTERNS[name];if(pattern==null)return false;
-    try{runtime.hapticAttempts++;return !!root.navigator.vibrate(pattern);}catch(_){return false;}
+    runtime.hapticRequests++;
+    const packet={name,pattern:copy(pattern),enabled:settings.haptics,capable:hapticCapable(),attempted:false,success:false,reason:null,time:Date.now()};
+    if(!settings.haptics){runtime.hapticDisabled++;packet.reason='disabled';publishHaptic(packet);return false;}
+    if(!packet.capable){runtime.hapticUnsupported++;packet.reason='unsupported';publishHaptic(packet);return false;}
+    try{
+      runtime.hapticAttempts++;packet.attempted=true;packet.success=!!root.navigator.vibrate(pattern);packet.reason=packet.success?'played':'rejected';
+      if(packet.success)runtime.hapticSuccesses++;else runtime.hapticFailures++;
+      publishHaptic(packet);return packet.success;
+    }catch(err){
+      runtime.hapticAttempts++;runtime.hapticFailures++;packet.attempted=true;packet.reason='error';packet.error=String(err?.message||err);publishHaptic(packet);return false;
+    }
   }
   function emit(name,detail={}){
     if(!HOOK_SET.has(name))return false;
@@ -116,9 +134,9 @@
     if(hook)emit(hook,{iid:meta.iid||meta.action?.iid||null,row,inputMethod:meta.inputMethod||'unknown'});
   }
 
-  // 10.4C owns player-facing presentation language. Older integration-layer copy
-  // deliberately exposed engine diagnostics while the match shell was being built;
-  // normalize those strings before paint without changing semantic logs or state.
+  // 10.4C owns player-facing presentation language, but not milestone identity.
+  // The current product shell owns release/title/build marks so a closed lower
+  // presentation layer cannot silently downgrade a later Pass 11 release label.
   function polishLegacyCopy(){
     if(!root.document)return false;
     let changed=false;
@@ -165,31 +183,24 @@
   function subscribe(fn){if(typeof fn!=='function')return()=>{};listeners.add(fn);return()=>listeners.delete(fn);}
 
   function syncSettingsUI(){
-    const range=root.document?.querySelector?.('#effects-volume'),mute=root.document?.querySelector?.('#mute-effects'),haptics=root.document?.querySelector?.('#haptic-feedback'),out=root.document?.querySelector?.('#effects-volume-value');
+    const range=root.document?.querySelector?.('#effects-volume'),mute=root.document?.querySelector?.('#mute-effects'),haptics=root.document?.querySelector?.('#haptic-feedback'),out=root.document?.querySelector?.('#effects-volume-value'),note=root.document?.querySelector?.('#haptic-support-note');
     if(range)range.value=String(Math.round(settings.effectsVolume*100));
     if(out)out.textContent=`${Math.round(settings.effectsVolume*100)}%`;
     if(mute)mute.checked=settings.muted;
     if(haptics){haptics.checked=settings.haptics;haptics.disabled=!hapticCapable();}
+    if(note)note.textContent=hapticCapable()?'Supported by this browser':'Unavailable in this browser';
   }
   function installSettings(){
     const panel=root.document?.querySelector?.('#settings-screen .deck-page-panel');if(!panel||root.document.querySelector('#effects-volume'))return;
     const anchor=root.document.querySelector('#developer-mode')?.closest('label');
     const volume=root.document.createElement('label');volume.className='deck-card feel-setting-row';volume.innerHTML='<span>Effects volume <small id="effects-volume-value"></small></span><input id="effects-volume" type="range" min="0" max="100" step="5" aria-label="Effects volume">';
     const mute=root.document.createElement('label');mute.className='deck-card feel-setting-row';mute.innerHTML='<span>Mute effects</span><input id="mute-effects" type="checkbox">';
-    const haptics=root.document.createElement('label');haptics.className='deck-card feel-setting-row';haptics.innerHTML='<span>Haptic feedback <small>where supported</small></span><input id="haptic-feedback" type="checkbox">';
+    const haptics=root.document.createElement('label');haptics.className='deck-card feel-setting-row';haptics.innerHTML='<span>Haptic feedback <small id="haptic-support-note"></small></span><input id="haptic-feedback" type="checkbox">';
     panel.insertBefore(volume,anchor||panel.firstChild);panel.insertBefore(mute,anchor||panel.firstChild);panel.insertBefore(haptics,anchor||panel.firstChild);
     root.document.querySelector('#effects-volume')?.addEventListener('input',e=>updateSettings({effectsVolume:Number(e.target.value)/100}));
     root.document.querySelector('#mute-effects')?.addEventListener('change',e=>updateSettings({muted:e.target.checked}));
     root.document.querySelector('#haptic-feedback')?.addEventListener('change',e=>updateSettings({haptics:e.target.checked}));
     syncSettingsUI();
-  }
-  function installVersionMarks(){
-    if(!root.document)return;
-    root.document.title='Gwent Classic — Definitive Edition · Pass 10.4C';
-    const build=root.document.querySelector('.buildline');if(build)build.textContent='BUILD 10.4C · FEEL / PRESENTATION POLISH · CI-GATED';
-    const eyebrow=root.document.querySelector('#profile-screen .eyebrow');if(eyebrow)eyebrow.textContent='PASS 10.4C';
-    const heading=root.document.querySelector('#profile-screen h2');if(heading)heading.textContent='Pass 10.4C feel / presentation status';
-    const milestone=[...root.document.querySelectorAll('#profile-screen .stat')].find(x=>x.querySelector('small')?.textContent==='Milestone')?.querySelector('b');if(milestone)milestone.textContent='10.4C';
   }
   function install(){
     if(runtime.installed||!root.document)return false;
@@ -197,7 +208,7 @@
     runtime.unsubscribeQueue=q.subscribe(onQueue);
     runtime.observer=new MutationObserver(()=>{inspectStage();inspectInteraction();});
     runtime.observer.observe(root.document.body,{subtree:true,attributes:true,attributeFilter:['class','data-gc-stage','data-dm-action-key']});
-    installSettings();installVersionMarks();installCopyPolish();inspectStage();inspectInteraction();runtime.installed=true;return true;
+    installSettings();installCopyPolish();inspectStage();inspectInteraction();runtime.installed=true;return true;
   }
   function uninstall(){
     runtime.unsubscribeQueue?.();runtime.unsubscribeQueue=null;runtime.observer?.disconnect?.();runtime.observer=null;runtime.copyObserver?.disconnect?.();runtime.copyObserver=null;runtime.installed=false;runtime.lastStage=null;runtime.lastSelected=null;runtime.lastActive=null;

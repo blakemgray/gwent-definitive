@@ -1,0 +1,199 @@
+/* Pass 11.2A/11.2C — Battlefield readability + predictive target exposure.
+   Presentation only. Pass 10.3 continues to own final card packing and geometry. */
+
+#match-screen .unit[data-inspect-board] .u-score{
+  position:absolute;
+  left:1px;
+  top:1px;
+  z-index:6;
+  width:16px;
+  height:16px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  border:1px solid rgba(16,13,9,.68);
+  background:rgba(244,235,211,.97);
+  color:#100f0d;
+  font:800 9px/1 Georgia,"Times New Roman",serif;
+  text-shadow:none;
+  box-shadow:0 1px 4px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.58);
+  pointer-events:none;
+}
+
+#match-screen .unit[data-power-direction="up"] .u-score{
+  background:rgba(235,208,141,.98);
+  border-color:rgba(91,61,24,.82);
+  box-shadow:0 1px 4px rgba(0,0,0,.58),0 0 0 1px rgba(229,188,94,.20),inset 0 1px 0 rgba(255,247,215,.54);
+}
+
+#match-screen .unit[data-power-direction="down"] .u-score{
+  background:rgba(205,224,235,.98);
+  border-color:rgba(44,69,86,.82);
+  box-shadow:0 1px 4px rgba(0,0,0,.58),0 0 0 1px rgba(124,171,199,.18),inset 0 1px 0 rgba(255,255,255,.55);
+}
+
+#match-screen .unit[data-inspect-board] img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+#match-screen .unit[data-inspect-board]:focus-visible .u-score,
+#match-screen .unit[data-inspect-board]:hover .u-score,
+#match-screen .unit[data-inspect-board].dm-active-target .u-score,
+#match-screen .unit[data-inspect-board].te-locked-target .u-score{
+  transform:scale(1.04);
+}
+
+/* 11.2C target identity uses a presentation-only body actor. The authoritative
+   board element stays at untouched 10.3 geometry and is merely hidden while
+   the actor represents that same iid above the held Decoy. */
+#match-screen .unit[data-inspect-board].te-locked-target{
+  z-index:170!important;
+  outline:2px solid rgba(255,230,174,.98)!important;
+  outline-offset:1px!important;
+}
+#match-screen .unit[data-inspect-board].te-actor-source{
+  visibility:hidden!important;
+  transform:none!important;
+  filter:none!important;
+}
+
+.te-target-actor{
+  contain:layout paint style;
+  backface-visibility:hidden;
+  min-width:0!important;
+  max-width:none!important;
+  padding:0!important;
+  overflow:visible!important;
+  border-radius:5px!important;
+  border:1px solid rgba(246,214,155,.92)!important;
+  background:#2a241c!important;
+  box-shadow:0 13px 27px rgba(0,0,0,.78),0 0 0 2px rgba(240,189,97,.24),0 0 19px rgba(232,177,87,.32)!important;
+  transform-origin:50% 72%;
+  transform:none;
+  filter:brightness(1.12) saturate(1.08);
+  transition:transform 105ms cubic-bezier(.16,.88,.24,1.02),filter 90ms ease,box-shadow 105ms ease;
+  will-change:transform;
+}
+.te-target-actor.te-actor-raised{
+  transform:translate3d(var(--te-actor-x,0px),var(--te-actor-y,-5px),0) scale(var(--te-actor-scale,1.16));
+}
+.te-target-actor img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  border-radius:inherit;
+  pointer-events:none;
+}
+.te-target-actor .u-score{
+  position:absolute;
+  left:1px;
+  top:1px;
+  z-index:3;
+  width:16px;
+  height:16px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  border:1px solid rgba(16,13,9,.68);
+  background:rgba(244,235,211,.98);
+  color:#100f0d;
+  font:800 9px/1 Georgia,"Times New Roman",serif;
+  text-shadow:none;
+  box-shadow:0 1px 4px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.58);
+  pointer-events:none;
+}
+.te-target-actor[data-power-direction="up"] .u-score{
+  background:rgba(235,208,141,.98);
+  border-color:rgba(91,61,24,.82);
+}
+.te-target-actor[data-power-direction="down"] .u-score{
+  background:rgba(205,224,235,.98);
+  border-color:rgba(44,69,86,.82);
+}
+.te-target-actor::after{
+  content:"◆ SWAP";
+  position:absolute;
+  z-index:4;
+  left:50%;
+  top:-9px;
+  transform:translate(-50%,-50%);
+  min-width:34px;
+  padding:2px 5px;
+  border-radius:999px;
+  border:1px solid rgba(247,212,149,.72);
+  background:rgba(67,45,20,.97);
+  color:#fff2ce;
+  font:850 5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  letter-spacing:.10em;
+  line-height:1;
+  text-align:center;
+  white-space:nowrap;
+  text-shadow:0 1px 2px #000;
+}
+
+#match-screen .unit[data-inspect-board].te-neighbor-yield{
+  transform:translateX(var(--te-yield-x,0px))!important;
+  transition:transform 120ms cubic-bezier(.16,.88,.24,1.02),filter 105ms ease!important;
+}
+
+/* Keep legal options visible but subordinate to the one predictive lock. */
+body.te-has-card-target #match-screen .unit.dm-legal-target:not(.te-locked-target)::after{
+  opacity:.44;
+}
+body.te-has-card-target #match-screen .unit.dm-legal-target:not(.te-locked-target){
+  filter:brightness(.92) saturate(.88);
+}
+
+/* During a drag, the predictive owner supersedes ordinary hover lift so the
+   candidate and local yield remain stable under the pointer. */
+body.dm-dragging #match-screen .unit.dm-legal-target:hover:not(.te-locked-target):not(.te-neighbor-yield){
+  transform:none;
+}
+
+/* A trajectory-assisted destination is visually active only while recent
+   velocity remains fresh. The controller retains its internal candidate until
+   the next input sample, but this presentation-only marker demotes the stale
+   emphasis so the UI never promises a throw that is no longer eligible. */
+#match-screen .dm-active-target.te-intent-stale{
+  outline:1px dashed rgba(233,204,151,.62)!important;
+  outline-offset:-2px!important;
+  box-shadow:inset 0 0 0 1px rgba(238,208,154,.08),inset 0 0 18px rgba(196,145,77,.07)!important;
+}
+#match-screen .dm-active-target.te-intent-stale::after{
+  content:"◇ " attr(data-dm-label);
+  border-style:dashed;
+  background:rgba(13,10,7,.78);
+  color:rgba(238,215,176,.86);
+  transform:translate(-50%,-50%) scale(1);
+}
+
+/* Runtime reduced motion: actor identity is still fully visible above the drag
+   proxy, but it appears in-place with no lift/translation and neighbors stay put. */
+body.te-reduced .te-target-actor{
+  transform:none!important;
+  filter:brightness(1.14) saturate(1.06)!important;
+  box-shadow:0 0 0 2px rgba(240,189,97,.30),0 0 12px rgba(232,177,87,.20)!important;
+  transition:none!important;
+}
+body.te-reduced #match-screen .unit[data-inspect-board].te-neighbor-yield{
+  transform:none!important;
+  transition:none!important;
+}
+
+@media (prefers-reduced-motion: reduce){
+  #match-screen .unit[data-inspect-board] .u-score{transition:none!important}
+  .te-target-actor{
+    transform:none!important;
+    filter:brightness(1.14) saturate(1.06)!important;
+    box-shadow:0 0 0 2px rgba(240,189,97,.30),0 0 12px rgba(232,177,87,.20)!important;
+    transition:none!important;
+  }
+  #match-screen .unit[data-inspect-board].te-neighbor-yield{
+    transform:none!important;
+    transition:none!important;
+  }
+}

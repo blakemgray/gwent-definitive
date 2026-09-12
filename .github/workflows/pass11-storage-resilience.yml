@@ -1,0 +1,46 @@
+name: Pass 11 Storage Resilience
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pass11-storage-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  storage-resilience:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser QA tooling
+        run: |
+          python -m pip install -r requirements-ci.txt
+          python -m playwright install --with-deps chromium
+      - name: Start static test server
+        run: |
+          python -m http.server 4173 >/tmp/gwent-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/gwent-http.log
+          exit 1
+      - name: Pass 11 storage failure recovery and malformed-save rejection gate
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+        run: python tests/pass11_storage_resilience_ui.py
+      - name: Archive Pass 11 storage resilience QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass11-storage-resilience-qa
+          path: qa/pass11_storage
+          if-no-files-found: warn
+          retention-days: 30

@@ -56,12 +56,18 @@ ok(/get lastSettlement\(\)/.test(gesture),'settlement path must remain QA-observ
 ok(/board\?\.special/.test(gesture)&&/state\.weatherCards/.test(gesture),'card definition lookup must include row-special and weather storage zones for post-commit feedback');
 ok(!/const dest=normalizeDestination\(action,getState\(\)\)/.test(gesture),'settlement must not rediscover destination semantics from already-mutated state');
 
-// Match-controller bridge: auto-bot may not mutate engine state during presentation.
-ok(/originalPlayAction=api\.playAction\.bind\(api\)/.test(turnGate),'turn gate must wrap the existing match-controller play path');
-ok(/toggle\.checked=false/.test(turnGate)&&/toggle\.checked=true/.test(turnGate),'legacy bot scheduler must be suppressed only during synchronous player commit');
+// Match-controller bridge: neither player->bot nor consecutive bot actions may
+// mutate engine state during unresolved presentation.
+ok(/originalPlayAction=api\.playAction\.bind\(api\)/.test(turnGate),'turn gate must wrap the existing match-controller player path');
+ok(/originalBotMove=api\.botMove\.bind\(api\)/.test(turnGate),'turn gate must wrap the existing opponent path');
+ok(/toggle\.checked=false/.test(turnGate)&&/toggle\.checked=true/.test(turnGate),'legacy bot scheduler must be suppressible without changing persisted setting');
+ok(/function clearScheduledBot\(\)/.test(turnGate)&&/api\.maybeAutoBot\(\)/.test(turnGate),'presentation start must be able to cancel the already-scheduled opponent timer');
+ok(/function requestRearm\(\)/.test(turnGate)&&/deferredRearm/.test(turnGate),'opponent scheduling must share one deferred re-arm latch');
+ok(/if\(!deferredRearm\|\|Queue\.busy\)return/.test(turnGate),'deferred opponent re-arm must wait for true queue idle');
 ok(/Queue\.subscribe/.test(turnGate),'bot release must subscribe to presentation lifecycle');
-ok(/type==='complete'\|\|type==='cancel'/.test(turnGate),'completion and interruption must both release deferred bot scheduling');
-ok(/queueMicrotask\(\(\)=>api\.maybeAutoBot\(\)\)/.test(turnGate),'bot must be re-armed after presentation transaction boundary');
+ok(/type==='start'/.test(turnGate)&&/clearScheduledBot\(\)/.test(turnGate),'queue start must cancel any follow-on bot timer before it can mutate');
+ok(/type==='complete'\|\|type==='cancel'\|\|type==='error'/.test(turnGate),'completion, interruption, and presentation failure must all release deferred bot scheduling');
+ok(/botSerialization:'11\.F1\.0'/.test(turnGate),'consecutive-bot serialization contract version must be explicit');
 const queueIdx=html.indexOf('src/presentation-queue.js'),gateIdx=html.indexOf('src/interaction-turn-gate.js'),gestureIdx=html.indexOf('src/gesture-controller.js');
 ok(queueIdx>=0&&gateIdx>queueIdx&&gestureIdx>gateIdx,'turn gate must load after queue and before gesture controller');
 

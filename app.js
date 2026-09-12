@@ -5,37 +5,84 @@
   const Assets = window.GwentAssetResolver;
   const Store = window.GwentStorage;
 
-  const PLAYER_DECK_A = [
-    'realms_thaler','realms_blue_stripes','realms_blue_stripes','realms_catapult','realms_dun_banner_medic',
-    'special_decoy','weather_frost','special_scorch','realms_vernon','neutral_geralt',
-    'realms_dijkstra','neutral_yennefer','realms_keira','realms_sheldon','realms_trebuchet','realms_catapult'
+  const PLAYER_GOLDEN_DECK = [
+    'realms_thaler',
+    'realms_dijkstra',
+    'realms_stennis',
+    'realms_blue_stripes',
+    'realms_blue_stripes',
+    'realms_blue_stripes',
+    'realms_crinfrid',
+    'realms_crinfrid',
+    'realms_crinfrid',
+    'realms_catapult_1',
+    'realms_catapult_1',
+    'realms_banner_nurse',
+    'realms_kaedwen_siege',
+    'realms_kaedwen_siege_1',
+    'realms_kaedwen_siege_2',
+    'realms_esterad',
+    'realms_natalis',
+    'realms_philippa',
+    'realms_vernon',
+    'realms_keira',
+    'realms_sheldon',
+    'realms_siege_tower',
+    'realms_ves',
+    'realms_trebuchet',
+    'realms_ballista',
+    'special_decoy',
+    'special_decoy',
+    'special_horn',
+    'special_scorch',
+    'weather_frost',
+    'weather_clear'
   ];
-  const PLAYER_DECK_B = [
-    'weather_frost','special_scorch','realms_catapult','realms_dun_banner_medic','realms_blue_stripes',
-    'realms_blue_stripes','special_decoy','realms_thaler','neutral_yennefer','realms_vernon',
-    'realms_dijkstra','realms_keira','neutral_geralt','realms_sheldon','realms_trebuchet','realms_catapult'
-  ];
-  const BOT_DECK_A = [
-    'monsters_earth_elemental','monsters_grave_hag','monsters_cockatrice','monsters_gargoyle',
-    'monsters_earth_elemental','monsters_grave_hag','monsters_cockatrice','monsters_gargoyle',
-    'monsters_earth_elemental','monsters_grave_hag','monsters_cockatrice','monsters_gargoyle',
-    'monsters_earth_elemental','monsters_grave_hag','monsters_cockatrice','monsters_gargoyle'
-  ];
-  const BOT_DECK_B = [
-    'monsters_cockatrice','monsters_earth_elemental','monsters_grave_hag','monsters_gargoyle',
-    'monsters_grave_hag','monsters_earth_elemental','monsters_gargoyle','monsters_cockatrice',
-    'monsters_earth_elemental','monsters_cockatrice','monsters_grave_hag','monsters_gargoyle',
-    'monsters_grave_hag','monsters_earth_elemental','monsters_cockatrice','monsters_gargoyle'
+  const BOT_GOLDEN_DECK = [
+    'monsters_arachas',
+    'monsters_arachas_1',
+    'monsters_arachas_2',
+    'monsters_arachas_behemoth',
+    'monsters_witch_velen',
+    'monsters_witch_velen_1',
+    'monsters_witch_velen_2',
+    'monsters_ghoul',
+    'monsters_ghoul_1',
+    'monsters_ghoul_2',
+    'monsters_nekker',
+    'monsters_nekker_1',
+    'monsters_nekker_2',
+    'monsters_bruxa',
+    'monsters_ekkima',
+    'monsters_fleder',
+    'monsters_garkain',
+    'monsters_katakan',
+    'monsters_earth_elemental',
+    'monsters_fire_elemental',
+    'monsters_cockatrice',
+    'monsters_gravehag',
+    'monsters_fiend',
+    'monsters_fogling',
+    'monsters_gryffin',
+    'monsters_wyvern',
+    'monsters_draug',
+    'monsters_imlerith',
+    'monsters_leshen',
+    'special_decoy',
+    'special_horn',
+    'special_scorch',
+    'weather_frost',
+    'weather_fog',
+    'weather_rain',
+    'weather_clear'
   ];
 
   const PRESETS = {
     player:[
-      {id:'nr_siege_spy', name:'Northern Realms · Siege & Spy', faction:'realms', leaderId:'realms_foltest_copper', deck:PLAYER_DECK_A, summary:'Thaler, Blue Stripes, Medic, Frost and Scorch in a recommended opening order.'},
-      {id:'nr_control', name:'Northern Realms · Control Opening', faction:'realms', leaderId:'realms_foltest_copper', deck:PLAYER_DECK_B, summary:'Front-loads control tools so Pass 10 can immediately showcase board pressure and mulligan decisions.'}
+      {id:'nr_golden', name:'Northern Realms · Siege & Intelligence', faction:'realms', leaderId:'realms_foltest_copper', deck:PLAYER_GOLDEN_DECK, summary:'A legal 31-card Northern Realms deck built around spies, bonds, siege, Medic, Decoy, weather and Scorch.'}
     ],
     bot:[
-      {id:'monsters_midrange', name:'Monsters · Midrange', faction:'monsters', leaderId:'monsters_eredin_silver', deck:BOT_DECK_A, summary:'Balanced Monsters pressure deck.'},
-      {id:'monsters_swarm', name:'Monsters · Swarm Pressure', faction:'monsters', leaderId:'monsters_eredin_silver', deck:BOT_DECK_B, summary:'A more aggressive Monsters opening profile.'}
+      {id:'monsters_golden', name:'Monsters · Muster Pressure', faction:'monsters', leaderId:'monsters_eredin_silver', deck:BOT_GOLDEN_DECK, summary:'A legal 36-card Monsters deck built around Muster families, resilient pressure, weather and control.'}
     ],
     difficulties:[
       {id:'apprentice', name:'Apprentice', summary:'Forgiving opponent that favors straightforward plays.'},
@@ -48,10 +95,10 @@
 
   const ui = {
     selectedIid:null, revealOpponent:false, showIntent:false, lab:false,
-    screen:'main-screen', toastTimer:null, botTimer:null, preMatchState:null,
+    screen:'main-screen', toastTimer:null, botTimer:null, preMatchState:null, matchMenuOpen:false, matchMenuStep:'menu',
     mulliganUsed:0,
     settings:{autoBot:savedSettings.autoBot!==false, showEvents:!!savedSettings.showEvents, tacticalLabels:savedSettings.tacticalLabels!==false, defaultDifficulty:savedSettings.defaultDifficulty||'standard', developerMode:!!savedSettings.developerMode},
-    setup:{playerPreset:'nr_siege_spy', botPreset:'monsters_midrange', difficulty:savedSettings.defaultDifficulty||'standard', firstPlayerId:'p1', seed:20260910, mode:'classic'}
+    setup:{playerPreset:'nr_golden', botPreset:'monsters_golden', difficulty:savedSettings.defaultDifficulty||'standard', firstPlayerId:'p1', seed:20260910, mode:'classic'}
   };
   let state = null;
   let history = null;
@@ -60,6 +107,17 @@
   const $$ = s => [...document.querySelectorAll(s)];
   const esc = s => String(s ?? '').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const deepClone = obj => JSON.parse(JSON.stringify(obj));
+
+  window.addEventListener('gwent:save-status',event=>{
+    const detail=event.detail||{};
+    document.body.dataset.saveStatus=detail.ok?'ok':'error';
+    if(detail.ok){
+      if(detail.recovered)toast('MATCH SAVE RECOVERED');
+      return;
+    }
+    console.warn('Authoritative match state advanced but persistence failed.',detail.error||{});
+    toast(detail.phase==='mulligan'?'MATCH PREPARED · NOT SAVED':'MATCH UPDATED · NOT SAVED');
+  });
 
   function persistSettings(){
     if(Store) Store.saveSettings(ui.settings);
@@ -96,7 +154,7 @@
   function botPreset(){ return PRESETS.bot.find(p=>p.id===ui.setup.botPreset) || PRESETS.bot[0]; }
 
   function quickStart(){
-    ui.setup.playerPreset='nr_siege_spy'; ui.setup.botPreset='monsters_midrange'; ui.setup.firstPlayerId='p1';
+    ui.setup.playerPreset='nr_golden'; ui.setup.botPreset='monsters_golden'; ui.setup.firstPlayerId='p1';
     ui.setup.mode='classic'; ui.setup.difficulty=ui.settings.defaultDifficulty; ui.setup.seed=20260910;
     prepareMulliganState();
   }
@@ -104,19 +162,23 @@
   function prepareMulliganState(lab=false){
     ui.lab=lab;
     const pp=playerPreset(), bp=botPreset();
-    ui.selectedIid=null; ui.revealOpponent=false; ui.showIntent=false; ui.mulliganUsed=0;
+    ui.selectedIid=null; ui.revealOpponent=false; ui.showIntent=false; ui.matchMenuOpen=false; ui.matchMenuStep='menu'; ui.mulliganUsed=0;
     ui.preMatchState = G.createMatch({
       p1Faction:pp.faction,p2Faction:bp.faction,p1LeaderId:pp.leaderId,p2LeaderId:bp.leaderId,
-      p1Deck:pp.deck,p2Deck:bp.deck,handSize:10,seed:Number(ui.setup.seed)||20260910,firstPlayerId:ui.setup.firstPlayerId
+      p1Deck:pp.deck,p2Deck:bp.deck,handSize:10,seed:Number(ui.setup.seed)||20260910,firstPlayerId:ui.setup.firstPlayerId,
+      validateDecks:true,shuffleDecks:true,mulligan:true
     });
     if(lab) ui.preMatchState = G.sandboxSetTurn(ui.preMatchState,'p1');
+    savePreparedMatch();
     go('mulligan-screen');
     renderMulliganScreen();
     toast(lab ? 'MECHANICS LAB · REVIEW HAND THEN ENTER' : 'MATCH PREPARED · REVIEW OPENING HAND');
   }
 
   function finalizeMatchFromPrepared(){
-    state = deepClone(ui.preMatchState);
+    if(!ui.preMatchState) return;
+    state = G.applyAction(ui.preMatchState,{type:'FINISH_MULLIGAN'});
+    ui.preMatchState = null;
     history = new G.HistorySession(state);
     go('match-screen');
     renderMatch();
@@ -127,15 +189,10 @@
 
   function swapMulligan(iid){
     if(!ui.preMatchState || ui.mulliganUsed>=2) return;
-    const s = deepClone(ui.preMatchState), p = s.players.p1;
-    const idx = p.hand.findIndex(c=>c.iid===iid);
-    if(idx<0 || !p.deck.length) return;
-    const outgoing = p.hand.splice(idx,1)[0];
-    const incoming = p.deck.shift();
-    p.hand.push(incoming);
-    p.deck.push(outgoing);
-    ui.preMatchState = s;
-    ui.mulliganUsed += 1;
+    const outgoing=ui.preMatchState.players.p1.hand.find(c=>c.iid===iid);if(!outgoing)return;
+    ui.preMatchState=G.applyAction(ui.preMatchState,{type:'MULLIGAN_CARD',playerId:'p1',iid});
+    ui.mulliganUsed=ui.preMatchState.mulliganCounts?.p1||0;
+    savePreparedMatch();
     renderMulliganScreen();
     toast(`${displayName(outgoing).toUpperCase()} · MULLIGANED`);
   }
@@ -160,17 +217,33 @@
       renderOptionChip('firstPlayerId','p2','Bot starts','Stress response play and passing logic.',ui.setup.firstPlayerId==='p2')
     ].join('');
     $('#setup-body').innerHTML = `
-      <div class="panel setup-panel"><div class="selector-title"><div><div class="eyebrow">PLAYER DECK PRESET</div><h3>${esc(playerPreset().name)}</h3></div><span class="badge">${esc(playerPreset().deck.length)} CARD SLICE</span></div><div class="selector-group"><div class="option-row">${playerCards}</div></div></div>
+      <div class="panel setup-panel"><div class="selector-title"><div><div class="eyebrow">PLAYER DECK PRESET</div><h3>${esc(playerPreset().name)}</h3></div><span class="badge">${esc(playerPreset().deck.length)} CARD DECK</span></div><div class="selector-group"><div class="option-row">${playerCards}</div></div></div>
       <div class="panel setup-panel"><div class="selector-title"><div><div class="eyebrow">OPPONENT ARCHETYPE</div><h3>${esc(botPreset().name)}</h3></div><span class="badge">OPPONENT</span></div><div class="selector-group"><div class="option-row">${botCards}</div></div></div>
       <div class="panel setup-panel"><div class="selector-title"><div><div class="eyebrow">DIFFICULTY LAYER</div><h3>${esc((PRESETS.difficulties.find(d=>d.id===ui.setup.difficulty)||{}).name||'')}</h3></div><span class="badge">DIFFICULTY</span></div><div class="selector-group"><div class="option-row">${diffCards}</div></div></div>
       <div class="panel setup-panel"><div class="selector-title"><div><div class="eyebrow">MATCH PARAMETERS</div><h3>Initiative and seed</h3></div><span class="badge">PRE-BATTLE FLOW</span></div><div class="selector-group"><div class="option-row">${firstCards}</div><div class="setup-summary"><div class="setup-kv"><b>Seed</b><input id="seed-input" class="seed-input" type="number" value="${esc(ui.setup.seed)}"></div><div class="setup-kv"><b>Resulting leader</b>${esc(def(playerPreset().leaderId)?.name || playerPreset().leaderId)}</div><div class="setup-kv"><b>Bot leader</b>${esc(def(botPreset().leaderId)?.name || botPreset().leaderId)}</div><div class="setup-kv"><b>Recommended mode</b>${ui.setup.mode.toUpperCase()}</div></div></div><div class="setup-actions"><button id="setup-reset" class="btn">RESET RECOMMENDED</button><button id="setup-prepare" class="btn primary">PREPARE OPENING HAND</button></div></div>`;
     const seedInput = $('#seed-input'); if(seedInput) seedInput.addEventListener('change', e=>ui.setup.seed = Number(e.target.value)||20260910);
-    $('#setup-reset').onclick = ()=>{ ui.setup={playerPreset:'nr_siege_spy', botPreset:'monsters_midrange', difficulty:ui.settings.defaultDifficulty, firstPlayerId:'p1', seed:20260910, mode:'classic'}; renderSetupScreen(); };
+    $('#setup-reset').onclick = ()=>{ ui.setup={playerPreset:'nr_golden', botPreset:'monsters_golden', difficulty:ui.settings.defaultDifficulty, firstPlayerId:'p1', seed:20260910, mode:'classic'}; renderSetupScreen(); };
     $('#setup-prepare').onclick = ()=>prepareMulliganState(false);
   }
 
   function renderOptionChip(group, value, title, desc, active){
     return `<button class="option-chip ${active?'active':''}" data-setup-group="${group}" data-setup-value="${value}"><strong>${esc(title)}</strong><small>${esc(desc)}</small></button>`;
+  }
+
+  function renderDeckScreen(){
+    const el=$('#deck-list'); if(!el) return;
+    const rows = PRESETS.player.map(p=>{
+      const counts={}; p.deck.forEach(id=>counts[id]=(counts[id]||0)+1);
+      const head = `<div class="setup-kv" style="margin-bottom:10px"><b>${esc(p.name)}</b>${esc(p.summary)}</div>`;
+      const body = Object.entries(counts).map(([id,q])=>{const d=def(id),img=assetFor(id);return `<div class="deck-card">${img?`<img class="mini-art" src="${img}" alt="${esc(d.name)}">`:''}<span><b>${esc(d.name)}</b><small class="sub"> ${esc(d.abilities.join(' · ')||d.type)}</small></span><span class="qty">×${q}</span></div>`}).join('');
+      return `<div class="panel setup-panel">${head}${body}</div>`;
+    }).join('');
+    el.innerHTML = rows;
+  }
+
+  function renderCatalog(query=''){
+    const q=query.trim().toLowerCase(); const list=catalog.filter(c=>!q || [c.name,c.faction,c.row,(c.abilities||[]).join(' ')].join(' ').toLowerCase().includes(q));
+    $('#catalog-list').innerHTML=list.slice(0,216).map(c=>`<div class="catalog-row"><b>${esc(c.name)}</b><small>${esc(c.faction)} · ${c.strength==null?'—':c.strength} · ${esc((c.abilities||[]).join(', ')||c.row||'unit')}</small></div>`).join('');
   }
 
   function score(pid,row){ return G.rowScore(state,pid,row); }
@@ -271,11 +344,12 @@
   }
 
   function selectCard(iid){ ui.selectedIid=iid; renderOverlay(); }
-  function closeOverlay(){ ui.selectedIid=null; $('#overlay-root').innerHTML=''; }
+  function closeOverlay(){ ui.selectedIid=null;ui.matchMenuOpen=false;ui.matchMenuStep='menu';$('#overlay-root').innerHTML='';maybeAutoBot(); }
 
   function renderOverlay(){
     const root=$('#overlay-root');
-    if(state.pendingChoice){ renderMedicChoice(root); return; }
+    if(ui.matchMenuOpen){ renderMatchMenu(root); return; }
+    if(state.pendingChoice){ renderPendingChoice(root); return; }
     if(!ui.selectedIid){ root.innerHTML=''; return; }
     const found=findInst(ui.selectedIid); if(!found){ui.selectedIid=null;root.innerHTML='';return;}
     const d=def(found.inst.cardId); const img=assetFor(found.inst.cardId);
@@ -315,12 +389,30 @@
     }catch(e){ console.error(e); toast('ENGINE REJECTED ACTION'); }
   }
 
-  function renderMedicChoice(root){
-    const choice=state.pendingChoice; const candidates=choice.candidateIids.map(iid=>findInst(iid)).filter(Boolean);
-    root.innerHTML=`<div class="shade"></div><aside class="side-panel"><div class="eyebrow">MEDIC · ENGINE CHOICE</div><h2>Choose a unit to revive</h2><p class="sub">Only legal non-Hero units from your graveyard are exposed by the engine.</p><div class="choice-list">${candidates.map(c=>{const d=def(c.inst.cardId),img=assetFor(c.inst.cardId);return `<div class="choice-card">${img?`<img src="${img}" alt="${esc(d.name)}">`:''}<span><b>${esc(d.name)}</b><small class="sub"> ${d.strength} · ${esc(d.row)}</small></span><button class="btn primary" data-medic="${c.inst.iid}">REVIVE</button></div>`}).join('')}</div></aside>`;
-    root.querySelectorAll('[data-medic]').forEach(b=>b.addEventListener('click',()=>{
-      try{ const next=G.resolveChoice(state,{type:'RESOLVE_MEDIC',targetIid:b.dataset.medic}); commit(next,'MEDIC REVIVE · ENGINE RESOLVED'); }
-      catch(e){console.error(e);toast('INVALID MEDIC TARGET');}
+  function resolvePlayerChoice(action,label){
+    try{commit(G.applyAction(state,action),label);}
+    catch(e){console.error(e);toast('CHOICE COULD NOT BE APPLIED');}
+  }
+
+  function renderPendingChoice(root){
+    const choice=state.pendingChoice;
+    if(choice.playerId!=='p1'){
+      root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-choice-waiting="${esc(choice.type)}"><div class="eyebrow">OPPONENT DECISION</div><h2>Opponent is choosing</h2><p class="sub">The match is safely paused while the rules engine resolves this decision.</p></aside>`;
+      return;
+    }
+    const actions=G.legalChoiceActions(state,'p1');
+    if(choice.type==='medic'){
+      root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-choice-type="medic"><div class="eyebrow">MEDIC</div><h2>Choose a unit to revive</h2><p class="sub">Only eligible non-Hero units from your graveyard are available.</p><div class="choice-list">${actions.map((action,i)=>{const c=findInst(action.targetIid),d=c&&def(c.inst.cardId),img=c&&assetFor(c.inst.cardId);return c?`<div class="choice-card">${img?`<img src="${img}" alt="${esc(d.name)}">`:''}<span><b>${esc(d.name)}</b><small class="sub"> ${d.strength} · ${esc(d.row)}</small></span><button class="btn primary" data-choice-index="${i}" data-medic="${c.inst.iid}">REVIVE</button></div>`:''}).join('')}</div></aside>`;
+    }else if(choice.type==='revive_row'){
+      const target=findInst(choice.targetIid),name=target?displayName(target.inst):'revived unit';
+      root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-choice-type="revive_row"><div class="eyebrow">MEDIC · ROW</div><h2>Where should ${esc(name)} fight?</h2><p class="sub">Choose one of the legal rows supplied by the rules engine.</p><div class="actions">${actions.map((action,i)=>`<button class="btn primary" data-choice-index="${i}">${esc(String(action.row).toUpperCase())}</button>`).join('')}</div></aside>`;
+    }else{
+      root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-choice-unsupported="${esc(choice.type)}"><div class="eyebrow">MATCH SAFELY PAUSED</div><h2>This choice needs a player surface</h2><p class="sub">Unsupported choice: ${esc(choice.type)}. Your exact match state remains saved and unchanged.</p></aside>`;
+      return;
+    }
+    root.querySelectorAll('[data-choice-index]').forEach(button=>button.addEventListener('click',()=>{
+      const action=actions[Number(button.dataset.choiceIndex)];
+      if(action)resolvePlayerChoice(action,choice.type==='revive_row'?'REVIVE ROW CHOSEN':'UNIT REVIVED');
     }));
   }
 
@@ -353,7 +445,7 @@
 
   function commit(next,label){
     state = history.commit(next);
-    if(state.winner){ if(Store) Store.clearMatch(); } else saveActiveMatch();
+    saveActiveMatch();
     renderMatch();
     if(label) toast(label);
     maybeAutoBot();
@@ -362,7 +454,8 @@
   function maybeAutoBot(){
     clearTimeout(ui.botTimer);
     const toggle=$('#auto-bot');
-    if(!toggle || !toggle.checked || ui.lab || !state || state.winner || state.pendingChoice || state.currentPlayerId!=='p2') return;
+    const ownsChoice=state?.pendingChoice?.playerId==='p2';
+    if(!toggle || !toggle.checked || ui.lab || ui.matchMenuOpen || !state || state.winner || (state.pendingChoice&&!ownsChoice) || (!ownsChoice&&state.currentPlayerId!=='p2')) return;
     ui.botTimer=setTimeout(()=>botMove(true),220);
   }
 
@@ -415,13 +508,35 @@
     return ranked[0]?.a || pass;
   }
 
+  function choiceStrength(action){
+    const iid=action.targetIid||action.deckTargetIid,f=iid&&findInst(iid),d=f&&def(f.inst.cardId);
+    return Number(d?.strength)||0;
+  }
+
+  function chooseBotChoiceAction(){
+    const choice=state.pendingChoice,actions=G.legalChoiceActions(state,'p2');if(!choice||!actions.length)return null;
+    if(['medic','leader_steal_grave','leader_return_grave','leader_weather_choice'].includes(choice.type))return actions.slice().sort((a,b)=>choiceStrength(b)-choiceStrength(a)||String(a.targetIid).localeCompare(String(b.targetIid)))[0];
+    if(['revive_row','skellige_row'].includes(choice.type))return actions.slice().sort((a,b)=>Number(!!state.weather[a.row])-Number(!!state.weather[b.row])||G.rowScore(state,'p2',a.row)-G.rowScore(state,'p2',b.row)||String(a.row).localeCompare(String(b.row)))[0];
+    if(choice.type==='leader_destroyer')return actions.slice().sort((a,b)=>choiceStrength(b)-choiceStrength(a)||String(a.deckTargetIid).localeCompare(String(b.deckTargetIid)))[0];
+    if(choice.type==='scoiatael_first')return actions.find(a=>a.playerId==='p2')||actions[0];
+    return actions.slice().sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)))[0];
+  }
+
   function botMove(){
-    if(!state || state.currentPlayerId!=='p2') return;
+    if(!state)return;
+    if(state.pendingChoice){
+      if(state.pendingChoice.playerId!=='p2')return;
+      const choice=chooseBotChoiceAction();if(!choice){toast('OPPONENT CHOICE PAUSED');return;}
+      try{commit(G.applyAction(state,choice),'OPPONENT DECISION RESOLVED');}
+      catch(e){console.error(e);toast('OPPONENT CHOICE FAILED');}
+      return;
+    }
+    if(state.currentPlayerId!=='p2')return;
     const a=chooseBotAction(); if(!a) return;
     try{
-      if(a.type==='PASS') commit(G.pass(state,a),`INTEGRATION BOT PASSED · ${ui.setup.difficulty.toUpperCase()}`);
-      else { const d=def(findInst(a.iid).inst.cardId); commit(G.playCard(state,a),`BOT PLAYED ${d.name.toUpperCase()}`); }
-    }catch(e){ console.error(e); toast('BOT ACTION FAILED'); }
+      if(a.type==='PASS') commit(G.pass(state,a),`OPPONENT PASSED · ${ui.setup.difficulty.toUpperCase()}`);
+      else { const d=def(findInst(a.iid).inst.cardId); commit(G.playCard(state,a),`OPPONENT PLAYED ${d.name.toUpperCase()}`); }
+    }catch(e){ console.error(e); toast('OPPONENT ACTION FAILED'); }
   }
 
   function renderAssistPanels(){
@@ -459,17 +574,46 @@
     $('#cheat-reset').onclick=()=>prepareMulliganState(ui.lab);
   }
 
+  function openMatchMenu(){
+    if(!state||state.winner)return;
+    clearTimeout(ui.botTimer);ui.matchMenuOpen=true;ui.matchMenuStep='menu';ui.selectedIid=null;renderOverlay();
+  }
+
+  function renderMatchMenu(root){
+    if(ui.matchMenuStep==='confirm-restart'){
+      root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-match-menu="confirm-restart"><div class="eyebrow">RESTART MATCH</div><h2>Start this match over?</h2><p class="sub">The current match will be replaced with a fresh opening draw from the same legal decks.</p><div class="actions"><button id="match-restart-confirm" class="btn primary" data-match-command="restart-confirm">RESTART</button><button id="match-restart-cancel" class="btn" data-match-command="restart-cancel">KEEP PLAYING</button></div></aside>`;
+      return;
+    }
+    root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-match-menu="main"><div class="eyebrow">MATCH MENU</div><h2>Battle paused</h2><p class="sub">Your exact rules state is saved.</p><div class="actions"><button id="match-resume" class="btn primary" data-match-command="resume">RESUME</button><button id="match-restart-request" class="btn" data-match-command="restart-request">RESTART MATCH</button><button id="match-exit" class="btn" data-match-command="exit">EXIT TO MAIN MENU</button></div></aside>`;
+  }
+
+  function exitMatchToMenu(){
+    clearTimeout(ui.botTimer);if(Store)Store.clearMatch();
+    state=null;history=null;ui.preMatchState=null;ui.selectedIid=null;ui.matchMenuOpen=false;ui.matchMenuStep='menu';
+    go('main-screen');refreshContinueButton();
+  }
+
+  function startRematch(){
+    ui.setup.seed=(Number(ui.setup.seed)||20260910)+1;
+    prepareMulliganState(ui.lab);
+  }
+
   function renderResult(){
-    if(Store) Store.clearMatch();
+    ui.matchMenuOpen=false;ui.matchMenuStep='menu';
     const root=$('#overlay-root'); const winner=state.winner==='draw'?'DRAW':(state.winner==='p1'?'VICTORY':'DEFEAT');
-    root.innerHTML=`<div class="result-overlay"><div class="panel result-card"><div class="eyebrow">MATCH COMPLETE</div><h1>${winner}</h1><p class="sub">${state.roundHistory.map(r=>`Round ${r.round}: ${r.scores.p1.total}–${r.scores.p2.total}`).join('<br>')}</p><span class="badge ${state.classification==='classic'?'':state.classification}">${classificationLabel()}</span><div class="actions"><button id="result-rematch" class="btn primary">REMATCH</button><button id="result-menu" class="btn">MAIN MENU</button></div></div></div>`;
-    $('#result-rematch').onclick=()=>prepareMulliganState(ui.lab); $('#result-menu').onclick=()=>go('main-screen');
+    root.innerHTML=`<div class="result-overlay"><div class="panel result-card" data-result="${winner.toLowerCase()}"><div class="eyebrow">MATCH COMPLETE</div><h1>${winner}</h1><p class="sub">${state.roundHistory.map(r=>`Round ${r.round}: ${r.scores.p1.total}–${r.scores.p2.total}`).join('<br>')}</p><span class="badge ${state.classification==='classic'?'':state.classification}">${classificationLabel()}</span><div class="actions"><button id="result-rematch" class="btn primary">REMATCH</button><button id="result-menu" class="btn">MAIN MENU</button></div></div></div>`;
+    $('#result-rematch').onclick=startRematch;$('#result-menu').onclick=exitMatchToMenu;
   }
 
   function toast(msg){ const t=$('#toast'); if(!t) return; t.textContent=msg;t.classList.add('show');clearTimeout(ui.toastTimer);ui.toastTimer=setTimeout(()=>t.classList.remove('show'),1300); }
 
+  function savePreparedMatch(){
+    if(Store&&ui.preMatchState)Store.writeMatch({state:ui.preMatchState,setup:ui.setup,lab:ui.lab,phase:'mulligan',mulliganUsed:ui.mulliganUsed});
+    refreshContinueButton();
+  }
+
   function saveActiveMatch(){
-    if(Store && state && !state.winner) Store.writeMatch({state,setup:ui.setup,lab:ui.lab});
+    if(Store&&state)Store.writeMatch({state,setup:ui.setup,lab:ui.lab,phase:state.winner?'result':'match',mulliganUsed:ui.mulliganUsed});
     refreshContinueButton();
   }
 
@@ -478,33 +622,49 @@
     const saved=Store && Store.readMatch();
     b.classList.toggle('hidden',!saved);
     if(saved){
-      const label=b.querySelector('span'); if(label) label.textContent=`ROUND ${saved.state.round} · ${saved.state.players.p1.hand.length} CARDS`;
+      const label=b.querySelector('span');if(label){
+        if(saved.phase==='mulligan')label.textContent=`MULLIGAN · ${saved.mulliganUsed||0} / 2 USED`;
+        else if(saved.phase==='result')label.textContent=`RESULT · ${saved.state.winner==='p1'?'VICTORY':saved.state.winner==='p2'?'DEFEAT':'DRAW'}`;
+        else label.textContent=`ROUND ${saved.state.round} · ${saved.state.players.p1.hand.length} CARDS`;
+      }
     }
   }
 
   function resumeSavedMatch(){
     const saved=Store && Store.readMatch(); if(!saved) return;
-    state=deepClone(saved.state); history=new G.HistorySession(state); ui.setup=Object.assign({},ui.setup,saved.setup||{}); ui.lab=!!saved.lab;
-    ui.selectedIid=null; ui.revealOpponent=false; ui.showIntent=false; go('match-screen'); renderMatch(); toast('MATCH RESTORED'); maybeAutoBot();
+    ui.setup=Object.assign({},ui.setup,saved.setup||{});ui.lab=!!saved.lab;ui.mulliganUsed=Number(saved.mulliganUsed||0);
+    ui.selectedIid=null;ui.revealOpponent=false;ui.showIntent=false;
+    if(saved.phase==='mulligan'){
+      state=null;history=null;ui.preMatchState=deepClone(saved.state);go('mulligan-screen');renderMulliganScreen();toast('MULLIGAN RESTORED');return;
+    }
+    ui.preMatchState=null;state=deepClone(saved.state);history=new G.HistorySession(state);go('match-screen');renderMatch();toast(saved.phase==='result'?'RESULT RESTORED':'MATCH RESTORED');maybeAutoBot();
   }
 
-  function renderDeckScreen(){
-    const el=$('#deck-list'); if(!el) return;
-    const rows = PRESETS.player.map(p=>{
-      const counts={}; p.deck.forEach(id=>counts[id]=(counts[id]||0)+1);
-      const head = `<div class="setup-kv" style="margin-bottom:10px"><b>${esc(p.name)}</b>${esc(p.summary)}</div>`;
-      const body = Object.entries(counts).map(([id,q])=>{const d=def(id),img=assetFor(id);return `<div class="deck-card">${img?`<img class="mini-art" src="${img}" alt="${esc(d.name)}">`:''}<span><b>${esc(d.name)}</b><small class="sub"> ${esc(d.abilities.join(' · ')||d.type)}</small></span><span class="qty">×${q}</span></div>`}).join('');
-      return `<div class="panel setup-panel">${head}${body}</div>`;
-    }).join('');
-    el.innerHTML = rows;
-  }
-
-  function renderCatalog(query=''){
-    const q=query.trim().toLowerCase(); const list=catalog.filter(c=>!q || [c.name,c.faction,c.row,(c.abilities||[]).join(' ')].join(' ').toLowerCase().includes(q));
-    $('#catalog-list').innerHTML=list.slice(0,216).map(c=>`<div class="catalog-row"><b>${esc(c.name)}</b><small>${esc(c.faction)} · ${c.strength==null?'—':c.strength} · ${esc((c.abilities||[]).join(', ')||c.row||'unit')}</small></div>`).join('');
+  function renderRulesMatrix(){
+    const cov=G.abilityCoverage(); const el=$('#rules-matrix'); if(!el)return;
+    const groups=[
+      ['Core battlefield','Weather / Clear · Hero immunity · Agile · Morale · Tight Bond · Horn'],
+      ['Card actions','Spy · Medic · Muster · Decoy · Scorch + row Scorch'],
+      ['Skellige systems','Mardroeme · Berserker transforms · Storm · Kambi / Hemdall'],
+      ['Lifecycle','Avenger / Bovine Defense Force · active weather/special slots · canonical auto-pass'],
+      ['Faction perks','Northern Realms · Nilfgaard · Monsters · Scoia\'tael · Skellige'],
+      ['Leader families','Foltest 5/5 · Emhyr 5/5 · Eredin 5/5 · Francesca 5/5 · Crach · King Bran']
+    ];
+    el.innerHTML=groups.map(([a,b])=>`<div class="panel rule-row"><span><b>${esc(a)}</b><small>${esc(b)}</small></span><span class="badge">COVERED</span></div>`).join('') + `<div class="panel rule-row"><span><b>Catalog token audit</b><small>${cov.supported.length} supported · ${cov.unsupported.length} unsupported</small></span><span class="badge">${cov.unsupported.length?'REVIEW':'44 / 44'}</span></div>`;
   }
 
   document.addEventListener('click', e=>{
+    const matchCommand=e.target.closest('[data-match-command]');
+    if(matchCommand){
+      e.preventDefault();
+      const command=matchCommand.dataset.matchCommand;
+      if(command==='resume')closeOverlay();
+      else if(command==='restart-request'){ui.matchMenuStep='confirm-restart';renderOverlay();}
+      else if(command==='restart-cancel'){ui.matchMenuStep='menu';renderOverlay();}
+      else if(command==='restart-confirm')prepareMulliganState(ui.lab);
+      else if(command==='exit')exitMatchToMenu();
+      return;
+    }
     const nav=e.target.closest('[data-nav]'); if(nav){e.preventDefault();go(nav.dataset.nav);return;}
     const hand=e.target.closest('[data-card-iid]'); if(hand){selectCard(hand.dataset.cardIid);return;}
     const board=e.target.closest('[data-inspect-board]'); if(board){selectCard(board.dataset.inspectBoard);return;}
@@ -517,7 +677,7 @@
   $('#quick-start').onclick=(e)=>{e.preventDefault();quickStart();};
   $('#start-lab').onclick=(e)=>{e.preventDefault();prepareMulliganState(true);};
   $('#pass-button').onclick=(e)=>{e.preventDefault();passPlayer();}; $('#bot-move').onclick=botMove; $('#cheat-open').onclick=(e)=>{e.preventDefault();openCheats();}; $('#leader-button').onclick=(e)=>{e.preventDefault();openLeader();};
-  $('#match-menu').onclick=(e)=>{e.preventDefault();go('main-screen');}; $('#catalog-search').addEventListener('input',e=>renderCatalog(e.target.value));
+  $('#match-menu').onclick=(e)=>{e.preventDefault();openMatchMenu();}; $('#catalog-search').addEventListener('input',e=>renderCatalog(e.target.value));
   $('#skip-mulligan').onclick=(e)=>{e.preventDefault();finalizeMatchFromPrepared();}; $('#finish-mulligan').onclick=(e)=>{e.preventDefault();finalizeMatchFromPrepared();};
 
   $('#auto-bot').addEventListener('change',e=>{ ui.settings.autoBot=e.target.checked; persistSettings(); maybeAutoBot(); });
@@ -533,11 +693,12 @@
     getState:()=>state ? G.helpers.deepClone(state) : null,
     getPreparedState:()=>ui.preMatchState ? deepClone(ui.preMatchState) : null,
     quickStart, prepareMulliganState, finalizeMatchFromPrepared, botMove, pass:passPlayer,
-    selectCard, playAction, openCheats, go, maybeAutoBot, engine:G, assetResolver:Assets, storage:Store, openLeader, renderRulesMatrix,
-    swapMulligan,
+    selectCard, playAction, openCheats, go, maybeAutoBot, engine:G, assetResolver:Assets, storage:Store, openLeader, openMatchMenu, saveActiveMatch, renderRulesMatrix,
+    swapMulligan, getMulliganUsed:()=>ui.mulliganUsed, presets:()=>deepClone(PRESETS),
     setStateForQA:(s)=>{state=G.helpers.deepClone(s);history=new G.HistorySession(state);go('match-screen');renderMatch();},
     battlefieldRowModel:[['p2','siege'],['p2','ranged'],['p2','close'],['weather',null],['p1','close'],['p1','ranged'],['p1','siege']]
   };
+  window.__GWENT_PASS11__ = window.__GWENT_PASS10__;
   window.__GWENT_PASS10_2__ = window.__GWENT_PASS10__;
   window.__GWENT_PASS9__ = window.__GWENT_PASS10__;
 })();

@@ -67,7 +67,7 @@ with sync_playwright() as p:
 
     assert page.evaluate("window.GwentMotionTokens?.version==='10.4C.0'&&window.GwentPresentationFeedback?.version==='10.4C.0'&&window.GwentPresentationFeedback.stats.installed")
     assert page.evaluate('window.GwentPresentationFeedback.install()') is False
-    assert '10.4C' in page.title()
+    assert 'Pass 11' in page.title()
     page.evaluate("""()=>{const b=document.querySelector('#auto-bot');if(b)b.checked=false;window.__feelHooks=[];window.__audioHooks=[];addEventListener('gwent:feedback-hook',e=>window.__feelHooks.push(e.detail));addEventListener('gwent:audio-hook',e=>window.__audioHooks.push(e.detail));window.GwentPresentationFeedback.updateSettings({effectsVolume:.6,muted:false,haptics:false});}""")
     settings=page.evaluate('window.GwentPresentationFeedback.getSettings()');assert settings['effectsVolume']==.6 and not settings['muted'] and not settings['haptics']
     base=state(page);base['players']['p2']['passed']=True;base['currentPlayerId']='p1';reset(page,base)

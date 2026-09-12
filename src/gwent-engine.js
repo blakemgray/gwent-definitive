@@ -42,6 +42,41 @@
     return db;
   }
   const CARD_DB = normalizeCatalog(catalog);
+  const DECK_RULES = Object.freeze({minimumUnits:22,maximumSpecials:10});
+  const VALID_FACTIONS = new Set(Object.values(CARD_DB).filter(d=>d.type==="leader").map(d=>d.faction));
+
+  function validateDeck(opts){
+    opts=opts||{};
+    const faction=opts.faction||null,leaderId=opts.leaderId||null,deckIds=Array.isArray(opts.deckIds)?opts.deckIds:[];
+    const errors=[],counts={};let units=0,specials=0;
+    if(!VALID_FACTIONS.has(faction))errors.push({code:"invalid_faction",faction});
+    const leader=CARD_DB[leaderId];
+    if(!leader||leader.type!=="leader")errors.push({code:"invalid_leader",leaderId});
+    else if(leader.faction!==faction)errors.push({code:"leader_faction_mismatch",leaderId,faction,leaderFaction:leader.faction});
+    if(!Array.isArray(opts.deckIds))errors.push({code:"deck_not_array"});
+    for(const cardId of deckIds){
+      const d=CARD_DB[cardId];
+      if(!d){errors.push({code:"unknown_card",cardId});continue;}
+      const canonicalId=d.id;counts[canonicalId]=(counts[canonicalId]||0)+1;
+      if(d.type==="leader"){errors.push({code:"leader_in_deck",cardId:canonicalId});continue;}
+      if(d.type==="unit"){
+        units++;
+        if(d.faction!==faction&&d.faction!=="neutral")errors.push({code:"card_faction_mismatch",cardId:canonicalId,faction,cardFaction:d.faction});
+      }else if(d.type==="special"||d.type==="weather")specials++;
+      else errors.push({code:"invalid_card_type",cardId:canonicalId,type:d.type});
+    }
+    for(const [cardId,count] of Object.entries(counts)){
+      const available=Math.max(0,Number(CARD_DB[cardId]?.count||0));
+      if(count>available)errors.push({code:"copy_limit_exceeded",cardId,count,available});
+    }
+    if(units<DECK_RULES.minimumUnits)errors.push({code:"minimum_units",minimum:DECK_RULES.minimumUnits,actual:units});
+    if(specials>DECK_RULES.maximumSpecials)errors.push({code:"maximum_specials",maximum:DECK_RULES.maximumSpecials,actual:specials});
+    return {valid:errors.length===0,errors,summary:{faction,leaderId,total:deckIds.length,units,specials}};
+  }
+  function assertLegalDeck(opts){
+    const result=validateDeck(opts);if(result.valid)return result;
+    const error=new Error("Illegal deck: "+result.errors.map(x=>x.code).join(", "));error.code="ILLEGAL_DECK";error.validation=result;throw error;
+  }
 
   function deepClone(x){ return JSON.parse(JSON.stringify(x)); }
   function otherPlayer(id){ return id === "p1" ? "p2" : "p1"; }
@@ -57,6 +92,7 @@
     return state.rngState/4294967296;
   }
   function randomIndex(state,n){ return n<=0 ? -1 : Math.floor(nextRng(state)*n); }
+  function shuffleInPlace(state,cards){ for(let i=cards.length-1;i>0;i--){const j=randomIndex(state,i+1);[cards[i],cards[j]]=[cards[j],cards[i]];} return cards; }
   function makeInstanceWithState(state,cardId,extra){ assertCard(cardId); return Object.assign({iid:"c"+(state.nextSeq++),cardId},extra||{}); }
   function makeInstanceSeq(cardId,seq){ assertCard(cardId); return {iid:"c"+(seq.n++),cardId}; }
 
@@ -80,6 +116,10 @@
 
   function createMatch(opts){
     opts=opts||{};
+    if(opts.validateDecks===true){
+      assertLegalDeck({faction:opts.p1Faction||"realms",leaderId:opts.p1LeaderId||null,deckIds:opts.p1Deck});
+      assertLegalDeck({faction:opts.p2Faction||"monsters",leaderId:opts.p2LeaderId||null,deckIds:opts.p2Deck});
+    }
     const seq={n:1};
     const p1Leader=opts.p1LeaderId||null, p2Leader=opts.p2LeaderId||null;
     const whiteFlame=[p1Leader,p2Leader].some(id=>id && CARD_DB[id] && CARD_DB[id].abilities[0]==="emhyr_whiteflame");
@@ -87,8 +127,9 @@
     const daisy1=!whiteFlame && p1Leader && CARD_DB[p1Leader]?.abilities[0]==="francesca_daisy";
     const daisy2=!whiteFlame && p2Leader && CARD_DB[p2Leader]?.abilities[0]==="francesca_daisy";
     const state={
-      version:"pass9.0",round:1,currentPlayerId:null,firstPlayerId:null,roundStarterId:null,classification:"classic",
-      rngState:(opts.seed==null?0xC0FFEE:opts.seed)>>>0,nextSeq:seq.n,
+      version:"pass11.1B",round:1,currentPlayerId:null,firstPlayerId:null,roundStarterId:null,classification:"classic",
+      seed:(opts.seed==null?0xC0FFEE:opts.seed)>>>0,rngState:(opts.seed==null?0xC0FFEE:opts.seed)>>>0,nextSeq:seq.n,
+      setupPhase:opts.mulligan===true?"mulligan":"playing",mulliganCounts:{p1:0,p2:0},
       players:{
         p1:createPlayer("p1",opts.p1Faction||"realms",p1Leader,(opts.p1Deck||[]).slice(),baseHand+(daisy1?1:0),seq),
         p2:createPlayer("p2",opts.p2Faction||"monsters",p2Leader,(opts.p2Deck||[]).slice(),baseHand+(daisy2?1:0),seq)
@@ -97,6 +138,13 @@
       roundHistory:[],eventLog:[],pendingChoice:null,pendingResume:null,roundStartQueue:[],leaderReveal:null,winner:null
     };
     state.nextSeq=seq.n;
+    if(opts.shuffleDecks===true){
+      for(const pid of ["p1","p2"]){
+        const p=state.players[pid],openingSize=p.hand.length,all=p.hand.concat(p.deck);shuffleInPlace(state,all);p.hand=all.splice(0,openingSize);p.deck=all;
+        log(state,"DECK_SHUFFLED",{playerId:pid,count:p.hand.length+p.deck.length});
+      }
+    }
+    if(opts.validateDecks===true)log(state,"DECKS_VALIDATED",{p1:validateDeck({faction:state.players.p1.faction,leaderId:state.players.p1.leaderId,deckIds:(opts.p1Deck||[])}).summary,p2:validateDeck({faction:state.players.p2.faction,leaderId:state.players.p2.leaderId,deckIds:(opts.p2Deck||[])}).summary});
 
     if(whiteFlame){ state.players.p1.leaderDisabled=true; state.players.p2.leaderDisabled=true; log(state,"WHITE_FLAME_CANCELLED_LEADERS",{}); }
     else {
@@ -116,9 +164,26 @@
       else state.pendingChoice={type:"scoiatael_first",playerId:scoia[0],candidatePlayerIds:["p1","p2"],resume:{kind:"pregame"}};
     } else state.firstPlayerId = opts.coinToss ? (randomIndex(state,2)===0 ? "p1" : "p2") : "p1";
     if(state.firstPlayerId){ state.currentPlayerId=state.firstPlayerId; state.roundStarterId=state.firstPlayerId; }
-    log(state,"MATCH_CREATED",{seed:state.rngState,firstPlayerId:state.firstPlayerId});
-    if(state.firstPlayerId && !state.pendingChoice) settleAutoPassAtRoundStart(state);
+    log(state,"MATCH_CREATED",{seed:state.seed,rngState:state.rngState,firstPlayerId:state.firstPlayerId,setupPhase:state.setupPhase});
+    if(state.firstPlayerId && !state.pendingChoice && state.setupPhase==="playing") settleAutoPassAtRoundStart(state);
     return state;
+  }
+
+  function mulliganCard(stateIn,action){
+    const state=deepClone(stateIn),pid=action.playerId||"p1";
+    if(state.setupPhase!=="mulligan")throw new Error("Mulligan is closed");
+    if(!state.players[pid])throw new Error("Unknown mulligan player");
+    if((state.mulliganCounts?.[pid]||0)>=2)throw new Error("Mulligan limit reached");
+    const p=state.players[pid],h=findIn(p.hand,action.iid);if(!h)throw new Error("Mulligan card not in hand");if(!p.deck.length)throw new Error("No replacement card available");
+    const outgoing=p.hand.splice(h.index,1)[0],incoming=p.deck.shift();p.hand.push(incoming);p.deck.push(outgoing);
+    state.mulliganCounts=state.mulliganCounts||{p1:0,p2:0};state.mulliganCounts[pid]=(state.mulliganCounts[pid]||0)+1;
+    log(state,"CARD_MULLIGANED",{playerId:pid,outgoingIid:outgoing.iid,outgoingCardId:outgoing.cardId,incomingIid:incoming.iid,incomingCardId:incoming.cardId,count:state.mulliganCounts[pid]});
+    return state;
+  }
+  function finishMulligan(stateIn){
+    const state=deepClone(stateIn);if(state.setupPhase!=="mulligan")throw new Error("Mulligan is already closed");
+    state.setupPhase="playing";log(state,"MULLIGAN_FINISHED",{counts:deepClone(state.mulliganCounts||{p1:0,p2:0})});
+    if(state.firstPlayerId&&!state.pendingChoice)settleAutoPassAtRoundStart(state);return state;
   }
 
   function findIn(arr,iid){ const i=arr.findIndex(c=>c.iid===iid); return i<0?null:{index:i,card:arr[i]}; }
@@ -258,7 +323,7 @@
     if(state.players.p1.passed&&state.players.p2.passed){resolveRound(state);return;}
     if(state.currentPlayerId && state.players[state.currentPlayerId].passed)state.currentPlayerId=otherPlayer(state.currentPlayerId);
   }
-  function validateTurn(state,playerId){ if(state.winner)throw new Error("Match already over"); if(state.pendingChoice)throw new Error("Choice pending"); if(state.currentPlayerId!==playerId)throw new Error("Not current player's turn"); if(state.players[playerId].passed)throw new Error("Player already passed"); }
+  function validateTurn(state,playerId){ if(state.setupPhase==="mulligan")throw new Error("Mulligan is not finished"); if(state.winner)throw new Error("Match already over"); if(state.pendingChoice)throw new Error("Choice pending"); if(state.currentPlayerId!==playerId)throw new Error("Not current player's turn"); if(state.players[playerId].passed)throw new Error("Player already passed"); }
   function advanceTurn(state,actingPlayerId){
     autoPassIfNeeded(state,actingPlayerId,"end_turn");
     const other=otherPlayer(actingPlayerId); if(!state.players[other].passed)state.currentPlayerId=other; else state.currentPlayerId=actingPlayerId;
@@ -345,6 +410,23 @@
   }
   function shuffleGravesIntoDecks(state){ for(const pid of ["p1","p2"]){ const grave=state.players[pid].grave.splice(0); for(const inst of grave)addToDeckRandom(state,pid,inst); } log(state,"CRACH_SHUFFLED_GRAVES",{}); }
 
+  function legalChoiceActions(state,playerId){
+    const c=state&&state.pendingChoice;if(!c||c.playerId!==playerId)return[];
+    if(c.type==="scoiatael_first")return(c.candidatePlayerIds||[]).map(firstPlayerId=>({type:"RESOLVE_SCOIATAEL_FIRST",playerId:firstPlayerId}));
+    if(c.type==="medic")return(c.candidateIids||[]).map(targetIid=>({type:"RESOLVE_MEDIC",playerId:c.playerId,targetIid}));
+    if(c.type==="revive_row")return(c.candidateRows||[]).map(row=>({type:"RESOLVE_REVIVE_ROW",playerId:c.playerId,targetIid:c.targetIid,row}));
+    if(c.type==="leader_steal_grave")return(c.candidateIids||[]).map(targetIid=>({type:"RESOLVE_LEADER_STEAL_GRAVE",playerId:c.playerId,targetIid}));
+    if(c.type==="leader_return_grave")return(c.candidateIids||[]).map(targetIid=>({type:"RESOLVE_LEADER_RETURN_GRAVE",playerId:c.playerId,targetIid}));
+    if(c.type==="leader_weather_choice")return(c.candidateIids||[]).map(targetIid=>({type:"RESOLVE_LEADER_WEATHER",playerId:c.playerId,targetIid}));
+    if(c.type==="skellige_row")return["close","ranged"].map(row=>({type:"RESOLVE_SKELLIGE_ROW",playerId:c.playerId,targetIid:c.targetIid,row}));
+    if(c.type==="leader_destroyer"){
+      const out=[],hand=c.handIids||[],deck=c.deckIids||[];
+      for(let i=0;i<hand.length;i++)for(let j=i+1;j<hand.length;j++)for(const deckTargetIid of deck)out.push({type:"RESOLVE_LEADER_DESTROYER",playerId:c.playerId,discardIids:[hand[i],hand[j]],deckTargetIid});
+      return out;
+    }
+    return[];
+  }
+
   function resolveChoice(stateIn,action){
     const state=deepClone(stateIn), c=state.pendingChoice; if(!c)throw new Error("No pending choice"); const resume=c.resume||state.pendingResume||null; state.pendingChoice=null;
     if(c.type==="scoiatael_first"){
@@ -411,7 +493,7 @@
   function sandboxSetTurn(stateIn,playerId){const s=deepClone(stateIn);escalateClassification(s,"sandbox");s.currentPlayerId=playerId;log(s,"SANDBOX_SET_TURN",{playerId});return s;}
 
   function legalActions(state,playerId){
-    if(state.winner||state.pendingChoice||state.currentPlayerId!==playerId||state.players[playerId].passed)return[]; const acts=[{type:"PASS",playerId}]; if(leaderAvailable(state,playerId))acts.push({type:"ACTIVATE_LEADER",playerId});
+    if(state.setupPhase==="mulligan"||state.winner||state.pendingChoice||state.currentPlayerId!==playerId||state.players[playerId].passed)return[]; const acts=[{type:"PASS",playerId}]; if(leaderAvailable(state,playerId))acts.push({type:"ACTIVATE_LEADER",playerId});
     for(const inst of state.players[playerId].hand){
       const d=getDef(inst);
       if(d.type==="unit"){
@@ -434,11 +516,11 @@
     }
     return acts;
   }
-  function applyAction(state,action){ if(action.type==="PLAY_CARD")return playCard(state,action); if(action.type==="PASS")return pass(state,action); if(action.type==="ACTIVATE_LEADER")return activateLeader(state,action); if(action.type&&action.type.startsWith("RESOLVE_"))return resolveChoice(state,action); throw new Error("Unknown action type"); }
+  function applyAction(state,action){ if(action.type==="MULLIGAN_CARD")return mulliganCard(state,action); if(action.type==="FINISH_MULLIGAN")return finishMulligan(state); if(action.type==="PLAY_CARD")return playCard(state,action); if(action.type==="PASS")return pass(state,action); if(action.type==="ACTIVATE_LEADER")return activateLeader(state,action); if(action.type&&action.type.startsWith("RESOLVE_"))return resolveChoice(state,action); throw new Error("Unknown action type"); }
 
   class HistorySession{constructor(initialState){this.states=[deepClone(initialState)];this.index=0;}get state(){return deepClone(this.states[this.index]);}commit(next){this.states=this.states.slice(0,this.index+1);this.states.push(deepClone(next));this.index++;return this.state;}undo(){if(this.index>0)this.index--;return this.state;}redo(){if(this.index<this.states.length-1)this.index++;return this.state;}}
 
   function abilityCoverage(){ const tokens=new Set();for(const d of Object.values(CARD_DB))for(const a of d.abilities)tokens.add(a);return{catalogCards:Object.keys(CARD_DB).length,tokens:[...tokens].sort(),supported:[...tokens].filter(a=>SUPPORTED_ABILITIES.has(a)).sort(),unsupported:[...tokens].filter(a=>!SUPPORTED_ABILITIES.has(a)).sort(),leaders:Object.values(CARD_DB).filter(d=>d.type==="leader").length}; }
 
-  return {CARD_DB,ROWS,SUPPORTED_ABILITIES,createMatch,playCard,activateLeader,resolveChoice,pass,applyAction,rowEffects,rowScore,totalScore,scoreSnapshot,legalActions,leaderAvailable,canPlay,assistedView,markAssisted,cheatDraw,sandboxSetTurn,HistorySession,abilityCoverage,helpers:{deepClone,getDef,otherPlayer,effectiveCardPower,validRowsFor,isReviveUnit,locateAny,nextRng,randomIndex}};
+  return {CARD_DB,ROWS,SUPPORTED_ABILITIES,DECK_RULES,validateDeck,assertLegalDeck,createMatch,mulliganCard,finishMulligan,playCard,activateLeader,legalChoiceActions,resolveChoice,pass,applyAction,rowEffects,rowScore,totalScore,scoreSnapshot,legalActions,leaderAvailable,canPlay,assistedView,markAssisted,cheatDraw,sandboxSetTurn,HistorySession,abilityCoverage,helpers:{deepClone,getDef,otherPlayer,effectiveCardPower,validRowsFor,isReviveUnit,locateAny,nextRng,randomIndex}};
 });
