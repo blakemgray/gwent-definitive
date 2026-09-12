@@ -19,6 +19,14 @@ def feedback_stats(page):
     return page.evaluate('window.GwentPresentationFeedback.stats')
 
 
+def install_status_collectors(page):
+    page.evaluate("""()=>{
+      window.__audioStatuses=[];window.__hapticStatuses=[];
+      addEventListener('gwent:audio-status',e=>window.__audioStatuses.push(e.detail));
+      addEventListener('gwent:haptic-status',e=>window.__hapticStatuses.push(e.detail));
+    }""")
+
+
 with sync_playwright() as p:
     exe=os.environ.get('PLAYWRIGHT_CHROMIUM_EXECUTABLE');kwargs={'args':['--no-sandbox']}
     if not exe and Path('/usr/bin/chromium').exists():exe='/usr/bin/chromium'
@@ -26,12 +34,7 @@ with sync_playwright() as p:
     browser=p.chromium.launch(**kwargs)
     ctx=browser.new_context(viewport={'width':852,'height':393})
     page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
-    page.goto(BASE,wait_until='networkidle')
-    page.evaluate("""()=>{
-      window.__audioStatuses=[];window.__hapticStatuses=[];
-      addEventListener('gwent:audio-status',e=>window.__audioStatuses.push(e.detail));
-      addEventListener('gwent:haptic-status',e=>window.__hapticStatuses.push(e.detail));
-    }""")
+    page.goto(BASE,wait_until='networkidle');install_status_collectors(page)
 
     initial=status(page)
     assert initial['installed'] and initial['supported'],initial
@@ -73,7 +76,7 @@ with sync_playwright() as p:
 
     # Settings survive a normal reload/relaunch-style document recreation.
     page.evaluate("window.GwentPresentationFeedback.updateSettings({effectsVolume:.4,muted:true,haptics:false})")
-    page.reload(wait_until='networkidle')
+    page.reload(wait_until='networkidle');install_status_collectors(page)
     persisted=page.evaluate('window.GwentPresentationFeedback.getSettings()')
     assert abs(persisted['effectsVolume']-.4)<.001 and persisted['muted'] is True,persisted
     page.evaluate("window.GwentPresentationFeedback.updateSettings({muted:false})")
@@ -83,7 +86,7 @@ with sync_playwright() as p:
     page.evaluate('window.GwentPlatformFeedback.context.suspend()')
     page.wait_for_function("window.GwentPlatformFeedback.context.state === 'suspended'")
     life_before=status(page)['lifecycleResumeSuccesses']
-    page.evaluate("dispatchEvent(new PageTransitionEvent('pageshow'))")
+    page.evaluate("dispatchEvent(new Event('pageshow'))")
     wait_running(page)
     assert status(page)['lifecycleResumeSuccesses']>life_before,status(page)
 
@@ -103,9 +106,9 @@ with sync_playwright() as p:
 
     # Separate browser page with a capability stub proves one supported vibration request is attempted once.
     page2=ctx.new_page()
-    page2.add_init_script("""()=>{
+    page2.add_init_script("""
       Object.defineProperty(navigator,'vibrate',{configurable:true,value:(pattern)=>{window.__vibrationCalls=(window.__vibrationCalls||[]);window.__vibrationCalls.push(pattern);return true;}});
-    }""")
+    """)
     page2.goto(BASE,wait_until='networkidle')
     page2.evaluate("window.__hapticStatuses=[];addEventListener('gwent:haptic-status',e=>window.__hapticStatuses.push(e.detail));window.GwentPresentationFeedback.updateSettings({haptics:true,muted:true})")
     page2.evaluate("window.GwentPresentationFeedback.emit('UI_CARD_SELECT',{qa:'supported-haptic'})")
