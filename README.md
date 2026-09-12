@@ -6,7 +6,13 @@ Canonical JS-first hosted build of classic *The Witcher 3* Gwent.
 
 ## Current implementation status
 
-**Pass 11 — Golden Match / Complete Normal Match is implemented on PR #11 (`pass-11-golden-match`) and has completed automated release verification.** The production `main` branch remains the pre-Pass-11 baseline until an explicit merge/deploy is authorized. Installed-iPhone sensory/platform signoff remains external release acceptance.
+**Pass 11 — Golden Match / Complete Normal Match is merged and deployed to production.** PR #11 (`pass-11-golden-match`) merged to `main` as `aa8b6043d68c42ae2dc5310b57106a5a5808a150`. Production Verify and Deploy Run #300 / `34701697634` completed successfully, including the full browser/interaction regression suite and GitHub Pages deployment.
+
+The canonical hosted build is:
+
+`https://blakemgray.github.io/gwent-definitive/`
+
+Automated functional acceptance is complete. Real installed-iPhone sensory/platform review remains a **post-deploy physical-device acceptance item** for audible output, background/relaunch behavior, tactile capability/quality where supported, and final physical feel.
 
 Pass 11 preserves the closed interaction stack beneath it:
 
@@ -15,7 +21,7 @@ Pass 11 preserves the closed interaction stack beneath it:
 - **Pass 10.4B** — serialized cause→effect gameplay choreography.
 - **Pass 10.4C** — physical feel, semantic feedback, accessibility, and reduced-motion polish.
 
-The current candidate adds the complete normal-match product loop around that foundation rather than replacing it.
+Pass 11 adds the complete normal-match product loop around that foundation rather than replacing it.
 
 ## Product doctrine
 
@@ -40,7 +46,7 @@ Primary gameplay target is an installed iPhone landscape PWA. Pass 10.3 final ge
 
 ## Pass 11 — Golden Match
 
-The Pass 11 candidate now provides one genuine normal Instant Match from menu to rematch:
+The production release provides one genuine normal Instant Match from menu to rematch:
 
 - legal full-size Northern Realms and Monsters presets;
 - deterministic shuffle plus a real opening draw and two-card mulligan;
@@ -74,9 +80,9 @@ CI runs the real browser product at the iPhone-landscape target geometry and pre
 - preserved 10.4B signature/adversarial choreography and 10.4C feel/pacing;
 - dedicated storage-resilience coverage for failed writes, recovery, malformed saves, and bounded legacy compatibility.
 
-The latest exact functional candidate passed the full main verification and dedicated storage-resilience suites, and its Golden Match, PWA-upgrade, platform-feedback, storage, and feel artifacts were manually reviewed without a release blocker.
+The exact functional candidate passed the full main verification and dedicated storage-resilience suites, and its Golden Match, PWA-upgrade, platform-feedback, storage, and feel artifacts were manually reviewed without a release blocker. After merge, production Run #300 repeated the full Verify suite successfully and then completed the Pages deploy successfully.
 
-Automated proof does **not** substitute for human real-device sensory acceptance. Installed-iPhone audible output, background/relaunch behavior, tactile capability/quality, and final physical feel remain external signoff items before Pass 11 is treated as fully released.
+Automated proof does **not** substitute for human real-device sensory acceptance. Installed-iPhone audible output, background/relaunch behavior, tactile capability/quality, and final physical feel remain physical-device signoff items even though Pass 11 is now deployed.
 
 ## Key runtime files
 

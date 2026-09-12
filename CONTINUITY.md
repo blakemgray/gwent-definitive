@@ -1,22 +1,26 @@
 # Gwent Classic — Definitive Edition
 ## Canonical Running Project Continuity
 
-**Purpose:** concise permanent implemented-state handoff. Older detail remains preserved in Git history; this file records the current authoritative state needed to resume safely.
+**Purpose:** permanent implemented-state handoff. Git history preserves older detail; this file records the current authoritative state needed to resume safely.
 
 **Repository:** `blakemgray/gwent-definitive`  
 **Canonical hosted build:** `https://blakemgray.github.io/gwent-definitive/`  
 **Default branch:** `main`  
-**Verified production main:** `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b` — pre-Pass-11 production; unchanged during PR #11 work  
-**Current branch / PR:** `pass-11-golden-match` / PR #11  
+**Pass 11 production merge:** `aa8b6043d68c42ae2dc5310b57106a5a5808a150`  
+**Merged PR:** #11 — `pass-11-golden-match`  
+**Production Verify + Deploy:** Run #300 / `34701697634` — **FULL SUCCESS**; verify **SUCCESS**; Pages deploy **SUCCESS**  
 **Latest exact green functional Pass 11 head:** `20183a10f68b4fff7084936e5aa3194c5a55a7c2`  
-**Exact functional main workflow:** Run #297 / `34700148543` — **FULL SUCCESS**; PR deployment job **SKIPPED**  
-**Exact functional storage workflow:** Run #14 / `34700148554` — **FULL SUCCESS**  
-**Current milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
-**Current phase:** **FUNCTIONAL CANDIDATE AUTOMATED VERIFICATION COMPLETE / MANUAL ARTIFACT REVIEW COMPLETE / DOCS-ONLY CLOSEOUT + REAL-IPHONE SENSORY SIGNOFF PENDING**  
-**Current task:** **verify the final docs-inclusive PR head, preserve no-merge/no-deploy state, then await real-device signoff and explicit user authorization for any merge/deploy**  
+**Exact functional Main Verify:** Run #297 / `34700148543` — **FULL SUCCESS**  
+**Exact functional Storage Resilience:** Run #14 / `34700148554` — **FULL SUCCESS**  
+**Final docs-inclusive PR head:** `2e45b401238f7b4363684a8eca6027035b60a32f`  
+**Docs-inclusive Main Verify:** Run #299 / `34700876842` — **FULL SUCCESS**  
+**Docs-inclusive Storage Resilience:** Run #16 / `34700876857` — **FULL SUCCESS**  
+**Current milestone:** **Pass 11 — Golden Match / Complete Normal Match — DEPLOYED**  
+**Current phase:** **PRODUCTION DEPLOYED / AUTOMATED RELEASE VERIFICATION COMPLETE / REAL-IPHONE SENSORY SIGNOFF PENDING**  
+**Current task:** **perform real installed-iPhone acceptance, capture genuine regressions if any, then plan the next product pass from the deployed Pass 11 baseline**  
 **Pass 11 planning:** 100%  
-**Pass 11 functional implementation:** ~99%  
-**Formally verified/closed:** ~99%  
+**Pass 11 functional implementation:** 100% candidate-complete  
+**Automated verification:** 100% green  
 **Default model:** GPT-5.6 Sol · High  
 **Last updated:** 2026-09-12 America/New_York
 
@@ -29,17 +33,15 @@ Before substantive resumed work:
 1. Read this file in full.
 2. Read `FUTURE_CONTINUITY.md` in full.
 3. Read `MODEL_ROUTING.md` in full.
-4. Reconcile PR #11 head and latest workflow state against this file.
+4. Reconcile current `main`, current open PRs, and latest workflow state against this file.
 5. Treat GitHub as authoritative over chat memory or assumptions.
 6. Before implementation changes, write a fresh continuity checkpoint if repository state has moved materially.
 
 Precedence: current user instruction → current repository / exact-head green CI → this file → `FUTURE_CONTINUITY.md` → current contracts/config → `MODEL_ROUTING.md` → older archives/chat.
 
-Never weaken, delete, or bypass CI/QA merely to make a candidate green. Playwright/CI owns deterministic machine and temporal-browser proof. TinyFish is useful for independent coarse live-product QA where reliable, but not as the primary interface for precise GitHub operations or microinteraction proof. Real-device iPhone review remains required for final physical touch/audio/haptic/platform signoff.
+Never weaken, delete, or bypass CI/QA merely to make a candidate green. Playwright/CI owns deterministic machine and temporal-browser proof. TinyFish is useful for independent live-product QA where reliable, but not as the primary interface for precise GitHub operations or microinteraction proof. Real-device iPhone review remains required for final physical touch/audio/haptic/platform observations.
 
 Every user-facing progress update should include **Implementation %**, **Verified %**, a concise **Layman’s terms** explanation, and the exact **Next** action.
-
-**Do not merge or deploy PR #11 without explicit user authorization.**
 
 ---
 
@@ -69,9 +71,9 @@ Primary gameplay target: installed iPhone landscape PWA.
 
 ---
 
-# 2. Pass 11 implemented product contract
+# 2. Pass 11 production contract
 
-Pass 11 now supplies one genuine normal Instant Match from menu to fresh rematch without developer-state injection:
+Pass 11 is deployed and supplies one genuine normal Instant Match from menu to fresh rematch without developer-state injection:
 
 - legal full-size Northern Realms and Monsters presets;
 - deterministic shuffle, opening draw, and real two-card mulligan;
@@ -101,7 +103,7 @@ Key files:
 - `app.js` — production shell, Golden Match setup/lifecycle, bounded opponent.
 - `src/storage.js` — validated prepared/active/result persistence plus save-failure reporting.
 - `src/battlefield-ux.js` — frozen final geometry/reconciliation.
-- `src/gesture-controller.js` — canonical direct manipulation and 11.2B intent consumption.
+- `src/gesture-controller.js` — canonical direct manipulation and intent consumption.
 - `src/interaction-intent.js` — pure forgiveness/ambiguity/trajectory resolver.
 - `src/battlefield-readability.js`, `physical-card.css` — always-visible current power/readable identity.
 - `src/target-exposure.js` — presentation-only predictive target exposure/local yield.
@@ -148,7 +150,7 @@ Drag/tap identity continuity, interruption cleanup, reduced-motion identity, and
 
 ## Platform / sensory browser layer
 
-Concrete Web Audio, real user-activation unlock, lifecycle resume/recovery, persistent effects settings, capability-gated haptic semantics, and platform diagnostics are automated-browser closed. Physical-device sensory acceptance remains external.
+Concrete Web Audio, real user-activation unlock, lifecycle resume/recovery, persistent effects settings, capability-gated haptic semantics, and platform diagnostics are automated-browser closed. Physical-device sensory observations remain external.
 
 ## Golden Match E2E
 
@@ -158,7 +160,7 @@ A normal menu → mulligan → ordinary play → natural best-of-three terminal 
 
 # 5. Adversarial integration review — F1 through F4 closed
 
-The bounded GPT-6 Astra adversarial review found four integration risks. All are now closed in automated evidence.
+The bounded GPT-6 Astra adversarial review found four integration risks. All are closed in automated evidence.
 
 ### F1 — consecutive opponent actions through unresolved presentation — CLOSED
 
@@ -190,118 +192,63 @@ Current save format remains independently versioned:
 
 Do not bump the save build merely because shell/release labels change; save semantics are independent.
 
-A release-hygiene review found that closed lower layers could still overwrite current milestone labels at runtime. `src/presentation-feedback.js` no longer owns milestone identity. A later stale 10.4A interaction-layer overwrite was then exposed by the final feel gate. The current Pass 11 `src/platform-feedback.js` loads after closed lower layers and applies the authoritative current release identity:
+The current Pass 11 `src/platform-feedback.js` loads after closed lower layers and applies the authoritative current release identity:
 
 - title: `Gwent Classic — Definitive Edition · Pass 11`
 - buildline: `PASS 11 · GOLDEN MATCH · CI-GATED`
 - profile heading: Pass 11 Golden Match status
 
-The repair is observable through `releaseIdentityRepairs`; exact-head platform evidence recorded one repair during startup, proving the guard actually corrected the lower-layer overwrite. Static contracts lock this behavior and the load order. Because the precached runtime changed, SW generation advanced to `11.golden.4`.
+The repair is observable through `releaseIdentityRepairs`; exact-head platform evidence recorded one startup repair, proving the guard corrected the lower-layer overwrite. Static contracts lock this behavior and load order. Because the precached runtime changed, SW generation advanced to `11.golden.4`.
 
 ---
 
-# 7. Exact verified QA evidence
+# 7. Verified QA and release evidence
 
-## Functional exact head
+## Exact functional head
 
 **Head:** `20183a10f68b4fff7084936e5aa3194c5a55a7c2`
 
 **Main Verify:** Run #297 / `34700148543` — **FULL SUCCESS**.
 
-All functional/browser gates passed, including:
-
-- engine, catalog fuzz, PWA, motion, direct-manipulation, choreography, feel, platform-feedback, and Golden Match static contracts;
-- battlefield geometry;
-- Pass 11 setup/mulligan and lifecycle;
-- 11.2A readability, 11.2B intent, 11.2C target exposure, 11.2D continuity;
-- audio/haptic/PWA platform truth;
-- installed-PWA coherent-upgrade adversarial gate;
-- complete Golden Match E2E;
-- direct manipulation and destination-family parity;
-- F1 presentation-aware bot turn gating;
-- disposable presentation-failure recovery;
-- **256-trial physical interaction stress = 512 committed tap/drag interactions with zero mismatch**;
-- semantic landing/durable feedback;
-- last-card, visibility interruption, and save/Continue lifecycle;
-- WebKit/iPhone-targeted interaction;
-- 10.4B signature and adversarial choreography;
-- 10.4C feel, feedback, reduced-motion, and pacing.
-
-PR deploy job was **SKIPPED**; production was not changed.
-
 **Storage Resilience:** Run #14 / `34700148554` — **FULL SUCCESS** on the same functional head.
+
+The full functional/browser matrix passed, including engine/catalog/PWA contracts, geometry, setup/mulligan, lifecycle, 11.2A-D, platform truth, installed-PWA coherent upgrade, Golden Match E2E, direct manipulation, destination parity, F1 turn gating, presentation-failure recovery, **256-trial physical interaction stress = 512 committed tap/drag interactions with zero mismatch**, semantic landing, save/visibility lifecycle, WebKit/iPhone-targeted interaction, 10.4B choreography/adversarial coverage, and 10.4C feel/pacing.
+
+## Final docs-inclusive PR head
+
+**Head:** `2e45b401238f7b4363684a8eca6027035b60a32f`
+
+- Main Verify Run #299 / `34700876842` — **FULL SUCCESS**.
+- Storage Resilience Run #16 / `34700876857` — **FULL SUCCESS**.
+- Delta after the functional head was documentation-only: `README.md` then `CONTINUITY.md`.
+
+## Production merge and deployment
+
+PR #11 merged to `main` as:
+
+`aa8b6043d68c42ae2dc5310b57106a5a5808a150`
+
+Production Run #300 / `34701697634` then repeated the entire Verify matrix on the merge commit and completed the GitHub Pages deploy successfully.
+
+The public hosted build was independently fetched after deployment and served the expected title:
+
+`Gwent Classic — Definitive Edition · Pass 11`
 
 ## Manually reviewed exact-head artifacts
 
-### Installed-PWA upgrade
+- Installed-PWA upgrade — artifact `10300122584`, digest `sha256:fe9486c219425a067f474bbb70b01c24c835dfe558741ace3e5750b8e20cd1fa`.
+- Golden Match E2E — artifact `10300476646`, digest `sha256:aede148bd4b0b75de2f6655275822618c15437aece5a16d435532dcacc23d054`.
+- Platform feedback / runtime identity — artifact `10299838071`, digest `sha256:c135ed49daca80178dcc2e62490c1d9666b68eb71c56706025415fbc7c4ff943`.
+- Storage resilience — artifact `10300161882`, digest `sha256:cd5890b8459c7d34166e10fec6080186a1dc60e93aa137a3ca83fd5e3ee5c324`.
+- Feel / presentation — artifact `10299878072`, digest `sha256:4604e6d191213e1c7a65e9b58027911bdddece68f20e8b4b1a71fe9b52348cf5`.
 
-Artifact `pass11-pwa-upgrade-qa` / ID `10300122584` / digest `sha256:fe9486c219425a067f474bbb70b01c24c835dfe558741ace3e5750b8e20cd1fa`.
-
-Matrix confirmed:
-
-- old install established;
-- partial update remained coherent;
-- healthy update activated;
-- offline relaunch remained coherent;
-- save retained exactly.
-
-### Golden Match E2E
-
-Artifact `pass11-golden-match-e2e-qa` / ID `10300476646` / digest `sha256:aede148bd4b0b75de2f6655275822618c15437aece5a16d435532dcacc23d054`.
-
-Manual review confirmed:
-
-- clean normal-match start;
-- exact live-reload restore;
-- natural three-round terminal Victory presentation;
-- readable terminal scores and Rematch/Main Menu affordances;
-- Rematch returns to a fresh two-card mulligan;
-- no page errors in summary evidence.
-
-### Platform feedback / runtime identity
-
-Artifact `pass11-platform-feedback-qa` / ID `10299838071` / digest `sha256:c135ed49daca80178dcc2e62490c1d9666b68eb71c56706025415fbc7c4ff943`.
-
-Evidence confirmed:
-
-- runtime identity repair fired once;
-- real card selection created/runs AudioContext successfully in browser QA;
-- semantic audio cue played;
-- settings persisted;
-- lifecycle resume succeeded;
-- haptic capability/status path remained explicit and observable.
-
-### Storage resilience
-
-Artifact `pass11-storage-resilience-qa` / ID `10300161882` / digest `sha256:cd5890b8459c7d34166e10fec6080186a1dc60e93aa137a3ca83fd5e3ee5c324`.
-
-Matrix confirmed:
-
-- prepared-state failure stayed coherent;
-- committed ordinary action rendered despite save failure;
-- unsaved status truthful;
-- recovery saved the already-committed state exactly with no replay;
-- pending Medic choice and terminal result still render when writes fail;
-- malformed cases rejected: missing zone, bad current player, unknown card, duplicate `iid`, bad pending choice, unsupported format, unsupported legacy build;
-- `11.1A` and `11.1B` remain readable;
-- zero page errors.
-
-### Feel / presentation
-
-Artifact `pass10-4c-feel-presentation-qa` / ID `10299878072` / digest `sha256:4604e6d191213e1c7a65e9b58027911bdddece68f20e8b4b1a71fe9b52348cf5`.
-
-Metrics/manual review confirmed:
-
-- press response ≈ **28.2 ms**;
-- invalid return ≈ **234.7 ms**;
-- selection, drag target, landing, invalid return, reduced-motion selection, and settings surfaces show no obvious release-blocking visual regression;
-- copied 10.4B choreography evidence remains present.
+No release-blocking defect was found in manual review.
 
 ---
 
-# 8. Remaining release acceptance
+# 8. Remaining physical-device acceptance
 
-Automated functional acceptance is complete. Remaining external acceptance is **real installed-iPhone sensory/platform signoff**, specifically:
+Pass 11 is deployed. Remaining acceptance is **real installed-iPhone sensory/platform observation**, specifically:
 
 - audible output quality/level on physical device;
 - background → foreground audio recovery;
@@ -309,18 +256,15 @@ Automated functional acceptance is complete. Remaining external acceptance is **
 - tactile capability/quality where the actual device/browser permits it;
 - final physical touch/drag/animation feel at real-device frame pacing.
 
-Browser/WebKit automation is strong evidence but does not substitute for these physical-device observations.
-
-No merge/deploy authorization has been given. Production `main` remains the pre-Pass-11 baseline until an explicit authorized release cycle.
+Browser/WebKit automation is strong evidence but does not substitute for these physical-device observations. Any defect found here should be treated as a post-deploy regression and reproduced before architecture is changed.
 
 ---
 
 # 9. Exact next action
 
-1. Verify the latest **docs-inclusive** PR head after this continuity/README closeout; both Main Verify and Storage Resilience must remain green.
-2. If exact-head docs CI is green, update PR #11 description with final head/run IDs and the artifact-review summary.
-3. Preserve PR open/unmerged and production unchanged.
-4. Conduct/record real installed-iPhone sensory signoff when available.
-5. Merge/deploy **only** after explicit user authorization.
+1. Install/open the production PWA on a real iPhone and perform sensory/platform acceptance.
+2. Record only reproducible defects or friction; do not reopen closed architecture from subjective speculation alone.
+3. If a genuine regression is found, create a narrowly scoped hotfix branch from current `main`, preserve Pass 10.3/10.4/Pass 11 contracts, and run the full relevant gates before merge.
+4. If real-device acceptance is clean, treat Pass 11 as fully signed off and begin the next planned product pass from the deployed baseline.
 
 Do not reopen closed gameplay architecture without new evidence of a genuine regression.
