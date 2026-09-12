@@ -112,6 +112,18 @@
     sample('final-revealed',iid,{reason});
     return true;
   }
+  function guardCommittedFinal(iid){
+    if(!iid)return false;
+    annotateProxies();
+    const proxy=proxyFor(iid);
+    const zone=engineZone(iid);
+    const final=finalFor(iid);
+    if(proxy&&zone.startsWith('board:')&&final){
+      guardFinal(iid,final);
+      return true;
+    }
+    return false;
+  }
   function reconcileContinuity(stage='mutation'){
     annotateProxies();
     for(const iid of activeIids()){
@@ -147,6 +159,10 @@
   observer.observe(document.body,{childList:true,subtree:true});
   Queue.subscribe((type,payload)=>{
     const iid=payload?.meta?.action?.iid||payload?.meta?.iid||activeIids()[0]||null;
+    // Queue.start is synchronous after the engine commit/reconcile. Guard the
+    // authoritative final representation before recording that boundary so a
+    // moving proxy and final card can never both become full-strength actors.
+    if(type==='start'&&iid)guardCommittedFinal(iid);
     if(iid)sample(`queue-${type}`,iid,{queueEvent:type,reason:payload?.reason||null});
     if(type==='complete'||type==='cancel'||type==='error')requestAnimationFrame(()=>{
       [...guarded.keys()].forEach(id=>releaseGuard(id,`queue-${type}`));
