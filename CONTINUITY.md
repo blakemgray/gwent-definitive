@@ -10,14 +10,13 @@
 **Current branch / PR:** `pass-11-golden-match` / PR #11  
 **Latest exact green Pass 11 implementation head:** `e8cfb8d482bd3b581fff72b33658c6ea3463c7d8`  
 **Latest exact-head implementation workflow:** run #250 / `34687098690` — FULL SUCCESS  
-**Current branch head before this checkpoint:** `e8cfb8d482bd3b581fff72b33658c6ea3463c7d8` — platform-feedback implementation + strengthened visual framing  
 **Current milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
-**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B CLOSED / 11.2C CLOSED / 11.2D CLOSED / AUDIO-HAPTIC-PWA PLATFORM-TRUTH IMPLEMENTATION GREEN, ARTIFACT ACCEPTANCE ACTIVE**  
-**Current task:** **manually inspect the exact-head platform-feedback artifact from run #250, then close automated audio/haptic platform truth only if the screenshot and diagnostics matrix coherently prove actual Web Audio output, persistence/lifecycle recovery, and honest haptic capability handling; real-iPhone audible/tactile output remains separate device signoff**  
+**Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B CLOSED / 11.2C CLOSED / 11.2D CLOSED / AUTOMATED AUDIO-HAPTIC-PWA PLATFORM TRUTH CLOSED; REAL-IPHONE SENSORY SIGNOFF PENDING**  
+**Current task:** **audit the remaining Golden Match bar: consequence pacing where still insufficient, complete normal-match end-to-end player flow, and release acceptance evidence; do not treat real-iPhone audible/tactile output as proven until the user validates it on-device**  
 **11.2 architecture contract:** `docs/PASS11_11_2_PHYSICAL_CARD_ARCHITECTURE.md` at commit `f6a754c8044b8a633234c48e21a8454683b2ea21`  
 **Pass 11 planning:** 100%  
 **Pass 11 implementation:** ~65%  
-**Formally verified/closed:** ~50%  
+**Formally verified/closed:** ~58%  
 **Default model:** GPT-5.6 Sol · High  
 **Last updated:** 2026-09-12 America/New_York
 
@@ -163,39 +162,44 @@ The new gate intentionally exposed two real seams before closure: candidate `36f
 
 Manual artifact review covered the full 10-frame temporal sequence plus `continuity_matrix.json` / trace evidence: drag pickup → committed guarded flight → settled; tap flight; invalid return; pre-commit interruption before/restored; post-commit interruption guarded/reconciled; reduced-motion settled. No visual duplicate or zero-representation gap was observed in the reviewed evidence. Final matrix states show exactly one full-strength representation in all six cases; invalid/pre-commit cases remain in hand with zero mutation, and post-commit interruption records `committedExactlyOnce: true` before one final board representation.
 
----
+## Audio / haptic / PWA platform truth — AUTOMATED CLOSED; REAL-DEVICE SIGNOFF PENDING
 
-# 5. Pass 11 audio / haptic / PWA platform truth — IMPLEMENTATION GREEN / ARTIFACT ACCEPTANCE ACTIVE
+The audit established the original installed-iPhone silence cause: semantic `gwent:audio-hook` events existed, but no concrete audio player consumed them. The game had a conductor with no orchestra.
 
-The source audit established the original installed-iPhone silence cause: `src/presentation-feedback.js` emitted semantic `gwent:audio-hook` events, but no runtime audio player consumed them. There were no audio assets, `AudioContext`, media elements, decoder, or equivalent concrete output path. Silence was therefore expected behavior rather than merely an iOS autoplay quirk.
+Permanent automated behavior / proof now includes:
 
-The current candidate adds:
-
-- `src/platform-feedback.js` as the concrete Web Audio output layer;
-- procedural/offline-safe cue synthesis for the established semantic vocabulary, including ordinary card interaction and signature mechanics such as Scorch/Weather/Horn/Spy/Muster/Medic/Decoy plus round/match results;
-- trusted user-interaction audio-context creation/unlock/resume;
+- `src/platform-feedback.js` concrete Web Audio output with procedural/offline-safe cues for ordinary interaction and signature mechanics;
+- trusted user-interaction `AudioContext` creation/unlock/resume;
 - background/pageshow/visibility lifecycle recovery and explicit playback status diagnostics;
-- volume/mute propagation to concrete playback plus persisted settings across reload;
-- explicit audio status outcomes (`played`, queued/blocked/failure states as applicable) rather than treating hook dispatch as proof;
-- enhanced haptic diagnostics distinguishing disabled, unsupported, attempted, success, rejection, and failure;
-- Settings copy that exposes haptic support/unavailability instead of leaving an unsupported control ambiguous;
-- PWA/service-worker/deployment inclusion with build pin advanced through this platform-feedback slice;
-- permanent Node/browser/WebKit QA covering concrete audio playback, settings persistence, lifecycle recovery, honest haptic capability semantics, and a simulated supported-vibration path.
+- real gain propagation from persisted effects volume/mute settings;
+- concrete status separation between semantic request and actual browser playback outcome;
+- `src/presentation-feedback.js` haptic diagnostics distinguishing disabled, unsupported, attempted, success, rejection, and failure;
+- capability-truth Settings copy rather than a silently dead haptic toggle;
+- PWA/service-worker/deployment inclusion with cache pin advanced through the platform-feedback slice;
+- permanent Node/Chromium/WebKit QA for real audio scheduling, reload persistence, lifecycle recovery, supported/unsupported haptic semantics, and preserved interaction behavior.
 
-**Exact implementation/evidence head:** `e8cfb8d482bd3b581fff72b33658c6ea3463c7d8`.  
-**Run #250 / `34687098690`: FULL SUCCESS.** Static/engine/PWA contracts, legal setup, lifecycle, 11.2A/B/C/D, concrete platform-feedback browser QA, direct manipulation/parity/bot/failure recovery, **256-trial stress**, semantic landing, save/visibility lifecycle, WebKit/iPhone-targeted interaction including audio-context recovery and haptic truth, 10.4B signature + adversarial choreography, and 10.4C feel all passed unchanged.
+**Closure implementation head:** `e8cfb8d482bd3b581fff72b33658c6ea3463c7d8`.  
+**Run #250 / `34687098690`: FULL SUCCESS.** The concrete platform-feedback gate passed, followed by preserved direct manipulation, destination parity, bot gate, presentation recovery, **256-trial stress**, semantic landing, save/visibility lifecycle, WebKit/iPhone-targeted touch + audio unlock/resume + honest haptic capability, 10.4B signature/adversarial choreography, and 10.4C feel/pacing.
 
-The earlier exact candidate `aeeb682e300f47af3ebebaf7f0c201bb6aa55569` also passed run #249 end-to-end, but manual artifact inspection found its settings screenshot framed too high to visibly include the haptic support state. The evidence requirement was strengthened without changing gameplay behavior. Run #250 is the replacement candidate and its `pass11-platform-feedback-qa` artifact is now the evidence under review.
+**Approved exact-head artifact:** `pass11-platform-feedback-qa` artifact `10296330417`, digest `sha256:eba21219a36427640302874905b917170a4ee81d9f0f8d31c625eb8542c7eb63`.
 
-Automation proves the concrete browser audio path and lifecycle/capability behavior; it does **not** prove human-audible speaker output or tactile quality on the installed iPhone. Real-device audible output remains mandatory before final Pass 11 sensory signoff. Current web-iPhone haptic limitation must be reported honestly; native/Core-Haptics-class fidelity remains a future native-wrapper capability rather than a PWA claim.
+Manual artifact review confirmed the replacement 852×393 settings screenshot visibly shows Effects volume at 40%, Mute effects, and Haptic feedback capability state. `platform_feedback_matrix.json` confirmed a real card selection produced `audioPlayed: 1` with a running context and zero audio failures; `SCORCH_TRIGGER` recorded `played` at gain `0.35`; settings persisted through reload; lifecycle resume succeeded with zero failures; and the simulated supported-vibration path issued exactly one vibration call with one successful haptic status. The separate WebKit/iPhone-targeted gate proves real touch unlock/audio scheduling, suspend→resume recovery, zero audio failures, and—when vibration capability is absent—requires `hapticUnsupported >= 1` with zero haptic successes.
 
-**Exact next action:** manually inspect run #250 artifact `pass11-platform-feedback-qa` and its diagnostics matrix. If coherent, close the automated platform-truth implementation in continuity while keeping real-iPhone audible/tactile output as a distinct pending signoff item.
+**Important device boundary:** automation does not prove that a human actually hears speaker output or feels tactile feedback on the installed iPhone. Current PWA/browser haptic capability remains platform-limited and must never be represented as Core Haptics parity. Actual installed-iPhone audible output, background/relaunch behavior, and tactile quality remain required real-device signoff items before final Pass 11 sensory acceptance.
 
 ---
 
-# 6. Remaining Pass 11 / broader roadmap
+# 5. Remaining Pass 11 / broader roadmap
 
-After automated audio/haptic platform truth is accepted, remaining Golden Match work includes real-device audio signoff, consequence pacing where still needed, complete normal-match end-to-end acceptance, real-device sensory signoff, adversarial integration review, final exact-head CI/artifact review, and merge/deploy verification.
+Remaining Golden Match work now includes:
+
+- real-device iPhone audio/sensory signoff;
+- consequence pacing review where signature events are still too terse or generic despite existing 10.4B/10.4C choreography;
+- complete normal-match end-to-end acceptance through opening → mulligan → ordinary turns/choices → pass/exhaustion → round transitions/faction effects/lives → best-of-three terminal result → restart/rematch/save integrity;
+- independent coarse live-flow QA where browser tooling is reliable;
+- adversarial integration review;
+- final exact-head CI/artifact review;
+- merge/deploy verification.
 
 After Pass 11, exact pass numbers remain intentionally unlocked. Established work includes full deck/collection access, full faction/leader playability, final AI ladder Novice→Standard→Veteran→Master→Grandmaster with `AIKnowledgeState != GameState`, mature persistence/replay/history, modular assists/cheats/sandbox, complete UX shell, richer physical-card ecology, dedicated audiovisual identity, PWA/iPhone productization/native-wrapper option where platform ceilings justify it, controlled local asset pipeline, and exhaustive all-card/all-faction parity.
 
@@ -203,6 +207,6 @@ GitHub remains canonical for active development. Reference Drive: `Gwent Classic
 
 > **Rules correctness first → interaction correctness → readable gameplay choreography → premium physical feel → complete normal match → complete access → smarter AI → product maturity.**
 
-**Current Pass 11:** planning 100%; implementation ~65%; formally verified/closed ~50%.  
-**Current phase:** platform-feedback implementation exact-head green; replacement artifact acceptance active.  
-**Next action:** inspect run #250 platform-feedback screenshot + diagnostics matrix, then close automated audio/haptic platform truth if the evidence is coherent while preserving actual-iPhone output as pending device signoff.
+**Current Pass 11:** planning 100%; implementation ~65%; formally verified/closed ~58%.  
+**Current phase:** automated platform-feedback slice closed; remaining Golden Match pacing/end-to-end acceptance active, with real-iPhone sensory signoff pending.  
+**Next action:** audit the existing 10.4B/10.4C consequence timing and current Golden Match browser lifecycle against the remaining Pass 11 acceptance contract, identify only concrete must-fix gaps, then implement/test the next bounded slice.
