@@ -117,8 +117,8 @@
     const top=live[0],second=live[1]||null;
     const margin=second?top.score-second.score:top.score;
     const targetSpecific=top.kind===TARGET_KIND;
-    const requiredMargin=targetSpecific?.14:.10;
-    const minimum=targetSpecific?.74:.54;
+    const requiredMargin=targetSpecific ? .14 : .10;
+    const minimum=targetSpecific ? .74 : .54;
 
     if(targetSpecific&&!top.exact){
       return empty('low_confidence',{confidence:top.score,margin,classification:top.zone,trajectoryConsidered:false,scores:compactScores});
