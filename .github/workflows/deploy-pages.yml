@@ -62,6 +62,10 @@ jobs:
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
         run: python tests/pass11_intent_ui.py
+      - name: Pass 11.2C predictive card-target exposure and local-yield gate
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+        run: python tests/pass11_target_exposure_ui.py
       - name: Direct manipulation baseline, overlap, parity, interruption, reduced-motion, and touch gate
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
@@ -138,6 +142,14 @@ jobs:
           path: qa/pass11_intent
           if-no-files-found: warn
           retention-days: 30
+      - name: Archive Pass 11.2C predictive target exposure visual QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass11-2c-target-exposure-qa
+          path: qa/pass11_target_exposure
+          if-no-files-found: warn
+          retention-days: 30
       - name: Archive Pass 10.3 battlefield visual QA
         if: always()
         uses: actions/upload-artifact@v4
@@ -186,7 +198,7 @@ jobs:
           rm -rf _site
           mkdir -p _site/src _site/icons
           cp index.html app.js styles.css battlefield-ux.css direct-manipulation.css gameplay-choreography.css feel-polish.css physical-card.css manifest.webmanifest sw.js icon.svg .nojekyll _site/
-          cp src/cards-catalog.js src/gwent-engine.js src/asset-resolver.js src/storage.js src/battlefield-ux.js src/battlefield-readability.js src/motion-tokens.js src/presentation-queue.js src/interaction-turn-gate.js src/presentation-events.js src/gameplay-choreography.js src/choreography-external-gate.js src/flip-layout.js src/interaction-intent.js src/gesture-controller.js src/presentation-feedback.js _site/src/
+          cp src/cards-catalog.js src/gwent-engine.js src/asset-resolver.js src/storage.js src/battlefield-ux.js src/battlefield-readability.js src/motion-tokens.js src/presentation-queue.js src/interaction-turn-gate.js src/presentation-events.js src/gameplay-choreography.js src/choreography-external-gate.js src/flip-layout.js src/interaction-intent.js src/gesture-controller.js src/target-exposure.js src/presentation-feedback.js _site/src/
           cp icons/apple-touch-icon.png icons/icon-192.png icons/icon-512.png _site/icons/
       - name: Configure Pages
         uses: actions/configure-pages@v5
