@@ -107,7 +107,7 @@ def assert_material_actor(page,target_iid,reduced=False):
     proxy=page.locator('.dm-drag-proxy')
     assert actor.count()==1 and source.count()==1 and proxy.count()==1
     if not reduced:
-        page.wait_for_function("iid=>document.querySelector(`.te-target-actor[data-te-actor-for=\"${iid}\"]`)?.classList.contains('te-actor-raised')",target_iid)
+        page.wait_for_function("iid=>document.querySelector(`.te-target-actor[data-te-actor-for=\"${iid}\"]`)?.classList.contains('te-actor-raised')",arg=target_iid)
         page.wait_for_timeout(115)
     snap=exposure(page);tele=snap['actor']
     assert tele['iid']==target_iid,tele
