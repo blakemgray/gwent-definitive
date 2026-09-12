@@ -15,9 +15,13 @@
     meta:null,
     updates:0,
     clears:0,
-    lastClearReason:null
+    lastClearReason:null,
+    scheduled:false,
+    pendingRefresh:false,
+    trajectoryTimer:0
   };
 
+  function direct(){return window.GwentDirectManipulation||null;}
   function iid(el){return el?.dataset?.inspectBoard||null;}
   function rect(el){
     if(!el?.isConnected)return null;
@@ -40,15 +44,22 @@
     delete el.dataset.teLocked;
   }
   function clear(reason='clear'){
+    const hadState=!!runtime.target||runtime.neighbors.length>0||document.body.classList.contains('te-has-card-target');
     for(const entry of runtime.neighbors)clearNeighbor(entry);
     clearTarget(runtime.target);
     runtime.target=null;
     runtime.neighbors=[];
     runtime.meta=null;
     runtime.lastClearReason=reason;
-    runtime.clears++;
+    if(hadState)runtime.clears++;
     document.body.classList.remove('te-has-card-target');
     return true;
+  }
+  function clearStaleMarks(){
+    for(const el of $$('#match-screen .te-intent-stale'))el.classList.remove('te-intent-stale');
+  }
+  function cancelTrajectoryExpiry(){
+    if(runtime.trajectoryTimer){clearTimeout(runtime.trajectoryTimer);runtime.trajectoryTimer=0;}
   }
 
   function immediateNeighbors(target){
@@ -128,6 +139,62 @@
     return lock(target,meta);
   }
 
+  function scheduleTrajectoryExpiry(active,intent){
+    cancelTrajectoryExpiry();
+    if(!active||intent?.reason!=='trajectory_singular'||!intent?.trajectoryConsidered)return;
+    const actionKey=active.dataset.dmActionKey||'';
+    const delay=(direct()?.constants?.VELOCITY_FRESH_MS||120)+10;
+    runtime.trajectoryTimer=setTimeout(()=>{
+      runtime.trajectoryTimer=0;
+      const current=$$('#match-screen .dm-active-target')[0]||null;
+      const latest=direct()?.lastIntent;
+      if(current===active&&(current.dataset.dmActionKey||'')===actionKey&&latest?.reason==='trajectory_singular'){
+        clear('trajectory-expired');
+        current.classList.add('te-intent-stale');
+      }
+    },delay);
+  }
+
+  function syncFromController(refresh=false){
+    const match=document.querySelector('#match-screen');
+    if(!match)return clear('no-match');
+    const rawActive=match.querySelector('.dm-active-target');
+    if(refresh)clearStaleMarks();
+    if(!rawActive){
+      cancelTrajectoryExpiry();
+      clearStaleMarks();
+      return clear('controller-inactive');
+    }
+    if(rawActive.classList.contains('te-intent-stale')&&!refresh){
+      cancelTrajectoryExpiry();
+      return clear('stale-controller-intent');
+    }
+
+    const intent=direct()?.lastIntent;
+    scheduleTrajectoryExpiry(rawActive,intent);
+    const isCardTarget=rawActive.matches('.unit[data-inspect-board]')&&intent?.candidate?.kind==='target';
+    if(!isCardTarget)return clear(intent?.reason||'non-card-target');
+    return lock(rawActive,{
+      kind:'target',
+      iid:iid(rawActive),
+      confidence:intent?.confidence||0,
+      reason:intent?.reason||'',
+      classification:intent?.classification||''
+    });
+  }
+
+  function scheduleSync(refresh=false){
+    runtime.pendingRefresh=runtime.pendingRefresh||refresh;
+    if(runtime.scheduled)return;
+    runtime.scheduled=true;
+    requestAnimationFrame(()=>{
+      runtime.scheduled=false;
+      const shouldRefresh=runtime.pendingRefresh;
+      runtime.pendingRefresh=false;
+      syncFromController(shouldRefresh);
+    });
+  }
+
   function snapshot(){
     return {
       version:'11.2C.0',
@@ -140,15 +207,29 @@
       classification:runtime.meta?.classification||null,
       updates:runtime.updates,
       clears:runtime.clears,
-      lastClearReason:runtime.lastClearReason
+      lastClearReason:runtime.lastClearReason,
+      staleActiveIids:$$('#match-screen .dm-active-target.te-intent-stale').map(iid)
     };
   }
+
+  const match=document.querySelector('#match-screen');
+  if(match){
+    const observer=new MutationObserver(()=>scheduleSync(false));
+    observer.observe(match,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+  }
+  document.addEventListener('pointermove',()=>scheduleSync(true),{passive:true});
+  document.addEventListener('pointerup',()=>scheduleSync(true),{passive:true});
+  document.addEventListener('pointercancel',()=>scheduleSync(true),{passive:true});
+  window.addEventListener('orientationchange',()=>scheduleSync(true),{passive:true});
+  window.addEventListener('resize',()=>scheduleSync(true),{passive:true});
+  scheduleSync(true);
 
   window.GwentTargetExposure=Object.freeze({
     version:'11.2C.0',
     sync,
     lock,
     clear,
+    syncFromController,
     snapshot,
     yieldDistance
   });
