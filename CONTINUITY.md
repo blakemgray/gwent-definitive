@@ -1,21 +1,21 @@
 # Gwent Classic — Definitive Edition
 ## Canonical Running Project Continuity
 
-**Purpose:** permanent implemented-state handoff. This is the concise current-state authority; older detail remains preserved in Git history.
+**Purpose:** concise permanent implemented-state handoff. Older detail remains preserved in Git history; this file records the current authoritative state needed to resume safely.
 
 **Repository:** `blakemgray/gwent-definitive`  
 **Canonical hosted build:** `https://blakemgray.github.io/gwent-definitive/`  
 **Default branch:** `main`  
 **Verified production main:** `f06ce78e2f3e1d1f1704ff84727d40b24bf03f7b` — run #145 / `34641027264` full verify + Pages deploy success  
 **Current branch / PR:** `pass-11-golden-match` / PR #11  
-**Latest verified Pass 11 implementation head:** `07b21e88c8958f5c55acc994b41d9fa073a2e227`  
-**Latest exact-head workflow:** run #202 / `34665042268` — FULL SUCCESS  
+**Latest exact green Pass 11 candidate head:** `351b234bee8627bccfdfb48bd7a0c77dc7cfacc3`  
+**Latest exact-head workflow:** run #216 / `34680311476` — FULL SUCCESS  
 **Current milestone:** **Pass 11 — Golden Match / Complete Normal Match**  
 **Current phase:** **11.1A CLOSED / 11.1B CLOSED / 11.2A CLOSED / 11.2B CLOSED / 11.2C ACTIVE**  
-**Current task:** **11.2C predictive card-target exposure — precise Decoy target lock + localized reversible neighbor yield without changing rules or resting geometry**  
+**Current task:** **11.2C visual-acceptance correction — make the predictive Decoy target visibly emerge from behind the dragged card while keeping intent scoring on stable resting geometry**  
 **11.2 architecture contract:** `docs/PASS11_11_2_PHYSICAL_CARD_ARCHITECTURE.md` at commit `f6a754c8044b8a633234c48e21a8454683b2ea21`  
 **Pass 11 planning:** 100%  
-**Pass 11 implementation:** ~40%  
+**Pass 11 implementation:** ~45%  
 **Formally verified/closed:** ~37%  
 **Default model:** GPT-5.6 Sol · High  
 **Last updated:** 2026-09-12 America/New_York
@@ -68,6 +68,7 @@ Key files:
 - `src/gesture-controller.js` — canonical direct manipulation and 11.2B intent consumption.
 - `src/interaction-intent.js` — pure 11.2B forgiveness/ambiguity/trajectory resolver; no rules or DOM authority.
 - `src/battlefield-readability.js`, `physical-card.css` — 11.2A always-visible current power / readable identity presentation.
+- `src/target-exposure.js` — 11.2C presentation-only target lock/local neighbor yield; no rules or commit authority.
 - `src/presentation-queue.js` — serialized cancellable presentation.
 - `src/presentation-events.js` — semantic before/after adapter.
 - `src/gameplay-choreography.js` — signature consequence choreography.
@@ -90,137 +91,96 @@ It is not accepted merely because the engine can technically reach `winner`.
 
 Minimum production bar also requires readable played cards/current power, predictive target clarity, ambiguity-aware forgiveness, continuous perceived card identity, actual player-facing audio, honest haptic capability semantics, and legible major-effect pacing while preserving frozen final geometry and engine authority.
 
-QA doctrine: **machine proof + temporal visual proof + live-browser proof + real-device proof**. Playwright artifacts and telemetry must be inspected on the latest exact candidate head; TinyFish independently operates the candidate/deployed player experience where useful; real iPhone remains final authority for physical touch/audio/haptic/platform feel.
+QA doctrine: **machine proof + temporal visual proof + live-browser proof + real-device proof**. Playwright artifacts and telemetry must be inspected on the latest exact candidate head; TinyFish independently operates the candidate/deployed player experience at meaningful checkpoints; real iPhone remains final authority for physical touch/audio/haptic/platform feel.
 
 ---
 
-# 4. 11.1A — legal setup / mulligan — CLOSED
+# 4. Closed Pass 11 slices
 
-Implemented: reusable deck validation; deterministic production shuffle with explicit ordered QA fixtures; engine-owned two-card mulligan; card conservation/events/gating; legal Golden Match presets (Northern Realms 31 cards: 25 units/6 specials; Monsters 36 cards: 29 units/7 specials); schema-v2 prepared/active persistence; exact prepared-hand restore; permanent Node + Playwright setup gates.
+## 11.1A — legal setup / mulligan — CLOSED
 
-Closure evidence:
+Legal full-size Golden Match presets, deterministic production shuffle/QA fixtures, engine-owned two-card mulligan, schema-v2 prepared/active persistence, exact restore, and setup browser/contract gates are permanent. Closure head `3b67c3d0591dca4d77d66c788630101e31be8a46`; run #151 / `34644865929` full success; artifact `10281992451`, digest `sha256:fac448619f05887566127ae7076e829787bdff82ff977746ce5ec84635c5fac5`, manually approved.
 
-- head `3b67c3d0591dca4d77d66c788630101e31be8a46`;
-- run #151 / `34644865929` full success;
-- setup artifact `10281992451`, digest `sha256:fac448619f05887566127ae7076e829787bdff82ff977746ce5ec84635c5fac5`, manually approved;
-- verified legal 10-card opening hand, mulligan restore, clean empty-board match start, player hand 10/deck 21, opponent hand 10/deck 26, no page errors.
+## 11.1B — lifecycle / choice broker — CLOSED
 
----
+Typed pending-choice routing, deterministic opponent choice, safe unsupported-choice state, choice save/restore, durable result, Restart/Resume/Rematch/Main Menu lifecycle are permanent. Preserved Medic semantic compatibility was restored without weakening 10.4B. Closure head `d2fb0c3740a7cad0924c4bae44f11fc609fd2cc8`; run #175 / `34654254329` full success; setup/lifecycle/choreography/feel artifacts manually approved. Independent TinyFish run `c150599b-1ce0-4ebd-a78c-aec73217b8e4` traversed landing → Quick Start → mulligan → normal plays/opponent reactions → match menu → Restart confirmation → cancel/resume with no demonstrated blocker.
 
-# 5. 11.1B — lifecycle / choice broker — CLOSED
+## 11.2A — battlefield readability semantics — CLOSED
 
-Implemented: typed pending-choice routing; engine-provided choice candidates; deterministic opponent-choice handling; safe unsupported-choice state; pending-choice save/restore; durable terminal result; Restart confirmation; Resume/Rematch/Main Menu paths; lifecycle contract/browser gates.
+`src/battlefield-readability.js` + `physical-card.css` add always-visible effective power and semantic/accessibility identity without owning packing. Closure head `2865c8d520c0e961a594918672c3121c31b5b524`; run #187 / `34662963707` full success; artifact `10287892839`, digest `sha256:17bd23ee5a6dc6ea739aa2ca65e8a024642c74b6e5ece25af77622661da73772`, manually approved. 1/2/4/8/12-card rows preserve centered/no-cutoff resting geometry.
 
-Run #159 initially exposed a preserved 10.4B adversarial Medic→Muster failure. Root cause was not engine state: the new generic choice broker had removed the stable Medic target semantic hook used by the preserved gate. Commit `d2fb0c3740a7cad0924c4bae44f11fc609fd2cc8` restored `data-medic=<iid>` while preserving the generic `data-choice-index` broker. The preserved test was not weakened.
+## 11.2B — pure intent resolver — CLOSED
 
-Exact closure proof on `d2fb0c3740a7cad0924c4bae44f11fc609fd2cc8`:
+`src/interaction-intent.js` is deterministic and DOM/engine-free; the existing controller consumes its result without adding a second commit path. Direct hit, geometry-relative singular forgiveness, bounded fresh singular trajectory assistance, ambiguity rejection, precision-first card targets, and zero-mutation invalid return are locked.
 
-- run #175 / `34654254329` — full workflow success;
-- all Pass 11 setup/lifecycle and preserved 10.3/10.4A/B/C/WebKit/stress gates success;
-- lifecycle artifact `10284289590`, `sha256:dfae87edcf2db6c7fab9300419b6dfcae69a222a64430bc271722fcbcf8fe548`;
-- signature choreography `10284623881`, `sha256:41ba2e6e5177868b2e280e63ebe3d281f896c43d6df6a5dcafaab0d0fa29d96f`;
-- feel/presentation `10284623884`, `sha256:3b9cc4561ae4d6008c79a0d828796e6329eb3000514dd04eecb712db9fd0647a`;
-- setup `10284469173`, `sha256:99efd0bcd38e0bc781f0124a9b53036834a9d450d154fe95c4bd0ab4dae59c3f`;
-- all manually reviewed and approved.
-
-Independent TinyFish candidate QA: run `c150599b-1ce0-4ebd-a78c-aec73217b8e4` operated landing → Quick Start → mulligan → multiple normal plays/opponent reactions → match menu → Restart confirmation → cancel/resume with no blocker. Its one row-click miss on Scorch was an automation mis-target because Scorch is global, not a demonstrated product regression.
+Closure head `07b21e88c8958f5c55acc994b41d9fa073a2e227`; run #202 / `34665042268` full success. Node intent contract: **5,178 assertions across deterministic matrix + 2,500 randomized trials**. Preserved direct-manipulation, parity, failure recovery, 256-trial stress, WebKit/iPhone-targeted interaction, 10.4B signature/adversarial, and 10.4C feel gates all passed. Artifact `10289035781`, digest `sha256:14145a2eccb2024edc8dda10cc7f946df6f85fee845bc8cc1e942b26a74a9fa2`, manually approved.
 
 ---
 
-# 6. 11.2 — physical-card / targeting architecture — ACTIVE
+# 5. 11.2C — predictive card-target exposure — ACTIVE
 
-Architecture is locked in `docs/PASS11_11_2_PHYSICAL_CARD_ARCHITECTURE.md` at commit `f6a754c8044b8a633234c48e21a8454683b2ea21`.
+11.2C starts with Decoy because it is the clearest ambiguous target family and live play exposed broad disruptive reflow when Decoy was selected.
 
-The locked design preserves four authorities/layers:
+Implemented candidate foundation at exact green head `351b234bee8627bccfdfb48bd7a0c77dc7cfacc3`:
 
-1. **10.3 final geometry** remains the only owner of reconciled card packing.
-2. **10.4A gesture controller** remains the only owner of selection/drag/commit/invalid-return input flow.
-3. The pure **11.2B intent resolver** scores only engine-provided legal destinations from live geometry and returns candidate/confidence/reason data; it does not mutate DOM/rules.
-4. A presentation-only **target exposure / actor-lease layer** may apply transient transforms and harden proxy→final-card continuity without becoming rules authority.
+- `src/target-exposure.js` presentation-only target lock + immediate-neighbor yield;
+- `physical-card.css` predictive target/neighbor presentation;
+- target-specific legal units remain `position:absolute`, fixing the earlier broad Decoy row reflow caused by generic `.dm-legal-target { position:relative; }` overriding 10.3 absolute packing;
+- target exposure consumes the existing controller winner and does not choose/commit actions;
+- velocity-only target emphasis is re-evaluated after the 120 ms freshness window so visual state cannot outlive 11.2B intent truth;
+- reduced-motion path preserves target emphasis while suppressing neighbor displacement;
+- dedicated `tests/pass11_target_exposure_ui.py` + archived artifact gate added; PWA/service-worker/deploy wiring advanced to 11.2C.
 
-11.2 implementation slices:
+Exact machine proof on `351b234bee8627bccfdfb48bd7a0c77dc7cfacc3`:
 
-- **11.2A — battlefield readability semantics — CLOSED:** always-visible current effective power, semantic/accessibility metadata, density QA; no geometry change.
-- **11.2B — pure intent resolver — CLOSED:** geometry-relative forgiveness, ambiguity-safe candidate scoring, bounded singular trajectory, precision-first card targets, zero-mutation rejection; integrated into existing gesture controller.
-- **11.2C — predictive card-target exposure — ACTIVE:** precise Decoy target lock + localized reversible neighbor yield; presentation-only and live-geometry-driven.
-- **11.2D — continuity hardening / temporal proof:** explicit proxy identity metadata and source/proxy/final continuity evidence.
+- run #216 / `34680311476` — **FULL SUCCESS**;
+- Node/engine/PWA contracts all success;
+- 10.3 geometry success;
+- Pass 11 setup/lifecycle success;
+- 11.2A readability success;
+- 11.2B intent success;
+- new **11.2C predictive card-target exposure/local-yield gate success**;
+- preserved direct manipulation/parity/bot gate/failure recovery/**256-trial stress**/semantic landing/save-restore/WebKit success;
+- 10.4B signature + adversarial success;
+- 10.4C feel success.
 
-## 11.2A closure evidence
+Exact-head 11.2C artifact: `10293703549`, digest `sha256:e0e4fb74beddbb7dd5fed77080acdbc25411b643e46ff03d5597d8209e32c0e6`.
 
-Implemented as an additive presentation layer (`src/battlefield-readability.js` + `physical-card.css`) with dedicated Playwright coverage and explicit PWA/CI/deploy wiring. It does not own rules, card packing, or final geometry.
+**Manual visual acceptance result: NOT YET APPROVED.** The artifact proves broad Decoy reflow is gone, candidate transfer/local neighbor behavior is deterministic, leave/cancel/reduced-motion cleanup is correct, and trajectory highlight expiry is truthful. However, the dragged Decoy still visually occludes too much of the locked target card. The target is technically selected but does not yet satisfy the stronger product requirement that the intended unit visibly emerge/raise so its identity and current power are unmistakable before release.
 
-Exact closure proof on `2865c8d520c0e961a594918672c3121c31b5b524`:
+Therefore 11.2C remains ACTIVE despite a full-green exact head. Do not spend TinyFish on this known-deficient candidate; TinyFish comes after the corrected exact head is internally green and its temporal artifact passes manual visual review.
 
-- run #187 / `34662963707` — full workflow success;
-- all preserved setup/lifecycle/10.3/10.4A/10.4B/10.4C/WebKit/stress gates success;
-- readability artifact `10287892839`, digest `sha256:17bd23ee5a6dc6ea739aa2ca65e8a024642c74b6e5ece25af77622661da73772`, manually approved.
-
-Visual review confirmed 1/2/4/8/12-card rows preserve centered/no-cutoff resting geometry while every played unit exposes current effective power and retains card art. Weather proof correctly changes a 6-power close unit to displayed power 1 and row score 1. Dense 12-card rows remain intentionally compact at rest; temporary interaction exposure belongs to 11.2C.
-
-## 11.2B closure evidence
-
-Implemented `src/interaction-intent.js` as a deterministic DOM/engine-free resolver, then integrated it into the existing 10.4A controller without adding a second commit path. Resolver inputs are current pointer/recent motion + live geometry of controller-supplied legal candidates only. It never invents legality or mutates authoritative state.
-
-Locked behavior:
-
-- direct interior hit wins;
-- singular row/weather/global destinations receive geometry-relative forgiveness;
-- immediate bounded fast overshoot may resolve only for singular unambiguous destinations while recent velocity is fresh;
-- stale crossing history never commits;
-- multiple destinations require dominance; ambiguous releases reject;
-- card-specific targets such as Decoy are precision-first and never velocity-selected;
-- every rejected/ambiguous gesture uses the existing invalid-return path with zero authoritative mutation.
-
-Exact closure proof on `07b21e88c8958f5c55acc994b41d9fa073a2e227`:
-
-- run #202 / `34665042268` — full workflow success;
-- Node intent contract: **5,178 assertions across deterministic matrix + 2,500 randomized trials**;
-- new 11.2B browser gate success;
-- preserved direct-manipulation, destination parity, bot gate, presentation-failure recovery, **256-trial physical interaction stress**, semantic landing, save/restore lifecycle, WebKit/iPhone-targeted interaction, 10.4B signature/adversarial, and 10.4C feel gates all success;
-- artifact `10289035781`, digest `sha256:14145a2eccb2024edc8dda10cc7f946df6f85fee845bc8cc1e942b26a74a9fa2`, manually reviewed and approved.
-
-Exact-head intent matrix:
-
-- singular near miss → `forgiven_singular`;
-- Decoy near miss → `outside`, no candidate;
-- agile row boundary → `ambiguous`, zero margin, no candidate;
-- immediate singular overshoot → `trajectory_singular`.
-
-The trajectory QA initially failed because the test took a screenshot before pointer-up and thereby allowed the deliberately short 120 ms recent-velocity window to expire. The product resolver/controller was not broadened to satisfy photography. The gate was corrected to assert `trajectory_singular`, release immediately, settle, then capture evidence. The exact-head rerun passed. Visual review confirmed the three pre-release intent states and the final overshoot card settled into the authoritative ranged row.
-
-One presentation observation is explicitly carried into 11.2C: target emphasis must track current predictive intent truthfully; a trajectory-only target must not appear indefinitely locked after its intent freshness has expired. This is a presentation/exposure responsibility, not a reason to weaken 11.2B legality.
-
-## 11.2C active contract
-
-Current task is **predictive card-target exposure**, starting with Decoy because it is the clearest ambiguous target family and the live-play report exposed broad disruptive reflow when Decoy was selected.
-
-Required behavior:
+### 11.2C locked correction requirements
 
 - engine/controller legal actions remain the only source of candidate targets;
-- the 11.2B resolver remains the only intent scorer; 11.2C consumes its current candidate/confidence but does not make commit decisions;
-- a likely Decoy target becomes unmistakable before release through restrained lift/scale/emphasis;
-- only immediate local neighbors may yield enough to expose the candidate; no broad row repacking/reflow;
-- all transforms are transient, reversible, and derived from live semantic geometry rather than hard-coded viewport pixels;
-- moving away/losing confidence/ambiguity/cancel/interruption/reduced motion must restore the untouched 10.3 resting geometry;
+- 11.2B remains the only intent scorer; 11.2C is presentation only;
+- intent scoring must use stable/resting candidate geometry rather than geometry displaced by transient target-exposure transforms;
+- the locked Decoy target must visibly emerge around/above the held card enough that artwork/current power/identity are recognizable before release;
+- only immediate local neighbors may yield; no broad row repacking/reflow;
+- transforms are transient/reversible and must not change 10.3 `left/top/width/height` resting authority;
+- moving away/losing confidence/ambiguity/cancel/interruption/reduced motion restores untouched resting geometry;
+- reduced motion must still make the exact target unmistakable without requiring animated displacement;
 - target visual state must not outlive current valid predictive intent;
-- no card may disappear/reappear merely to expose a target;
-- tap/keyboard semantics and canonical `commitAction()` ownership stay unchanged;
-- QA must include machine assertions, temporal/visual artifact review, and an independent live-browser TinyFish check at a meaningful candidate checkpoint. Real iPhone remains final sensory authority.
+- tap/keyboard semantics and canonical `commitAction()` ownership remain unchanged;
+- corrected QA must assert **material target visibility/exposure**, not merely class presence or neighbor movement;
+- after exact-head full CI and manual artifact approval, run an independent TinyFish live-product QA check before closing 11.2C.
 
-Model routing: **GPT-5.6 Sol · High**. Astra Medium is justified only if reversible local exposure cannot be expressed without violating frozen final geometry, canonical controller ownership, or interruption safety.
+Model routing: **GPT-5.6 Sol · High**. Escalate to Astra Medium only if making the target visibly emerge cannot be separated from authoritative intent geometry or otherwise forces a frozen-authority conflict.
 
-**Exact next action:** inspect `src/gesture-controller.js`, current target-decoration CSS, battlefield card DOM structure, and 11.2 architecture contract to define the smallest presentation-only exposure owner. Then implement Decoy predictive target emphasis/local neighbor yield with deterministic browser/temporal QA before any broader physical-card ecology.
+**Exact next action:** implement target emergence from stable resting rectangles, add a deterministic visual/geometry assertion that the target remains materially visible around the dragged Decoy, rerun the complete exact-head workflow, manually inspect replacement temporal evidence, then use TinyFish for independent live-product QA if and only if the artifact is clean.
 
 ---
 
-# 7. Broader roadmap
+# 6. Remaining 11.2 and broader roadmap
 
-After Pass 11, pass numbers remain intentionally unlocked. Established work includes full deck/collection access, full faction/leader playability, final AI ladder Novice→Standard→Veteran→Master→Grandmaster with `AIKnowledgeState != GameState`, mature persistence/replay/history, modular assists/cheats/sandbox, complete UX shell, richer physical-card ecology, dedicated audiovisual identity, PWA/iPhone productization/native-wrapper option where platform ceilings justify it, controlled local asset pipeline, and exhaustive all-card/all-faction parity.
+**11.2D — continuity hardening / temporal proof** remains next after 11.2C closure: explicit proxy presentation identity metadata, source/proxy/final continuity evidence, ordinary placement + invalid return + interruption proof, and observation around Decoy/Medic without duplicating 10.4B ownership.
+
+After Pass 11, exact pass numbers remain intentionally unlocked. Established work includes full deck/collection access, full faction/leader playability, final AI ladder Novice→Standard→Veteran→Master→Grandmaster with `AIKnowledgeState != GameState`, mature persistence/replay/history, modular assists/cheats/sandbox, complete UX shell, richer physical-card ecology, dedicated audiovisual identity, PWA/iPhone productization/native-wrapper option where platform ceilings justify it, controlled local asset pipeline, and exhaustive all-card/all-faction parity.
 
 GitHub remains canonical for active development. Reference Drive: `Gwent Classic - Arunsundaram` (`1dZWKlRFWTcOu3iYwXAdPx-mbz4dj-jlr`). Legacy product root: `Gwent Definitive - blakemgray` (`1dDtOJP3wYTVfQiXP3bYUjdcH1bkx96yu`).
 
 > **Rules correctness first → interaction correctness → readable gameplay choreography → premium physical feel → complete normal match → complete access → smarter AI → product maturity.**
 
-**Current Pass 11:** planning 100%; implementation ~40%; formally verified/closed ~37%.  
-**Current phase:** 11.2C predictive card-target exposure.  
-**Next action:** inspect the current controller/target-decoration/battlefield DOM surfaces and implement the smallest reversible presentation-only Decoy exposure layer with temporal QA and later TinyFish live-product validation.
+**Current Pass 11:** planning 100%; implementation ~45%; formally verified/closed ~37%.  
+**Current phase:** 11.2C predictive card-target exposure visual-acceptance correction.  
+**Next action:** expose the locked Decoy target more clearly without feeding transient transforms back into intent geometry; then full exact-head CI → manual visual review → TinyFish live-product QA.
