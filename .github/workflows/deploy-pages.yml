@@ -26,7 +26,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Engine, fuzz, PWA, motion, direct-manipulation, choreography, and feel validation
+      - name: Engine, fuzz, PWA, motion, direct-manipulation, choreography, feel, and platform-feedback validation
         run: npm test
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -70,6 +70,10 @@ jobs:
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
         run: python tests/pass11_continuity_ui.py
+      - name: Pass 11 audio, haptic, and PWA platform-truth gate
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+        run: python tests/pass11_platform_feedback_ui.py
       - name: Direct manipulation baseline, overlap, parity, interruption, reduced-motion, and touch gate
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
@@ -162,6 +166,14 @@ jobs:
           path: qa/pass11_continuity
           if-no-files-found: warn
           retention-days: 30
+      - name: Archive Pass 11 platform feedback QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass11-platform-feedback-qa
+          path: qa/pass11_platform_feedback
+          if-no-files-found: warn
+          retention-days: 30
       - name: Archive Pass 10.3 battlefield visual QA
         if: always()
         uses: actions/upload-artifact@v4
@@ -210,7 +222,7 @@ jobs:
           rm -rf _site
           mkdir -p _site/src _site/icons
           cp index.html app.js styles.css battlefield-ux.css direct-manipulation.css gameplay-choreography.css feel-polish.css physical-card.css manifest.webmanifest sw.js icon.svg .nojekyll _site/
-          cp src/cards-catalog.js src/gwent-engine.js src/asset-resolver.js src/storage.js src/battlefield-ux.js src/battlefield-readability.js src/motion-tokens.js src/presentation-queue.js src/interaction-turn-gate.js src/presentation-events.js src/gameplay-choreography.js src/choreography-external-gate.js src/flip-layout.js src/interaction-intent.js src/gesture-controller.js src/card-continuity.js src/target-exposure.js src/presentation-feedback.js _site/src/
+          cp src/cards-catalog.js src/gwent-engine.js src/asset-resolver.js src/storage.js src/battlefield-ux.js src/battlefield-readability.js src/motion-tokens.js src/presentation-queue.js src/interaction-turn-gate.js src/presentation-events.js src/gameplay-choreography.js src/choreography-external-gate.js src/flip-layout.js src/interaction-intent.js src/gesture-controller.js src/card-continuity.js src/target-exposure.js src/presentation-feedback.js src/platform-feedback.js _site/src/
           cp icons/apple-touch-icon.png icons/icon-192.png icons/icon-512.png _site/icons/
       - name: Configure Pages
         uses: actions/configure-pages@v5
