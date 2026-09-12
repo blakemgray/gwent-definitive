@@ -6,7 +6,7 @@ Canonical JS-first hosted build of classic *The Witcher 3* Gwent.
 
 ## Current implementation status
 
-**Pass 11 — Golden Match / Complete Normal Match is implemented on PR #11 (`pass-11-golden-match`) and is in final release verification.** The production `main` branch remains the pre-Pass-11 baseline until an explicit merge/deploy is authorized.
+**Pass 11 — Golden Match / Complete Normal Match is implemented on PR #11 (`pass-11-golden-match`) and has completed automated release verification.** The production `main` branch remains the pre-Pass-11 baseline until an explicit merge/deploy is authorized. Installed-iPhone sensory/platform signoff remains external release acceptance.
 
 Pass 11 preserves the closed interaction stack beneath it:
 
@@ -53,9 +53,10 @@ The Pass 11 candidate now provides one genuine normal Instant Match from menu to
 - concrete Web Audio feedback with persisted effects settings and honest capability-gated haptic semantics;
 - truthful save-failure behavior: committed gameplay remains authoritative even when persistence fails, recovery saves exactly that state, and malformed/incompatible saves are rejected safely;
 - serialized opponent scheduling so consecutive bot actions cannot commit through unresolved presentation;
-- coherent installed-PWA core generations so a partial deployment cannot mix new shell files with old cached modules.
+- coherent installed-PWA core generations so a partial deployment cannot mix new shell files with old cached modules;
+- a final Pass 11 runtime identity guard so closed lower interaction/presentation layers cannot leave the app mislabeled as an earlier milestone.
 
-The service-worker shell generation is `11.golden.3`. The save-format build identifier remains independently versioned because the release-label/cache-generation cleanup does not change save semantics.
+The service-worker shell generation is `11.golden.4`. The save-format build identifier remains independently versioned because release-label/cache-generation cleanup does not change save semantics.
 
 ## QA and acceptance
 
@@ -73,6 +74,8 @@ CI runs the real browser product at the iPhone-landscape target geometry and pre
 - preserved 10.4B signature/adversarial choreography and 10.4C feel/pacing;
 - dedicated storage-resilience coverage for failed writes, recovery, malformed saves, and bounded legacy compatibility.
 
+The latest exact functional candidate passed the full main verification and dedicated storage-resilience suites, and its Golden Match, PWA-upgrade, platform-feedback, storage, and feel artifacts were manually reviewed without a release blocker.
+
 Automated proof does **not** substitute for human real-device sensory acceptance. Installed-iPhone audible output, background/relaunch behavior, tactile capability/quality, and final physical feel remain external signoff items before Pass 11 is treated as fully released.
 
 ## Key runtime files
@@ -86,7 +89,7 @@ Automated proof does **not** substitute for human real-device sensory acceptance
 - `src/target-exposure.js` + `src/card-continuity.js` — presentation-only targeting and identity continuity.
 - `src/presentation-queue.js` + `src/interaction-turn-gate.js` — serialized presentation and opponent mutation gating.
 - `src/presentation-events.js` + `src/gameplay-choreography.js` — semantic cause→effect presentation.
-- `src/presentation-feedback.js` + `src/platform-feedback.js` — semantic feedback routing and concrete browser audio/platform behavior.
+- `src/presentation-feedback.js` + `src/platform-feedback.js` — semantic feedback routing, concrete browser audio/platform behavior, and current release-identity guard.
 - `sw.js` — coherent versioned installed-PWA shell/runtime caching.
 
 ## Local checks
