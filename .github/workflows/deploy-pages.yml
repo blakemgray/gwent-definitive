@@ -74,6 +74,8 @@ jobs:
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
         run: python tests/pass11_platform_feedback_ui.py
+      - name: Pass 11 installed-PWA coherent upgrade gate
+        run: python tests/pwa_upgrade_ui.py
       - name: Pass 11 complete Golden Match start-to-result and rematch gate
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
@@ -176,6 +178,14 @@ jobs:
         with:
           name: pass11-platform-feedback-qa
           path: qa/pass11_platform_feedback
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Archive Pass 11 installed-PWA upgrade QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass11-pwa-upgrade-qa
+          path: qa/pass11_pwa_upgrade
           if-no-files-found: warn
           retention-days: 30
       - name: Archive Pass 11 Golden Match end-to-end QA
