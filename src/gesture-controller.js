@@ -7,8 +7,9 @@
   const Queue=window.GwentPresentationQueue;
   const Flip=window.GwentFlipLayout;
   const Events=window.GwentPresentationEvents;
-  if(!api||!G||!Motion||!Queue||!Flip||!Events){
-    console.error('Pass 10.4A dependencies missing');
+  const Intent=window.GwentInteractionIntent;
+  if(!api||!G||!Motion||!Queue||!Flip||!Events||!Intent){
+    console.error('Pass 10.4A / 11.2B dependencies missing');
     return;
   }
 
@@ -19,6 +20,7 @@
   const VALID_MODES=new Set(['hybrid','tap','drag']);
   const DRAG_THRESHOLD=8;
   const LONG_PRESS_MS=480;
+  const VELOCITY_FRESH_MS=120;
 
   const runtime={
     phase:'idle',
@@ -34,6 +36,7 @@
     lastTransaction:null,
     lastSettlement:null,
     lastCancelReason:null,
+    lastIntent:null,
     stats:{selections:0,tapCommits:0,dragCommits:0,invalidDrops:0,cancels:0,inspections:0,pointerFrames:0,maxPointerLagPx:0,transactions:0,errors:0,suppressedClicks:0,toastDismissals:0}
   };
 
@@ -259,24 +262,33 @@
     for(const t of runtime.targets)t.el?.classList.toggle('dm-active-target',t===target);
     if(runtime.drag)runtime.drag.activeTarget=target||null;
   }
-  function expandedContains(rect,x,y,pad=7){return x>=rect.left-pad&&x<=rect.right+pad&&y>=rect.top-pad&&y<=rect.bottom+pad;}
-  function targetAt(x,y){
-    const top=document.elementFromPoint?.(x,y);
-    const directEl=top?.closest?.('.dm-legal-target');
-    if(directEl){
-      const direct=runtime.targets.find(t=>t.el===directEl);
-      if(direct)return direct;
-    }
-    const hits=[];
-    for(const t of runtime.targets){
+  function intentDescriptors(){
+    return runtime.targets.map(t=>{
       const r=t.el?.getBoundingClientRect();
-      if(!r||!r.width||!r.height||!expandedContains(r,x,y,7))continue;
-      const cx=r.left+r.width/2,cy=r.top+r.height/2;
-      const dist=Math.hypot((x-cx)/Math.max(1,r.width),(y-cy)/Math.max(1,r.height));
-      hits.push({t,dist,area:r.width*r.height});
-    }
-    hits.sort((a,b)=>a.dist-b.dist||a.area-b.area);
-    return hits[0]?.t||null;
+      if(!r||!r.width||!r.height)return null;
+      return {key:t.key,kind:t.dest?.kind||'',rect:plainRect(r)};
+    }).filter(Boolean);
+  }
+  function resolveDragIntent(x,y,d=runtime.drag,now=performance.now()){
+    const velocityFresh=!!d?.velocityAt&&(now-d.velocityAt)<=VELOCITY_FRESH_MS;
+    const decision=Intent.resolve({
+      point:{x,y},
+      previousPoint:d?.previousPoint||null,
+      velocity:velocityFresh?(d?.velocity||{vx:0,vy:0}):{vx:0,vy:0},
+      candidates:intentDescriptors()
+    });
+    const target=decision.candidate?runtime.targets.find(t=>t.key===decision.candidate.key)||null:null;
+    runtime.lastIntent={
+      candidate:decision.candidate?{key:decision.candidate.key,kind:decision.candidate.kind}:null,
+      confidence:decision.confidence,
+      margin:decision.margin,
+      classification:decision.classification,
+      reason:decision.reason,
+      trajectoryConsidered:decision.trajectoryConsidered,
+      scores:decision.scores
+    };
+    if(d)d.intentDecision=runtime.lastIntent;
+    return {decision,target};
   }
 
   function makeProxy(card,rect,cls='dm-flight-proxy'){
@@ -297,7 +309,10 @@
     try{card.setPointerCapture?.(c.pointerId);}catch(_){ }
     runtime.drag={
       pointerId:c.pointerId,iid:c.iid,card,proxy,sourceRect:c.rect,
-      startX:c.startX,startY:c.startY,x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,lastT:performance.now(),tilt:0,activeTarget:null
+      startX:c.startX,startY:c.startY,x:e.clientX,y:e.clientY,
+      lastX:c.startX,lastY:c.startY,lastT:c.startT||performance.now(),
+      previousPoint:{x:c.startX,y:c.startY},velocity:{vx:0,vy:0},velocityAt:0,
+      tilt:0,activeTarget:null,intentDecision:null
     };
     if(c.longTimer)clearTimeout(c.longTimer);
     runtime.candidate=null;runtime.phase='dragging';document.body.classList.add('dm-dragging');
@@ -315,11 +330,19 @@
     runtime.dragRaf=0;
     const d=runtime.drag;if(!d)return;
     const now=performance.now(),dt=Math.max(1,now-d.lastT);
-    const vx=(d.x-d.lastX)/dt*1000;
-    d.tilt=clamp(vx/330,-4,4);
+    const moveX=d.x-d.lastX,moveY=d.y-d.lastY;
+    if(Math.hypot(moveX,moveY)>.25){
+      const vx=moveX/dt*1000,vy=moveY/dt*1000;
+      d.previousPoint={x:d.lastX,y:d.lastY};
+      d.velocity={vx,vy};d.velocityAt=now;
+      d.lastX=d.x;d.lastY=d.y;d.lastT=now;
+    }else if(d.velocityAt&&now-d.velocityAt>VELOCITY_FRESH_MS){
+      d.velocity={vx:0,vy:0};
+    }
+    d.tilt=clamp((d.velocity?.vx||0)/330,-4,4);
     const dx=d.x-d.startX,dy=d.y-d.startY;
     d.proxy.style.transform=`translate3d(${dx}px,${dy}px,0) rotate(${d.tilt.toFixed(2)}deg) scale(1.04)`;
-    const hit=targetAt(d.x,d.y);activeTarget(hit);
+    const {target:hit}=resolveDragIntent(d.x,d.y,d,now);activeTarget(hit);
     runtime.phase=hit?'dragging_over_legal':'dragging_over_invalid';
     runtime.stats.pointerFrames++;
     try{
@@ -328,7 +351,6 @@
       const intendedX=d.sourceRect.x+d.sourceRect.width/2+dx,intendedY=d.sourceRect.y+d.sourceRect.height/2+dy;
       runtime.stats.maxPointerLagPx=Math.max(runtime.stats.maxPointerLagPx,Math.hypot(centerX-intendedX,centerY-intendedY));
     }catch(_){ }
-    d.lastX=d.x;d.lastY=d.y;d.lastT=now;
   }
 
   function cleanupDragVisuals({keepProxy=false}={}){
@@ -477,7 +499,7 @@
     const iid=card.dataset.cardIid;
     const rect=card.getBoundingClientRect();
     runtime.phase='pointer_down';card.classList.add('dm-pressing');
-    const candidate={pointerId:e.pointerId,iid,card,startX:e.clientX,startY:e.clientY,rect,longTimer:0};
+    const candidate={pointerId:e.pointerId,iid,card,startX:e.clientX,startY:e.clientY,startT:performance.now(),rect,longTimer:0};
     candidate.longTimer=setTimeout(()=>{
       if(runtime.candidate===candidate&&!runtime.drag){inspectIid(iid,{x:candidate.startX,y:candidate.startY});runtime.candidate=null;}
     },LONG_PRESS_MS);
@@ -594,12 +616,13 @@
   install();
 
   window.GwentDirectManipulation={
-    version:'10.4A.0',contractVersion:'1.0',
+    version:'10.4A.0',contractVersion:'1.0',intentVersion:Intent.version,
     get phase(){return runtime.phase;},
     get mode(){return runtime.mode;},
     get selectedIid(){return runtime.selectedIid;},
     get lastTransaction(){return runtime.lastTransaction?JSON.parse(JSON.stringify(runtime.lastTransaction)):null;},
     get lastSettlement(){return runtime.lastSettlement?JSON.parse(JSON.stringify(runtime.lastSettlement)):null;},
+    get lastIntent(){return runtime.lastIntent?JSON.parse(JSON.stringify(runtime.lastIntent)):null;},
     get stats(){return JSON.parse(JSON.stringify(runtime.stats));},
     setMode,
     select:(iid)=>selectIid(iid),
@@ -610,7 +633,7 @@
     targets:()=>runtime.targets.map(t=>({key:t.key,dest:{...t.dest},action:{...t.action},box:t.el?.getBoundingClientRect()||null})),
     waitForIdle:(timeout=3000)=>new Promise((resolve,reject)=>{const start=performance.now();const tick=()=>{if(!Queue.busy&&!runtime.drag&&runtime.phase!=='committing'&&runtime.phase!=='returning')resolve(true);else if(performance.now()-start>timeout)reject(new Error('Direct manipulation did not become idle'));else requestAnimationFrame(tick);};tick();}),
     reduced:(value)=>Motion.setReducedOverride(value),
-    constants:{DRAG_THRESHOLD,LONG_PRESS_MS}
+    constants:{DRAG_THRESHOLD,LONG_PRESS_MS,VELOCITY_FRESH_MS}
   };
   window.__GWENT_PASS10_4A__=api;
 })();
