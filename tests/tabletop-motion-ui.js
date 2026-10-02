@@ -5,8 +5,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const PW=require(process.env.GWENT_PLAYWRIGHT_MODULE||'playwright');
 const base=process.env.GWENT_TEST_URL||'http://127.0.0.1:4173/';
 const out=path.resolve(process.env.GWENT_QA_DIR||'qa/tabletop_motion');fs.mkdirSync(out,{recursive:true});
+async function makeContext(browser,options){const context=await browser.newContext(options);context.setDefaultTimeout(15000);context.setDefaultNavigationTimeout(30000);return context;}
 const frame=page=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
-async function idle(page){await page.evaluate(()=>window.GwentDirectManipulation.waitForIdle(12000));await page.waitForFunction(()=>!window.GwentPresentationQueue.busy&&!document.body.dataset.gcStage&&!window.GwentTabletopScene.metrics().animating);await frame(page);}
+async function idle(page){await page.evaluate(()=>window.GwentDirectManipulation.waitForIdle(12000));try{await page.waitForFunction(()=>!window.GwentPresentationQueue.busy&&!document.body.dataset.gcStage&&!window.GwentTabletopScene.metrics().animating,{},{timeout:12000});}catch(error){console.error('Idle failure:',await page.evaluate(()=>({input:window.GwentDirectManipulation.tableInteraction,phase:window.GwentDirectManipulation.phase,queue:window.GwentPresentationQueue.busy,stage:document.body.dataset.gcStage,scene:window.GwentTabletopScene.metrics()})));throw error;}await frame(page);}
 const state=page=>page.evaluate(()=>({state:window.__GWENT_PASS11__.getState(),save:window.GwentStorage.readMatch()}));
 async function enter(page,enabled){
   const url=new URL(base);if(enabled)url.searchParams.set('tabletop','1');else url.searchParams.delete('tabletop');
@@ -29,15 +30,15 @@ async function point(page,iid){
 async function beginMove(page,iid,dx,dy){
   const p=await point(page,iid);assert(p,'card has no exposed pickup region '+JSON.stringify(await page.evaluate(()=>({scene:window.GwentTabletopScene.metrics(),input:window.GwentDirectManipulation.tableInteraction,overlay:document.querySelector('#overlay-root').innerHTML}))));await page.mouse.move(p.x,p.y);await page.mouse.down();await page.mouse.move(p.x+dx,p.y+dy,{steps:10});await frame(page);return{x:p.x+dx,y:p.y+dy};
 }
-async function loadedArt(page){await page.waitForFunction(()=>[...document.querySelectorAll('#board [data-inspect-board] img')].every(i=>i.complete&&i.naturalWidth>0));}
+async function loadedArt(page){try{await page.waitForFunction(()=>[...document.querySelectorAll('#board [data-inspect-board] img')].every(i=>i.complete&&i.naturalWidth>0),{},{timeout:15000});}catch(error){console.error('Artwork failure:',await page.locator('#board [data-inspect-board] img').evaluateAll(images=>images.map(i=>({source:i.currentSrc,complete:i.complete,width:i.naturalWidth}))));throw error;}}
 async function capture(page,name){await loadedArt(page);await page.screenshot({path:path.join(out,name+'.png')});}
 async function normal(browser,name,viewport){
-  const context=await browser.newContext({viewport,deviceScaleFactor:3,hasTouch:true});const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(String(e)));
+  const context=await makeContext(browser,{viewport,deviceScaleFactor:3,hasTouch:true});const page=await context.newPage(),errors=[];page.on('pageerror',e=>{errors.push(String(e));console.error(name,'pageerror:',String(e));});console.log(name,'normal begin');
   await enter(page,true);assert.equal(await page.locator('.rotate-guard').isVisible(),false);
   const first=await choose(page);await play(page,first);await bot(page);const second=await choose(page);await play(page,second);await bot(page);
   const before=await state(page),a=await pose(page,first.iid),b=await pose(page,second.iid);assert(a.height>=60&&a.height>40,'sparse candidate must be substantially larger than production');
   await page.evaluate(()=>{window.__motionNodes=new Map([...document.querySelectorAll('#board [data-inspect-board],#hand [data-card-iid]')].map(e=>[e.dataset.inspectBoard||e.dataset.cardIid,{e,img:e.querySelector('img')}]));});
-  await capture(page,`${name}-01-before`);
+  await capture(page,`${name}-01-before`);console.log(name,'normal plays settled');
   const startFrames=await page.evaluate(()=>window.GwentTabletopScene.metrics().frameCount);
   const end=await beginMove(page,first.iid,b.x-a.x,b.y-a.y);assert.equal(await page.evaluate(()=>window.GwentDirectManipulation.phase),'table_dragging',JSON.stringify({a,b,end,input:await page.evaluate(()=>window.GwentDirectManipulation.tableInteraction),scene:await page.evaluate(()=>window.GwentTabletopScene.metrics())}));
   const held=await pose(page,first.iid),neighbor=await pose(page,second.iid);assert(Math.hypot(neighbor.x-b.x,neighbor.y-b.y)>1,'actual contact must displace the neighbor '+JSON.stringify({viewport,a,b,held,neighbor,input:await page.evaluate(()=>window.GwentDirectManipulation.tableInteraction)}));assert.equal(await page.locator('[data-tabletop-held]').count(),1);
@@ -81,7 +82,7 @@ async function normal(browser,name,viewport){
   const result={browser:name,viewport,runtimeIdentity:await page.evaluate(()=>window.GwentBuildIdentity),normalPath:true,authorityPreserved:true,neighborDisplacement:Math.hypot(neighbor.x-b.x,neighbor.y-b.y),sparseHeight:a.height,held,settled,frames:frames-startFrames,opponentGesture:true,identityStable:ids,rotationCancelled:true};await context.close();return result;
 }
 async function dense(browser,name,viewport){
-  const context=await browser.newContext({viewport,deviceScaleFactor:3,hasTouch:true}),page=await context.newPage();await enter(page,true);
+  const context=await makeContext(browser,{viewport,deviceScaleFactor:3,hasTouch:true}),page=await context.newPage();console.log(name,'dense begin');await enter(page,true);
   await page.evaluate(()=>{const A=window.__GWENT_PASS11__,s=A.getState(),G=A.engine,cardId=s.players.p1.hand.find(i=>G.CARD_DB[i.cardId].type==='unit'&&G.CARD_DB[i.cardId].row==='close').cardId;for(const pid of ['p1','p2'])for(const row of G.ROWS)s.players[pid].board[row]=Array.from({length:pid==='p1'&&row==='close'?12:2},(_,i)=>({iid:`density-${pid}-${row}-${i}`,cardId}));A.setStateForQA(s);window.GwentBattlefieldUX.reconcile();});await frame(page);await loadedArt(page);
   const before=await state(page),cards=await page.locator('#board [data-inspect-board]').count();assert.equal(cards,22);
   const zones=await page.locator('.lane').evaluateAll(lanes=>lanes.map(l=>({pid:l.dataset.pid,row:l.dataset.row,rect:JSON.parse(JSON.stringify(l.getBoundingClientRect()))})));assert.equal(zones.length,6);
@@ -93,11 +94,11 @@ async function dense(browser,name,viewport){
   await page.keyboard.press('Escape');assert.equal(await page.locator('.tabletop-focus').count(),0);await context.close();return{browser:name,fixture:'dense-layout-only',cards,zones,all12Inspectable:visited.size===12,authorityPreserved:true};
 }
 async function baseline(browser){
-  const context=await browser.newContext({viewport:{width:852,height:393}}),page=await context.newPage();await enter(page,false);const a=await choose(page);await play(page,a);const h=await page.locator(`[data-inspect-board="${a.iid}"]`).evaluate(e=>e.getBoundingClientRect().height);assert(h<=40);
+  const context=await makeContext(browser,{viewport:{width:852,height:393}}),page=await context.newPage();console.log('baseline begin');await enter(page,false);const a=await choose(page);await play(page,a);const h=await page.locator(`[data-inspect-board="${a.iid}"]`).evaluate(e=>e.getBoundingClientRect().height);assert(h<=40);
   await capture(page,'legacy-small-card-control');await page.setViewportSize({width:393,height:852});assert(await page.locator('.rotate-guard').isVisible(),'known-bad portrait control no longer demonstrates the old guard');await context.close();return{mode:'legacy-control',height:h,portraitGuard:true};
 }
 async function decoyOverlap(browser,name){
-  const context=await browser.newContext({viewport:{width:852,height:393},deviceScaleFactor:3,hasTouch:true}),page=await context.newPage();await enter(page,true);
+  const context=await makeContext(browser,{viewport:{width:852,height:393},deviceScaleFactor:3,hasTouch:true}),page=await context.newPage();console.log(name,'Decoy overlap begin');await enter(page,true);
   const hero=await choose(page);await play(page,hero);await bot(page);
   let action=null;
   for(let i=0;i<16&&!action;i++){
@@ -119,7 +120,7 @@ async function decoyOverlap(browser,name){
   await capture(page,`${name}-09-visible-decoy-return`);await context.close();return{browser:name,normalPath:true,occludedDecoyRejected:true,visibleDecoyTarget:action.targetIid};
 }
 async function reducedMotion(browser,name){
-  const context=await browser.newContext({viewport:{width:393,height:852},reducedMotion:'reduce'}),page=await context.newPage();await enter(page,true);
+  const context=await makeContext(browser,{viewport:{width:393,height:852},reducedMotion:'reduce'}),page=await context.newPage();console.log(name,'reduced motion begin');await enter(page,true);
   const first=await choose(page);await play(page,first);await bot(page);const second=await choose(page);await play(page,second);await bot(page);
   const before=await state(page),a=await pose(page,first.iid),b=await pose(page,second.iid);await beginMove(page,first.iid,b.x-a.x,b.y-a.y);
   assert((await page.evaluate(()=>window.GwentTabletopScene.metrics().poses)).every(p=>!p.lift),'reduced motion still emitted contact lift');await page.mouse.up();await idle(page);assert.deepEqual(await state(page),before);
