@@ -24,4 +24,6 @@ Model routing: GPT-6.1 Sol / High for cross-system implementation and review. Es
 
 Authorization: implementation and draft PR updates authorized. No merge, deployment or publication. Exit: automated/artifact candidate ready, then real-iPhone acceptance; release is separate. This phase cannot close from CI alone.
 
-Next action: implement adaptive territory and constrained-contact calculations, then integrate the scene/input boundaries and prove them with normal gestures.
+Checkpoint: runtime implementation `f7253e964ed1628d8e3e9f68c76400ddf99da401` passed Main #317 / `37070794313` and Storage #30 / `37070794350`; loaded-art Chromium/WebKit temporal, portrait, crowded, focus and Decoy artifacts reviewed. Implementation 100%; runtime verification 90%, with actual-iPhone acceptance pending. Canonical continuity records exact trees, CI checkout, fingerprints, artifact digest and the failed/superseded candidates.
+
+Next action: verify the documentation-inclusive final head, then obtain authorization for a separate candidate test deployment and collect actual-iPhone acceptance. The phase remains open until its device exit condition is satisfied.
