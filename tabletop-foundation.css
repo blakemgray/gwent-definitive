@@ -1,4 +1,91 @@
-:root{--gwent-tabletop-generation:"11.tabletop.foundation.1"}
+:root{--gwent-tabletop-generation:"11.tabletop.motion.1"}
+
+/* Prototype geometry is a table with side-grouped semantic territories. */
+html[data-tabletop-mode="physical"] #match-screen .battle-shell{
+  grid-template-rows:calc(44px + env(safe-area-inset-top)) minmax(0,1fr) calc(96px + env(safe-area-inset-bottom));
+  background-image:radial-gradient(ellipse at 45% 44%,rgba(143,89,48,.21),transparent 65%),repeating-linear-gradient(3deg,rgba(182,138,92,.025) 0 1px,transparent 1px 11px),linear-gradient(100deg,#160f0a,#3c2719 44%,#20160f);
+}
+html[data-tabletop-mode="physical"] #match-screen .rotate-guard{display:none!important}
+html[data-tabletop-mode="physical"] #match-screen #board-geometry{display:none}
+html[data-tabletop-mode="physical"] #match-screen #board{
+  display:block;position:relative;width:calc(100% - 24px - env(safe-area-inset-left) - env(safe-area-inset-right));height:100%;min-height:0;padding:0;margin:auto;
+}
+html[data-tabletop-mode="physical"] #match-screen .lane{
+  position:absolute;display:block;isolation:isolate;border:0!important;overflow:visible;background:transparent!important;box-shadow:none;
+}
+html[data-tabletop-mode="physical"] #match-screen .lane::before{
+  content:"";position:absolute;inset:14px -3px 0;border-radius:45%;pointer-events:none;opacity:.5;
+  background:radial-gradient(ellipse,rgba(72,119,154,.12),transparent 68%);
+}
+html[data-tabletop-mode="physical"] #match-screen .lane[data-pid="p2"]::before{background:radial-gradient(ellipse,rgba(160,82,60,.14),transparent 68%)}
+html[data-tabletop-mode="physical"] #match-screen .lane .units{
+  position:absolute;left:5px;right:5px;top:25px;bottom:4px;width:auto;height:auto;max-width:none;overflow:visible;justify-self:auto;
+}
+html[data-tabletop-mode="physical"] #match-screen .lane .rlabel{
+  position:absolute;top:0;left:5px;display:flex;gap:4px;height:22px;font-size:9px;letter-spacing:.04em;border:0;background:none;
+}
+html[data-tabletop-mode="physical"] #match-screen .lane .rscore{
+  position:absolute;right:5px;top:0;display:flex;gap:4px;width:auto;height:22px;min-width:25px;font-size:17px;padding:0;
+}
+html[data-tabletop-mode="physical"] #match-screen .rscore::after{font-size:7px}
+html[data-tabletop-mode="physical"] #match-screen .special-slot-wrap{position:absolute;top:0;left:50%;transform:translateX(-50%)}
+html[data-tabletop-mode="physical"] #match-screen .special-slot{width:20px;height:20px;border-color:rgba(217,177,112,.20)}
+html[data-tabletop-mode="physical"] #match-screen .unit[data-inspect-board]{
+  touch-action:none;transform:none;rotate:var(--tabletop-angle,0deg);translate:0 calc(-1 * var(--tabletop-lift,0px));
+  transform-origin:50% 50%;transition:box-shadow 100ms,filter 100ms;overflow:hidden;border-radius:4px;
+  box-shadow:1px 3px 3px rgba(0,0,0,.58),3px 8px 14px rgba(0,0,0,.27);
+}
+html[data-tabletop-mode="physical"] #match-screen .unit[data-tabletop-held="true"]{
+  z-index:500!important;box-shadow:3px 12px 18px rgba(0,0,0,.58);filter:brightness(1.08);
+}
+html[data-tabletop-mode="physical"] #match-screen .unit:hover,
+html[data-tabletop-mode="physical"] #match-screen .unit:focus-visible{z-index:var(--tabletop-z,20)!important}
+html[data-tabletop-mode="physical"] #match-screen .unit[data-tabletop-held="true"]{z-index:500!important}
+html[data-tabletop-mode="physical"] #match-screen .unit img{-webkit-user-drag:none;user-select:none;pointer-events:none}
+html[data-tabletop-mode="physical"] #match-screen .special-slot:not(.active){border:0;background:transparent}
+html[data-tabletop-mode="physical"] #match-screen .lane.weathered .units::before{border-radius:45%;background:radial-gradient(ellipse,rgba(115,159,190,.24),transparent 72%);box-shadow:none}
+html[data-tabletop-mode="physical"] #match-screen .unit:focus-visible{outline:2px solid #f0d9a0;outline-offset:2px}
+html[data-tabletop-mode="physical"] #match-screen .unit .u-score{width:19px;height:19px;font-size:11px;left:1px;top:1px}
+html[data-tabletop-mode="physical"] #match-screen .weather{
+  position:absolute;left:0;right:0;width:auto;height:18px;display:flex;font-size:8px;overflow:visible;
+}
+html[data-tabletop-mode="physical"] #match-screen .battle-bottom{min-height:96px;grid-template-columns:74px minmax(0,1fr) 74px;gap:5px;border:0}
+html[data-tabletop-mode="physical"] #match-screen .counts{display:none}
+html[data-tabletop-mode="physical"] #match-screen .hand{height:84px;width:100%;max-width:720px}
+html[data-tabletop-mode="physical"] #match-screen .player-meta{flex-direction:column;gap:3px}
+html[data-tabletop-mode="physical"] #match-screen .passbtn{min-width:66px;height:40px;font-size:10px}
+html[data-tabletop-mode="physical"] #match-screen .badge.compact-hide{display:inline-flex;font-size:7px}
+html[data-tabletop-mode="physical"] #match-screen .leader-mini{width:36px;height:66px}
+html[data-tabletop-mode="physical"] #match-screen .battle-top{min-height:44px;border:0}
+html[data-tabletop-mode="physical"] #match-screen .tabletop-focus-shade{background:transparent;backdrop-filter:none}
+html[data-tabletop-mode="physical"] #match-screen .side-panel.tabletop-focus{
+  position:absolute;right:auto;bottom:auto;width:min(332px,calc(100vw - 16px));height:auto;padding:12px;border:1px solid rgba(236,206,147,.42);border-radius:14px;
+  background:rgba(23,19,14,.97);box-shadow:0 16px 40px rgba(0,0,0,.55);max-height:calc(100% - 16px);overflow:auto;
+}
+html[data-tabletop-mode="physical"] #match-screen .tabletop-focus .inspector-grid{grid-template-columns:90px 1fr;margin:0;gap:12px}
+html[data-tabletop-mode="physical"] #match-screen .tabletop-focus .inspect-art{width:90px;aspect-ratio:16.1/30.4;object-fit:contain}
+html[data-tabletop-mode="physical"] #match-screen .tabletop-focus .inspect-copy{padding-top:26px}
+html[data-tabletop-mode="physical"] #match-screen .tabletop-focus .inspect-copy h2{font-size:17px}
+html[data-tabletop-mode="physical"] #match-screen .tabletop-focus .inspect-copy p{font-size:11px;line-height:1.3;margin:6px 0}
+html[data-tabletop-mode="physical"] #match-screen .tabletop-focus .panel-x{top:5px;right:5px;width:36px;height:36px}
+html[data-tabletop-mode="physical"] #match-screen .tabletop-focus-nav{display:flex;align-items:center;gap:5px;justify-content:space-between;margin-top:8px;font-size:10px}
+html[data-tabletop-mode="physical"] #match-screen .tabletop-focus-nav button{min-height:36px;padding:5px 10px}
+@media(orientation:portrait){
+  html[data-tabletop-mode="physical"] #match-screen .battle-shell{grid-template-rows:calc(62px + env(safe-area-inset-top)) minmax(0,1fr) calc(126px + env(safe-area-inset-bottom))}
+  html[data-tabletop-mode="physical"] #match-screen .matchline{gap:4px;grid-template-columns:1fr 60px 1fr}
+  html[data-tabletop-mode="physical"] #match-screen .combatant-copy,
+  html[data-tabletop-mode="physical"] #match-screen .leader-chip,
+  html[data-tabletop-mode="physical"] #match-screen .combat-lives{display:none}
+  html[data-tabletop-mode="physical"] #match-screen .combatant{gap:4px}
+  html[data-tabletop-mode="physical"] #match-screen .battle-bottom{grid-template-columns:48px minmax(0,1fr) 64px;min-height:126px}
+  html[data-tabletop-mode="physical"] #match-screen .hand{height:102px}
+  html[data-tabletop-mode="physical"] #match-screen .lane .rlabel{font-size:8px;gap:2px;left:2px}
+  html[data-tabletop-mode="physical"] #match-screen .rscore::after{display:none}
+  html[data-tabletop-mode="physical"] #match-screen .special-slot-wrap{top:auto;bottom:0;left:0;transform:none;z-index:4}
+  html[data-tabletop-mode="physical"] #match-screen .side-panel:not(.tabletop-focus){width:94vw}
+  html[data-tabletop-mode="physical"] #match-screen .inspector-grid{grid-template-columns:100px 1fr}
+}
+@media(prefers-reduced-motion:reduce){html[data-tabletop-mode="physical"] #match-screen .unit{transition:none}}
 /* This checkpoint retains baseline composition. The scene owns persistent
    positions in prototype mode; adaptive zones/contact arrive in the next phase. */
 html[data-tabletop-mode="foundation"] #match-screen [data-tabletop-body]{

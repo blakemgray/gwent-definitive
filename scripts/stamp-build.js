@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('fs'),path=require('path'),crypto=require('crypto');
-const RELEASE='11.tabletop.foundation.1';
+const RELEASE='11.tabletop.motion.1';
 function identityFor(root,sha){
   if(!/^[0-9a-f]{40}$/i.test(sha||''))throw new Error('An exact 40-character source commit is required');
   const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');

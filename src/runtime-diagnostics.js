@@ -18,7 +18,7 @@
   ];
   const SUBSYSTEMS=['GwentBattlefieldUX','GwentBattlefieldReadability','GwentMotionTokens','GwentPresentationQueue',
     'GwentDirectManipulation','GwentCardContinuity','GwentTargetExposure','GwentGameplayChoreography','GwentPresentationFeedback',
-    'GwentPlatformFeedback','GwentTabletopRenderer','GwentTabletopScene','GwentDiagnostics'];
+    'GwentPlatformFeedback','GwentTabletopRenderer','GwentTabletopPhysics','GwentTabletopScene','GwentDiagnostics'];
   const handHistory=new Map();
   const MAX_HAND_HISTORY=192;
   let installed=false,panel=null,previousFocus=null,requestSequence=0,latestReport=null,refreshSequence=0,lastInputCapture=null,matchEpoch=0;
@@ -161,7 +161,7 @@
   function sceneObservation(){
     // Only declared observation APIs are read. No gameplay state, hidden hand, or solver mutation is requested.
     const readStatus=(name,method)=>safe(()=>clean(env[name]?.[method]?.()??null));
-    return {directManipulation:{phase:env.GwentDirectManipulation?.phase||null,selectedIid:env.GwentDirectManipulation?.selectedIid||null},
+    return {directManipulation:{phase:env.GwentDirectManipulation?.phase||null,selectedIid:env.GwentDirectManipulation?.selectedIid||null,table:clean(env.GwentDirectManipulation?.tableInteraction)||null},
       presentation:{busy:env.GwentPresentationQueue?.busy??null,bodyStage:doc?.body?.dataset?.gcStage||null},
       continuity:{guardedIids:safe(()=>env.GwentCardContinuity?.guardedIids?.(),[])},
       tabletop:{renderer:readStatus('GwentTabletopRenderer','snapshot'),scene:readStatus('GwentTabletopScene','metrics')}};

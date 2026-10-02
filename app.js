@@ -351,7 +351,7 @@
   }
 
   function selectCard(iid){ ui.selectedIid=iid; renderOverlay(); }
-  function closeOverlay(){ ui.selectedIid=null;ui.matchMenuOpen=false;ui.matchMenuStep='menu';$('#overlay-root').innerHTML='';maybeAutoBot(); }
+  function closeOverlay(){ const focusIid=$('.tabletop-focus')?.dataset.focusIid;ui.selectedIid=null;ui.matchMenuOpen=false;ui.matchMenuStep='menu';$('#overlay-root').innerHTML='';if(focusIid)[...document.querySelectorAll('[data-inspect-board]')].find(el=>el.dataset.inspectBoard===focusIid)?.focus({preventScroll:true});maybeAutoBot(); }
 
   function renderOverlay(){
     const root=$('#overlay-root');
@@ -360,6 +360,15 @@
     if(!ui.selectedIid){ root.innerHTML=''; return; }
     const found=findInst(ui.selectedIid); if(!found){ui.selectedIid=null;root.innerHTML='';return;}
     const d=def(found.inst.cardId); const img=assetFor(found.inst.cardId);
+    if(window.GwentTabletopScene?.enabled&&found.zone==='board'){
+      const siblings=state.players[found.pid].board[found.row],index=siblings.findIndex(c=>c.iid===found.inst.iid);
+      const power=G.helpers.effectiveCardPower(state,found.pid,found.row,found.inst);
+      root.innerHTML=`<div class="shade tabletop-focus-shade" data-close-overlay></div><aside class="side-panel tabletop-focus" id="card-inspector" data-focus-iid="${esc(found.inst.iid)}" role="dialog" aria-modal="true" aria-labelledby="tabletop-focus-title"><button class="panel-x" aria-label="Close card detail" data-close-overlay>×</button><div class="inspector-grid">${img?`<img class="inspect-art" src="${img}" alt="${esc(d?.name)}">`:''}<div class="inspect-copy"><div class="eyebrow">${found.pid==='p1'?'YOUR':'OPPONENT'} · ${esc(found.row)}</div><h2 id="tabletop-focus-title">${esc(d?.name)}</h2><span class="badge">POWER ${power}</span><p>${esc(d?.abilities.join(' · ')||'UNIT')}</p><p>${esc(descriptionFor(d))}</p></div></div><div class="tabletop-focus-nav"><button class="btn ghost" aria-label="Previous card in territory" data-focus-step="-1" ${siblings.length<2?'disabled':''}>←</button><span>${index+1} / ${siblings.length} in ${esc(found.row)}</span><button class="btn ghost" aria-label="Next card in territory" data-focus-step="1" ${siblings.length<2?'disabled':''}>→</button></div></aside>`;
+      root.querySelectorAll('[data-close-overlay]').forEach(x=>x.onclick=closeOverlay);
+      root.querySelectorAll('[data-focus-step]').forEach(btn=>btn.onclick=()=>selectCard(siblings[(index+Number(btn.dataset.focusStep)+siblings.length)%siblings.length].iid));
+      window.GwentTabletopScene.positionFocus(root.querySelector('.tabletop-focus'),found.inst.iid);
+      root.querySelector('.panel-x').focus({preventScroll:true});return;
+    }
     const actions = found.zone==='hand' ? G.legalActions(state,'p1').filter(a=>a.iid===found.inst.iid) : [];
     const actionHtml = actions.length ? actions.map((a,i)=>`<button class="btn primary" data-play-index="${i}">${esc(actionLabel(a,d))}</button>`).join('') : `<button class="btn" disabled>${state.currentPlayerId==='p1'?'NO LEGAL PLAY':'WAIT FOR YOUR TURN'}</button>`;
     root.innerHTML=`<div class="shade" data-close-overlay></div><aside class="side-panel" id="card-inspector"><button class="panel-x" data-close-overlay>×</button><div class="inspector-grid">${img?`<img class="inspect-art" src="${img}" alt="${esc(d?.name)}">`:''}<div class="inspect-copy"><div class="eyebrow">${esc(d?.faction)} · ${esc(d?.row || d?.type)}</div><h2>${esc(d?.name)}</h2><span class="badge">${esc(d?.abilities.join(' · ') || 'UNIT')}</span><p>${esc(descriptionFor(d))}</p><div class="actions">${actionHtml}</div></div></div></aside>`;
@@ -451,6 +460,7 @@
     catch(e){console.error(e);} }
 
   function commit(next,label){
+    window.GwentDirectManipulation?.interruptTable?.('engine-commit');
     state = history.commit(next);
     saveActiveMatch();
     renderMatch();
@@ -698,11 +708,11 @@
   $('#catalog-count').textContent=catalog.length; renderCatalog(''); renderDeckScreen(); renderSetupScreen(); renderRulesMatrix();
 
   window.__GWENT_PASS10__ = {
-    generation:'11.tabletop.foundation.1',
+    generation:'11.tabletop.motion.1',
     getState:()=>state ? G.helpers.deepClone(state) : null,
     getPreparedState:()=>ui.preMatchState ? deepClone(ui.preMatchState) : null,
     quickStart, prepareMulliganState, finalizeMatchFromPrepared, botMove, pass:passPlayer,
-    selectCard, playAction, openCheats, go, maybeAutoBot, engine:G, assetResolver:Assets, storage:Store, openLeader, openMatchMenu, saveActiveMatch, renderRulesMatrix,
+    selectCard, closeOverlay, playAction, openCheats, go, maybeAutoBot, engine:G, assetResolver:Assets, storage:Store, openLeader, openMatchMenu, saveActiveMatch, renderRulesMatrix,
     swapMulligan, getMulliganUsed:()=>ui.mulliganUsed, presets:()=>deepClone(PRESETS),
     setStateForQA:(s)=>{window.GwentTabletopRenderer?.reset?.('qa-state-replaced');state=G.helpers.deepClone(s);history=new G.HistorySession(state);go('match-screen');renderMatch();},
     battlefieldRowModel:[['p2','siege'],['p2','ranged'],['p2','close'],['weather',null],['p1','close'],['p1','ranged'],['p1','siege']]

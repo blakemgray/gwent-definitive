@@ -1,4 +1,4 @@
-const BUILD='11.tabletop.foundation.1';
+const BUILD='11.tabletop.motion.1';
 const CORE=`gwent-definitive-core-${BUILD}`;
 const RUNTIME=`gwent-definitive-runtime-${BUILD}`;
 const PRECACHE=[
@@ -6,7 +6,7 @@ const PRECACHE=[
   './icons/apple-touch-icon.png','./icons/icon-192.png','./icons/icon-512.png',
   './src/cards-catalog.js','./src/gwent-engine.js','./src/asset-resolver.js','./src/storage.js','./src/battlefield-ux.js','./src/battlefield-readability.js',
   './src/motion-tokens.js','./src/presentation-queue.js','./src/interaction-turn-gate.js','./src/presentation-events.js','./src/gameplay-choreography.js','./src/choreography-external-gate.js','./src/flip-layout.js','./src/interaction-intent.js','./src/gesture-controller.js','./src/card-continuity.js','./src/target-exposure.js','./src/presentation-feedback.js','./src/platform-feedback.js',
-  './src/build-identity.js','./src/tabletop-renderer.js','./src/tabletop-scene.js','./src/runtime-diagnostics.js'
+  './src/build-identity.js','./src/tabletop-renderer.js','./src/tabletop-scene.js','./src/tabletop-physics.js','./src/runtime-diagnostics.js'
 ];
 
 // Report the build of this actual worker. Observation must never advance its lifecycle.

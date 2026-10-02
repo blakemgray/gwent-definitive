@@ -92,6 +92,12 @@ Local evidence: all 15 Node suites pass; real-browser DOM contract passes; norma
 
 First candidate `cf390b139f3e98f2ad71f640651d880ae1b3093e` passed Main #313 / `37035002598` and Storage #26 / `37035002379`. PR deployment was skipped. The follow-up adds the active-match diagnostic button and tests that actual entry instead of relying on a developer API. Its changed head requires its own CI and artifact verification. Canonical continuity and PR #13 identify the current checkpoint.
 
-This foundation retains the baseline six-rail composition and portrait gameplay guard. Board touch rearrangement, contact physics, flexible composition, larger cards and local focus are not yet implemented. The crop defect is still open. The first foundation is an implementation checkpoint, not pass closure or release authorization.
+At the foundation checkpoint, the baseline six-rail composition and portrait gameplay guard remained. The subsequent motion phase below supersedes that prototype status. The crop defect is still open. Foundation verification is an implementation checkpoint, not pass closure or release authorization.
 
 Next implementation phase: build adaptive semantic territories and direct board manipulation on the persistent bodies, with a constrained contact/settling solver and local focus, then conduct real-iPhone acceptance.
+
+## Motion candidate checkpoint — 2026-10-02
+
+Implemented on the same draft branch: borderless density-aware territories, larger sparse cards, presentation-only board rearrangement on both sides, local contact and finite settlement, reduced-motion behavior, portrait play, anchored effective-power focus and crowded-territory navigation. Engine and authored presentation interrupt physical pickup without an accidental delayed-release click. Normal overlapping Decoy tests distinguish the visible target from a covered unit. Full candidate details, known failures and exact next action are in canonical continuity and `TABLETOP_MOTION_PHASE.md`.
+
+This is a playable interaction prototype awaiting full exact-head CI/artifact and physical-device acceptance. Physical styling, effect integration and performance require actual-device tuning before the larger vision can be called complete. `TABLETOP_DEVICE_ACCEPTANCE.md` defines the real-iPhone procedure. Production remains unchanged; no merge, deployment or publication is authorized.

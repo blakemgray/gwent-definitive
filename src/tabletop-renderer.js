@@ -23,7 +23,7 @@
     const stableClass=[...node.classList].find(name=>!isTransientClass(name));
     return `${node.tagName}:${stableClass||''}`;
   }
-  function isTransientClass(name){return /^(dm-|te-|gc-)/.test(name);}
+  function isTransientClass(name){return /^(dm-|te-|gc-|tabletop-)/.test(name);}
   function isRuntimeAttribute(name){
     return name==='style'||/^data-(tabletop-|continuity-|presentation-)/.test(name);
   }

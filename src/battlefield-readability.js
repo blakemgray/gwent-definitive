@@ -49,8 +49,9 @@
       score=document.createElement('span');
       el.appendChild(score);
     }
-    score.className=`u-score ${modified?'modified-power':'base-power'}`;
-    score.textContent=String(power);
+    const className=`u-score ${modified?'modified-power':'base-power'}`;
+    if(score.className!==className)score.className=className;
+    if(score.textContent!==String(power))score.textContent=String(power);
     score.setAttribute('aria-hidden','true');
     el.dataset.currentPower=String(power);
     el.dataset.basePower=String(base);
