@@ -6,19 +6,19 @@
 **Repository:** `blakemgray/gwent-definitive`  
 **Canonical hosted build:** `https://blakemgray.github.io/gwent-definitive/`  
 **Default branch:** `main`  
-**Verified production main before this hotfix:** `8b2085530e25ef5f05d99a25b00dc4fb307f4127`  
 **Pass 11 production merge:** `aa8b6043d68c42ae2dc5310b57106a5a5808a150`  
-**Production Verify + Deploy:** Run #300 / `34701697634` — **FULL SUCCESS**  
-**Final production-docs Verify + Deploy:** Run #301 / `34702404779` — **FULL SUCCESS**  
-**Current branch:** `hotfix/battlefield-card-crop`  
-**Current PR:** #12 — `Hotfix: preserve full battlefield card faces`  
+**Pass 11 production Verify + Deploy:** Run #300 / `34701697634` — **SUCCESS**  
+**Battlefield-card hotfix PR:** #12 — `Hotfix: preserve full battlefield card faces`  
+**Hotfix merge commit:** `f9671eacf46000e876e6dbed4e5291f2be457181`  
+**Hotfix production Verify + Deploy:** Run #311 / `34711086588` — **SUCCESS**  
+**Production shell generation:** `11.golden.5`  
 **Current milestone:** **Pass 11 — Golden Match / Complete Normal Match — DEPLOYED**  
-**Current phase:** **BATTLEFIELD CARD-FACE HOTFIX — IMPLEMENTATION + AUTOMATED + VISUAL ACCEPTANCE COMPLETE / MERGE AUTHORIZATION PENDING**  
-**Current task:** **preserve this exact hotfix candidate, verify this docs-inclusive head, and do not merge/deploy until the user explicitly authorizes it**  
-**Hotfix implementation:** 100%  
-**Hotfix verification:** 100% on implementation head; docs-inclusive exact-head verification pending this continuity commit  
-**Default model:** GPT-5.6 Sol · High  
-**Last updated:** 2026-09-12 America/New_York
+**Current phase:** **REAL-DEVICE BATTLEFIELD CARD-CROPPING REGRESSION REOPENED / CODEX HANDOFF**  
+**Current task:** **determine the true real-device cause of placed battlefield card side-cutting and fix it from first principles; do not inherit the previous root-cause conclusion merely because CI and desktop artifacts passed**  
+**Implementation state:** shipped hotfix exists but is **not accepted** for this defect  
+**Automated verification state:** green but **insufficient to establish real-device correctness for this issue**  
+**Real-device acceptance:** **FAIL — user still sees the card-cutting issue on production after PR #12 shipped**  
+**Last updated:** 2026-10-02 America/New_York
 
 ---
 
@@ -28,14 +28,18 @@ Before substantive resumed work:
 
 1. Read this file in full.
 2. Read `FUTURE_CONTINUITY.md` in full.
-3. Read `MODEL_ROUTING.md` in full.
-4. Reconcile current `main`, PR #12 head, and exact-head workflows against this file.
-5. Treat GitHub as authoritative over chat memory or assumptions.
-6. Do not merge/deploy from a generic `continue`, `finish`, or similar instruction. Merge/deploy requires explicit authorization.
+3. Read `MODEL_ROUTING.md` in full, but treat its old Pass-11 status text as historical where stale.
+4. Reconcile current `main`, deployment state, open branches/PRs, and current production source before editing.
+5. Treat GitHub as source/code/CI authority, but treat **current real-device reproduction as the highest authority for this visual defect**.
+6. Create a new narrow diagnostic/fix branch from current `main`; do not continue the merged PR #12 branch as if its diagnosis were proven.
+7. Before changing code, establish a reliable way to prove which exact CSS/JS/service-worker generation is running on the user's real device.
+8. Do not merge/deploy without explicit user authorization.
 
-Precedence: current user instruction → current repository / exact-head green CI → this file → `FUTURE_CONTINUITY.md` → current contracts/config → `MODEL_ROUTING.md` → older archives/chat.
+Precedence for this defect:
 
-Never weaken, delete, or bypass CI/QA merely to make a candidate green. Exact-head visual evidence remains mandatory for player-facing rendering fixes.
+> current user real-device evidence → current production source/runtime → exact-device instrumentation → CI/browser artifacts → prior diagnosis/history
+
+Do **not** weaken tests merely to make a candidate green. Instead, improve the test so it reproduces the real failure mode.
 
 ---
 
@@ -61,199 +65,263 @@ Interaction north star:
 
 Primary gameplay target: installed iPhone landscape PWA.
 
-Pass 10.3 remains authoritative for battlefield row/lane/rail ownership, final resting placement, and deterministic packing. This hotfix narrowly corrects the **placed-card body aspect/padding inside that geometry** because real-device and artifact evidence proved those values themselves were defective. It does not change row order, lane bounds, legal destinations, scoring, rules, or engine state.
+Pass 10.3 remains authoritative for battlefield row/lane/rail ownership and deterministic final placement **except where current evidence proves a concrete rendering defect inside that responsibility**. Do not protect an old geometry assumption from investigation merely because it was previously marked closed.
 
 ---
 
-# 2. Production state and versioning
+# 2. Current production state
 
-Production `main` remains `8b2085530e25ef5f05d99a25b00dc4fb307f4127` until PR #12 is explicitly merged.
+Current production hotfix merge:
 
-Production installed-PWA shell generation remains **`11.golden.4`**.
+**`f9671eacf46000e876e6dbed4e5291f2be457181`**
 
-PR #12 carries candidate installed-PWA shell generation **`11.golden.5`**, necessary because the precached battlefield runtime changed. No PR workflow deployed it.
+PR #12 merged the exact verified candidate after:
 
-Save semantics are unchanged:
+- implementation head `c8b728425bed4ec637c155c9d462bd72a4c866b2` passed Main #309 / `34709726806` and Storage #24 / `34709726754`;
+- docs-inclusive merge candidate `1ce7e711f2eeb7a8d303a72209bacc414d807c35` passed Main #310 / `34710346563` and Storage #25 / `34710346580`;
+- production merge `f9671eac...` passed Verify + Pages Deploy Run #311 / `34711086588`.
+
+The installed-PWA shell generation was advanced from `11.golden.4` to **`11.golden.5`**.
+
+Save semantics remain:
 
 - format: `pass11-normal-v1`
 - save build: `11.golden.1`
 - bounded legacy builds: `11.1A`, `11.1B`
 
-No save-format/build bump is warranted.
+No known rules/save-state issue is implicated by the current regression.
 
 ---
 
-# 3. Confirmed regression
+# 3. Real-device regression — authoritative current truth
 
-Real installed-iPhone production play showed that placed battlefield cards did not preserve the expected complete physical card face/frame. The defect reproduced equivalently on:
+The user originally reported that played battlefield cards appeared horizontally cut/cropped on the left and right sides.
 
-- player close / ranged / siege;
-- opponent close / ranged / siege.
+Original confirmed scope:
 
-This proved a shared placed-card rendering defect rather than a faction, row, side, or individual-card issue.
+- all three player rows;
+- all three opponent rows;
+- player and enemy cards affected equivalently;
+- therefore the symptom is global/shared rather than row-, side-, faction-, or single-card-specific.
 
-Expected behavior: the placed-card body itself should have the same proportions as the loaded Witcher card art, with the complete face/frame visible. Dense rows may overlap through the existing deterministic packer, but individual cards must not crop, stretch, or appear as a narrow strip inside a padded/wide shell.
+A screenshot from the real device showed the placed card face visually reduced/cut in a way that did not match the full card shown in hand.
 
----
+PR #12 attempted to fix this and was shipped.
 
-# 4. Rejected first candidate — important QA lesson
+**On 2026-10-02, after opening the current production build, the user explicitly reported:**
 
-First candidate head:
+> **“Still the card cutting issue.”**
 
-`4a358d57a560caaa86487a48b0aada089d9ab7e2`
+This real-device observation **reopens the defect** and invalidates any prior claim that PR #12 solved the production symptom.
 
-It changed battlefield art from `object-fit: cover` to `contain`, added an all-six-rows test, and advanced the candidate shell to `11.golden.5`.
-
-It was automated-green:
-
-- Main #302 / `34707761039` — SUCCESS;
-- Storage #17 / `34707761133` — SUCCESS.
-
-But manual review of exact-head readability artifact `10302168100` (`sha256:7c6fc09d5951c4c6e60e7995a41975b06f870752f083ca118ffc62a86d9ccf22`) **rejected** the candidate: the image was no longer cropped, but the face still rendered as a narrow strip with material side gutters inside the card shell.
-
-This demonstrated why green CSS/property assertions are not sufficient without inspecting the generated player-facing artifact.
+The defect is therefore still open on current production until Codex (or a later agent) obtains new real-device evidence showing otherwise.
 
 ---
 
-# 5. Final root cause
+# 4. What PR #12 changed — useful evidence, NOT a proven root cause
 
-Three shared factors combined:
+PR #12 changed three main areas:
 
-1. `physical-card.css` used `object-fit: cover`, which cropped a mismatched source face to fill its box.
-2. `src/battlefield-ux.js` hard-coded battlefield card width as `cardH * 0.696`, substantially wider than the canonical/source-art card face (~`16.1 / 30.4 ≈ 0.5296`).
-3. Placed units are `<button class="unit">` elements, but the authoritative board-card surface did not reset browser/UA button padding. On a very small battlefield card, horizontal button padding could consume a large share of the visible card face, especially on WebKit/iPhone.
+### A. Image fitting
 
-The first `contain` fix merely exposed factors 2 and 3.
+`physical-card.css`
 
----
+- changed placed battlefield card images from crop-style `object-fit: cover` behavior to `object-fit: contain`;
+- centered the image;
+- applied equivalent no-crop behavior to predictive target actors.
 
-# 6. Final implementation
+### B. Battlefield card shell geometry
 
-Implementation head before this docs-only closeout:
+`src/battlefield-ux.js`
 
-**`c8b728425bed4ec637c155c9d462bd72a4c866b2`**
+- replaced placed-card width factor `0.696` with a canonical/reference card-face aspect approximately `16.1 / 30.4 ≈ 0.5296`;
+- accounted for borders under global `border-box` sizing;
+- deliberately left hand-card `0.696` geometry unchanged;
+- preserved row/lane dimensions, centering, packing, and overlap algorithms.
 
-### `src/battlefield-ux.js`
+### C. Button padding
 
-- added canonical board-face aspect `16.1 / 30.4`;
-- board card outer width is calculated so the **inner face box**, after borders under global `border-box` sizing, matches that aspect;
-- applies only to placed battlefield cards;
-- existing hand-card `0.696` geometry remains untouched by this hotfix;
-- rail width, row order, centering, pack algorithm, minimum exposure, overlap behavior, and final resting ownership remain unchanged;
-- exposes `GwentBattlefieldUX.boardCardAspect` for QA observation only.
+`physical-card.css`
 
-### `physical-card.css`
+- added `padding: 0` to placed `.unit[data-inspect-board]` buttons to prevent UA button padding from consuming the tiny battlefield card face.
 
-- authoritative placed battlefield unit buttons now have `padding:0`;
-- placed art uses `object-fit:contain` and centered positioning as a no-crop guard;
-- predictive target actor preserves the same uncropped full-face presentation.
+These were reasonable hypotheses and materially changed the renderer, but **the continued real-device reproduction proves that this explanation was incomplete, wrong, not active on the user's device, or masking a separate layer of clipping**.
 
-### `tests/pass11_readability_ui.py`
-
-The regression test now populates **all six battlefield rows** and, for every player/opponent row, requires:
-
-- zero computed card-button padding;
-- loaded source art with valid natural dimensions;
-- `object-fit: contain` + centered positioning;
-- inner card-face aspect matching the image's actual `naturalWidth / naturalHeight` within tight tolerance;
-- exposed board-card aspect matching that same loaded-art aspect;
-- image element filling the entire inner card-face box.
-
-This stronger test would fail both the original production defect and the first green-but-visually-wrong hotfix candidate.
-
-All prior density/readability, touch, targeting, choreography, lifecycle, PWA, Golden Match, stress, and storage gates remain intact.
+Do not simply repeat or slightly tweak these same changes without proving the actual runtime failure.
 
 ---
 
-# 7. Exact implementation-head evidence
+# 5. Why previous QA was misleading
 
-Implementation head: `c8b728425bed4ec637c155c9d462bd72a4c866b2`
+The hotfix passed a strengthened browser test that populated all six battlefield rows and asserted:
 
-- Main Verify Run #309 / `34709726806` — **SUCCESS**
-- Storage Resilience Run #24 / `34709726754` — **SUCCESS**
-- PR deploy job — **SKIPPED** as intended
+- zero computed button padding;
+- loaded source art;
+- `object-fit: contain`;
+- centered object positioning;
+- inner face aspect approximately equal to `naturalWidth / naturalHeight`;
+- image element filling the inner face box.
 
-Main #309 cleared, among other gates:
+The exact implementation-head artifact `08_full_card_face_all_rows_both_sides.png` was manually reviewed and appeared correct in the desktop/browser CI environment.
 
-- battlefield geometry/density;
-- strengthened Pass 11.2A full-face/readability regression;
-- intent/target exposure/card continuity;
-- platform truth and coherent PWA upgrade;
+Production Run #311 also passed:
+
+- battlefield geometry/readability;
 - complete Golden Match;
-- direct manipulation + destination parity;
-- presentation-aware opponent gate;
-- presentation failure recovery;
-- **256 physical stress trials**;
+- direct manipulation;
+- 256-trial stress gate;
 - save/visibility lifecycle;
-- **WebKit/iPhone-targeted interaction**;
-- signature/adversarial choreography;
-- 10.4C feel/pacing;
-- all visual artifact archives.
+- WebKit/iPhone-targeted browser automation;
+- choreography/feel;
+- Pages deployment.
 
-Exact-head readability artifact:
+**Those results are no longer sufficient acceptance evidence for this bug.**
 
-- name: `pass11-2a-battlefield-readability-qa`
-- ID: `10302553573`
-- digest: `sha256:57981c2e117e687948c08d7117d4ed392f6371f882eb931b72e6746cbf7890d0`
+The testing blind spot may involve one or more of:
 
-Exact-head storage artifact:
+- true Mobile Safari / installed-PWA rendering differences not represented by automated WebKit;
+- stale or mixed PWA/service-worker generations on the device;
+- CSS cascade/order/specificity differences at actual runtime;
+- transforms/contain/overflow/clip-path/masking on an ancestor or presentation actor rather than the `<img>` itself;
+- a different renderer/path being used during normal play than the QA-injected state;
+- card image/source asset framing or intrinsic transparent/cropped bounds;
+- device-pixel-ratio/subpixel sizing/rounding at very small board-card widths;
+- viewport/orientation/safe-area-specific CSS;
+- later style mutation after the assertions run;
+- transition/animation wrapper clipping;
+- visual scaling that leaves the DOM box technically correct while the perceived painted result is not;
+- a service-worker update lifecycle issue causing production source and actual installed runtime to diverge.
 
-- ID: `10303035858`
-- digest: `sha256:f711447dab05c57c7e13a61bab737721c0a3eab02d41053b34e0bffc9f067459`
-
----
-
-# 8. Manual visual acceptance — PASS
-
-Manually inspected from the exact implementation-head artifact:
-
-- `08_full_card_face_all_rows_both_sides.png`
-- `05_density_12.png`
-
-Verdict: **PASS**.
-
-Observed:
-
-- the actual card face now fills its physical card body instead of appearing as a narrow central strip;
-- full card art/frame remains visible;
-- player and opponent rows are consistent across all six row positions;
-- power badges remain readable;
-- the 12-card dense row remains centered, coherent, and deterministic;
-- lane/rail/row geometry remains intact;
-- no broad reflow or gameplay-layout regression was introduced.
-
-This is the first hotfix candidate that satisfies both automated and human visual acceptance.
+This list is intentionally non-exhaustive. Codex should investigate, not anchor on it.
 
 ---
 
-# 9. PR #12 state
+# 6. Required diagnostic standard for Codex
 
-PR #12 is open, mergeable, and unmerged.
+The next attempt should be evidence-first.
 
-Its body has been updated to the final diagnosis, implementation, exact implementation-head CI, artifact IDs/digests, and manual visual PASS.
+Before proposing another fix, Codex should answer at least these questions:
 
-No production deploy occurred from PR verification.
+1. **What exact production build is the real iPhone actually running?**
+   - establish visible/runtime build identity, service-worker controller/version, loaded CSS/JS asset generation, and whether an older worker/client remains active;
+   - if necessary add a temporary or permanent diagnostics surface that the user can screenshot.
+
+2. **Which actual DOM element is visibly clipped on the real device?**
+   - card outer button/shell;
+   - inner image element;
+   - image content itself;
+   - overlay/power badge interaction;
+   - ancestor lane/rail;
+   - transform actor/continuity actor;
+   - animation/presentation wrapper;
+   - something else.
+
+3. **What are the real-device computed dimensions and styles?**
+   Capture for one affected card at minimum:
+   - `getBoundingClientRect()` for shell, image, relevant ancestors;
+   - computed width/height/padding/border/overflow/clip-path/mask/object-fit/object-position/transform/transform-origin;
+   - intrinsic image dimensions;
+   - devicePixelRatio;
+   - viewport visual/layout dimensions;
+   - current orientation/display mode;
+   - service-worker/controller/build identity.
+
+4. **Does the defect exist in Safari browser mode, installed PWA mode, or both?**
+   Test separately if practical.
+
+5. **Does the same source image render correctly in hand and incorrectly on board in the same live session?**
+   If yes, compare the complete computed-style/ancestor chain between those two contexts rather than comparing only the `<img>` rules.
+
+6. **Can the automated test be changed so it actually fails on the same mechanism?**
+   Do not merge another candidate whose regression test cannot distinguish the known-bad current production behavior.
 
 ---
 
-# 10. Final docs-inclusive closeout protocol
+# 7. Suggested investigation surfaces
 
-This continuity update is intentionally docs-only and moves the branch head beyond the verified implementation head.
+Start with, but do not limit investigation to:
 
-Exact next action after this commit:
+- `src/battlefield-ux.js`
+- `physical-card.css`
+- `feel-polish.css`
+- `src/battlefield-readability.js`
+- `src/card-continuity.js`
+- `src/target-exposure.js`
+- `src/gesture-controller.js`
+- `src/presentation-queue.js`
+- main/base CSS rules affecting `.unit`, `button`, `.units`, `.lane`, row containers, transforms, overflow, containment, masks, filters, and transitions
+- `sw.js`
+- app bootstrap/update lifecycle
+- PWA manifest/display/orientation behavior
+- any card-source image processing/reference mapping
+- actual normal-match render path versus QA fixture/injected-state path
 
-1. identify the new docs-inclusive PR head;
-2. require Main Verify + Storage Resilience to succeed on that exact head;
-3. confirm PR #12 remains open/mergeable/unmerged and production `main` remains unchanged;
-4. stop at **merge-ready**;
-5. merge/deploy only after explicit user authorization.
+Search the full cascade and runtime ownership chain; do not assume the defect lives in the file that visually names the card.
 
-After explicit merge/deploy authorization only:
+---
 
-- reconcile PR head and workflows again;
-- merge using the expected exact head SHA to prevent a race;
-- observe post-merge Main verification and Pages deployment to completion;
-- verify production `main` and hosted build;
-- update continuity with the final production merge/deploy SHA and evidence.
+# 8. Branch / release rules for the next fix
 
-Do not infer merge/deploy authorization from `continue`, `finish`, or other generic continuation language.
+- Start a **new branch from current `main`** for diagnosis/fix.
+- Preserve the currently working Pass 11 rules/gameplay systems.
+- Instrument first if needed; do not guess repeatedly at CSS.
+- Add a regression test that targets the discovered real mechanism.
+- Require exact-head CI and visual artifacts.
+- Most importantly, require **real iPhone confirmation before calling the defect fixed**.
+- Browser/WebKit simulation is supporting evidence only.
+- Do not merge/deploy without explicit user authorization.
+
+A candidate is not “fixed” merely because CI is green or a desktop artifact looks right.
+
+---
+
+# 9. Historical hotfix evidence retained for comparison
+
+Rejected first candidate:
+
+- head `4a358d57a560caaa86487a48b0aada089d9ab7e2`
+- Main #302 / `34707761039` — SUCCESS
+- Storage #17 / `34707761133` — SUCCESS
+- artifact `10302168100`
+- verdict at the time: visually rejected because `contain` exposed narrow side-gutter presentation.
+
+Final PR #12 implementation candidate:
+
+- head `c8b728425bed4ec637c155c9d462bd72a4c866b2`
+- Main #309 / `34709726806` — SUCCESS
+- Storage #24 / `34709726754` — SUCCESS
+- readability artifact `10302553573`
+- artifact digest `sha256:57981c2e117e687948c08d7117d4ed392f6371f882eb931b72e6746cbf7890d0`
+- desktop/browser artifact review: PASS
+- **real-device production result after merge: FAIL — symptom persists**
+
+Docs-inclusive merge candidate:
+
+- `1ce7e711f2eeb7a8d303a72209bacc414d807c35`
+- Main #310 / `34710346563` — SUCCESS
+- Storage #25 / `34710346580` — SUCCESS
+
+Production hotfix merge:
+
+- `f9671eacf46000e876e6dbed4e5291f2be457181`
+- Run #311 / `34711086588` — Verify SUCCESS + Pages Deploy SUCCESS
+- real-device acceptance on 2026-10-02: **FAIL for battlefield card cutting**
+
+---
+
+# 10. Exact next action
+
+Hand the project to Codex.
+
+Codex should:
+
+1. pull/reconcile current `main`;
+2. read `CONTINUITY.md`, `FUTURE_CONTINUITY.md`, and `MODEL_ROUTING.md`;
+3. create a new diagnostic branch from current `main`;
+4. reconstruct the complete normal-play placed-card render/cascade/runtime path;
+5. establish real-device build/style instrumentation before another speculative fix;
+6. identify why current production can pass browser assertions yet still paint the card incorrectly on the user's iPhone;
+7. produce a narrowly scoped candidate with a regression test that reproduces the discovered mechanism;
+8. stop at a real-device-testable candidate and ask the user to validate on iPhone before final merge/deploy.
+
+The previous PR #12 diagnosis is **historical evidence, not an accepted solution**.
