@@ -1,4 +1,4 @@
-:root{--gwent-tabletop-generation:"11.tabletop.motion.1"}
+:root{--gwent-tabletop-generation:"11.tabletop.motion.2"}
 
 /* Prototype geometry is a table with side-grouped semantic territories. */
 html[data-tabletop-mode="physical"] #match-screen .battle-shell{

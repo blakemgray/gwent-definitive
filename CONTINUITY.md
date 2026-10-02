@@ -1,5 +1,15 @@
 # Active work — physical tabletop motion candidate
 
+## Current checkpoint — installed-entry correction
+
+The documentation-inclusive `.1` candidate `72a3a5ee29f427aa2324383b8a71340b11fefda0` exposed a separate confirmed launch defect during final review: prototype selection requires `?tabletop=1`, but its selected manifest started at `./`. An installed launch could therefore reopen the baseline renderer. This is a prerequisite for meaningful phone acceptance; it is not a proven cause of the original production card crop.
+
+The successor on draft PR #13 selects `manifest-tabletop.webmanifest` only in prototype mode, with an explicit tabletop start URL and distinct identity/title. Both root and repository-mounted paths are checked; baseline installation retains its existing manifest. The new manifest is included in production staging and all 41 service-worker precache paths. Application/core/tabletop/physical-card/input/battlefield/worker generation advances to `11.tabletop.motion.2`; unchanged scene/physics and diagnostic modules retain their own versions.
+
+Evidence: the new browser launch regression FAILED on the unchanged packaged `72a3a5e` candidate at the manifest-selection assertion, then PASSED on corrected local source. It follows the selected manifest's actual start URL, starts a normal portrait match, and compares the baseline launch control. `realInstallation: false` explicitly distinguishes this from physical installation. All 16 Node validation suites and 37 real-browser DOM assertions pass locally. Full exact-head CI, loaded-art review, and physical Safari/Home Screen acceptance must still be recorded for this successor; earlier green runs do not verify changed runtime code.
+
+Implementation: 100% of this interaction phase. Verification: approximately 90% on the prior runtime; the corrected successor needs its own final automated evidence. No public test URL, merge or deployment is authorized. Next: verify PR #13's exact corrected head and inspect its cross-browser manifest-launch/temporal artifacts, then obtain authorization for a separate iPhone test deployment. The older checkpoints below are historical where superseded by this launch correction.
+
 **Updated:** 2026-10-02 America/Indianapolis.
 **Branch:** `feat/physical-tabletop-prototype`, created from reconciled main `8b7429d1ec6615dce5a8e6f956ceb2286647713d`.
 **Authority:** the user's new tabletop vision and explicit implementation authorization supersede the frozen presentation geometry for the opt-in prototype. Rules, semantic rows, iid identity, canonical actions, storage and classification remain authoritative.

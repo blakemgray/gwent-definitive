@@ -708,7 +708,7 @@
   $('#catalog-count').textContent=catalog.length; renderCatalog(''); renderDeckScreen(); renderSetupScreen(); renderRulesMatrix();
 
   window.__GWENT_PASS10__ = {
-    generation:'11.tabletop.motion.1',
+    generation:'11.tabletop.motion.2',
     getState:()=>state ? G.helpers.deepClone(state) : null,
     getPreparedState:()=>ui.preMatchState ? deepClone(ui.preMatchState) : null,
     quickStart, prepareMulliganState, finalizeMatchFromPrepared, botMove, pass:passPlayer,

@@ -1,8 +1,8 @@
-const BUILD='11.tabletop.motion.1';
+const BUILD='11.tabletop.motion.2';
 const CORE=`gwent-definitive-core-${BUILD}`;
 const RUNTIME=`gwent-definitive-runtime-${BUILD}`;
 const PRECACHE=[
-  './','./index.html','./app.js','./styles.css','./battlefield-ux.css','./direct-manipulation.css','./gameplay-choreography.css','./feel-polish.css','./physical-card.css','./runtime-diagnostics.css','./tabletop-foundation.css','./manifest.webmanifest','./icon.svg',
+  './','./index.html','./app.js','./styles.css','./battlefield-ux.css','./direct-manipulation.css','./gameplay-choreography.css','./feel-polish.css','./physical-card.css','./runtime-diagnostics.css','./tabletop-foundation.css','./manifest.webmanifest','./manifest-tabletop.webmanifest','./icon.svg',
   './icons/apple-touch-icon.png','./icons/icon-192.png','./icons/icon-512.png',
   './src/cards-catalog.js','./src/gwent-engine.js','./src/asset-resolver.js','./src/storage.js','./src/battlefield-ux.js','./src/battlefield-readability.js',
   './src/motion-tokens.js','./src/presentation-queue.js','./src/interaction-turn-gate.js','./src/presentation-events.js','./src/gameplay-choreography.js','./src/choreography-external-gate.js','./src/flip-layout.js','./src/interaction-intent.js','./src/gesture-controller.js','./src/card-continuity.js','./src/target-exposure.js','./src/presentation-feedback.js','./src/platform-feedback.js',

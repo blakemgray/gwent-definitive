@@ -219,7 +219,7 @@
 
   window.GwentBattlefieldUX={
     version:'10.3.0',
-    generation:'11.tabletop.motion.1',
+    generation:'11.tabletop.motion.2',
     contractVersion:'2.0',
     boardCardAspect:BOARD_CARD_ASPECT,
     computePack,

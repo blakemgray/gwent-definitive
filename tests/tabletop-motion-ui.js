@@ -126,10 +126,23 @@ async function reducedMotion(browser,name){
   assert((await page.evaluate(()=>window.GwentTabletopScene.metrics().poses)).every(p=>!p.lift),'reduced motion still emitted contact lift');await page.mouse.up();await idle(page);assert.deepEqual(await state(page),before);
   const frames=await page.evaluate(()=>window.GwentTabletopScene.metrics().frameCount);await page.waitForTimeout(150);assert.equal(await page.evaluate(()=>window.GwentTabletopScene.metrics().frameCount),frames);await context.close();return{browser:name,reducedMotion:true,noLift:true,authorityPreserved:true};
 }
+async function installedEntry(browser,name){
+  const context=await makeContext(browser,{viewport:{width:393,height:852}}),page=await context.newPage();
+  await page.goto(base,{waitUntil:'networkidle'});const baselineManifest=await page.locator('link[rel="manifest"]').getAttribute('href');assert.equal(baselineManifest,'manifest.webmanifest');
+  const legacy=await page.evaluate(async()=>{const url=document.querySelector('link[rel="manifest"]').href;const manifest=await fetch(url).then(r=>r.json());return new URL(manifest.start_url,url).href;});
+  await page.goto(legacy,{waitUntil:'networkidle'});assert.equal(await page.evaluate(()=>window.GwentTabletopRenderer.enabled),false,'baseline manifest control unexpectedly preserves opt-in');
+  const opt=new URL(base);opt.searchParams.set('tabletop','1');await page.goto(opt.href,{waitUntil:'networkidle'});
+  const manifestURL=await page.locator('link[rel="manifest"]').getAttribute('href');assert.equal(manifestURL,'manifest-tabletop.webmanifest','prototype still selects a manifest that drops its launch mode');
+  const launch=await page.evaluate(async()=>{const url=document.querySelector('link[rel="manifest"]').href,manifest=await fetch(url).then(r=>r.json());return {url:new URL(manifest.start_url,url).href,id:new URL(manifest.id,url).href,scope:new URL(manifest.scope,url).href,display:manifest.display,orientation:manifest.orientation};});
+  assert.equal(launch.display,'standalone');assert.equal(launch.orientation,'any');assert.equal(new URL(launch.url).searchParams.get('tabletop'),'1');assert.equal(launch.id,launch.url);assert(launch.url.startsWith(launch.scope));
+  await page.goto(launch.url,{waitUntil:'networkidle'});assert.equal(await page.evaluate(()=>window.GwentTabletopRenderer.enabled),true,'manifest launch lost the physical renderer');
+  await page.evaluate(()=>document.querySelector('#auto-bot').checked=false);await page.locator('#main-screen [data-nav="play-screen"]').click();await page.locator('#quick-start').click();await page.locator('#finish-mulligan').click();await frame(page);assert.equal(await page.locator('.rotate-guard').isVisible(),false);
+  await capture(page,`${name}-10-manifest-launch`);await context.close();return {browser:name,manifestLaunchPreservesMode:true,baselineLaunchDiscriminates:true,launch,realInstallation:false};
+}
 async function main(){
   const results=[];for(const name of process.env.GWENT_BROWSERS?.split(',')||['chromium','webkit']){
     const options={headless:true};if(name==='chromium'&&process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE)options.executablePath=process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE;
-    const browser=await PW[name].launch(options);try{if(name==='chromium')results.push(await baseline(browser));for(const [label,viewport] of [['landscape',{width:852,height:393}],['portrait',{width:393,height:852}]]){results.push(await normal(browser,`${name}-${label}`,viewport));results.push(await dense(browser,`${name}-${label}`,viewport));}results.push(await decoyOverlap(browser,name));results.push(await reducedMotion(browser,name));}finally{await browser.close();}
+    const browser=await PW[name].launch(options);try{if(process.env.GWENT_TEST_FOCUS==='install'){results.push(await installedEntry(browser,name));continue;}if(name==='chromium')results.push(await baseline(browser));for(const [label,viewport] of [['landscape',{width:852,height:393}],['portrait',{width:393,height:852}]]){results.push(await normal(browser,`${name}-${label}`,viewport));results.push(await dense(browser,`${name}-${label}`,viewport));}results.push(await decoyOverlap(browser,name));results.push(await reducedMotion(browser,name));results.push(await installedEntry(browser,name));}finally{await browser.close();}
   }
   fs.writeFileSync(path.join(out,'tabletop-motion-results.json'),JSON.stringify(results,null,2));console.log(JSON.stringify(results.map(r=>({browser:r.browser,mode:r.mode,normalPath:r.normalPath,neighborDisplacement:r.neighborDisplacement,sparseHeight:r.sparseHeight,all12Inspectable:r.all12Inspectable,authorityPreserved:r.authorityPreserved})),null,2));
 }

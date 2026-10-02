@@ -687,7 +687,7 @@
 
   window.GwentDirectManipulation={
     version:'10.4A.0',contractVersion:'1.0',intentVersion:Intent.version,
-    generation:'11.tabletop.motion.1',
+    generation:'11.tabletop.motion.2',
     get phase(){return runtime.phase;},
     get mode(){return runtime.mode;},
     get selectedIid(){return runtime.selectedIid;},

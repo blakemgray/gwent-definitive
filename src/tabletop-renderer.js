@@ -6,6 +6,12 @@
   'use strict';
 
   const enabled=!!root&&new URLSearchParams(root.location?.search||'').get('tabletop')==='1';
+  // Installation must preserve the opted-in mode. The default manifest starts
+  // at ./ and would otherwise silently reopen the baseline renderer.
+  if(enabled){
+    root.document?.querySelector?.('link[rel="manifest"]')?.setAttribute('href','manifest-tabletop.webmanifest');
+    root.document?.querySelector?.('meta[name="apple-mobile-web-app-title"]')?.setAttribute('content','Gwent Tabletop');
+  }
   const bodies=new Map();
   const stats={generation:0,reconciliations:0,created:0,reused:0,moved:0,retired:0,errors:0,lastReset:null};
   let nextToken=0;
