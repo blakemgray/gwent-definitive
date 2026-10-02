@@ -64,18 +64,18 @@ def identity_result(page):
     }""")
 
 
-def ordinary_action(page):
-    action = page.evaluate("""()=>{
+def ordinary_action(page, excluded_row=None):
+    action = page.evaluate("""excludedRow=>{
       const api=window.__GWENT_PASS11__,s=api.getState(),G=api.engine;
       const candidates=G.legalActions(s,'p1').filter(a=>{
         if(a.type!=='PLAY_CARD')return false;
         const inst=s.players.p1.hand.find(i=>i.iid===a.iid),d=inst&&G.CARD_DB[inst.cardId];
-        return d?.type==='unit'&&!d.abilities.includes('spy')&&!d.abilities.includes('medic');
+        return d?.type==='unit'&&!d.abilities.includes('spy')&&!d.abilities.includes('medic')&&(!excludedRow||a.row!==excludedRow);
       });
       // The normal opponent may Scorch a lone non-Hero. Use a legal opening
       // Hero as the pose anchor so the next commit leaves that card on board.
       return candidates.find(a=>G.CARD_DB[s.players.p1.hand.find(i=>i.iid===a.iid).cardId].abilities.includes('hero'))||candidates[0]||null;
-    }""")
+    }""", excluded_row)
     assert action, 'normal opening hand contains no eligible board unit'
     return action
 
@@ -174,9 +174,12 @@ def check_foundation(browser, name):
     assert retained_after_bot and abs(retained_after_bot['x'] - placed['x']) < .1 and abs(retained_after_bot['y'] - placed['y']) < .1, 'unrelated opponent commit lost physical placement'
     assert page.evaluate('window.GwentStorage.validateState(window.__GWENT_PASS11__.getState())')
 
-    # A second normal play traverses the actual hand pointer/drag/proxy path.
+    # An unrelated-territory play traverses the actual hand drag path. The
+    # adaptive territories may resize; the manual normalized pose must survive.
+    # Same-territory contact displacement is covered by tabletop-motion-ui.js.
     capture_nodes(page)
-    drag_action = ordinary_action(page)
+    anchor_before_drag = page.evaluate('iid=>window.GwentTabletopScene.getPose(iid)', action['iid'])
+    drag_action = ordinary_action(page, action['row'])
     expected_drag = page.evaluate('a=>window.__GWENT_PASS11__.engine.playCard(window.__GWENT_PASS11__.getState(),a)', drag_action)
     drag_play(page, drag_action)
     assert page.evaluate('window.__GWENT_PASS11__.getState()') == expected_drag, 'normal drag changed canonical engine outcome'
@@ -185,7 +188,9 @@ def check_foundation(browser, name):
     assert any(item['iid'] == drag_action['iid'] and item['zone'] == 'board' for item in drag_identity), 'drag did not preserve hand-to-board body'
     assert page.locator('.dm-drag-proxy,.dm-flight-proxy,.dm-source-placeholder').count() == 0
     retained_after_drag = page.evaluate('iid=>window.GwentTabletopScene.getPose(iid)', action['iid'])
-    assert abs(retained_after_drag['x'] - placed['x']) < .1 and abs(retained_after_drag['y'] - placed['y']) < .1, 'normal hand drag overwrote existing physical pose'
+    expected_x = anchor_before_drag['u'] * max(0, retained_after_drag['railWidth'] - retained_after_drag['width'])
+    expected_y = anchor_before_drag['v'] * max(0, retained_after_drag['railHeight'] - retained_after_drag['height'])
+    assert retained_after_drag['userPlaced'] and abs(retained_after_drag['x'] - expected_x) < .1 and abs(retained_after_drag['y'] - expected_y) < .1, 'unrelated hand drag repacked the existing physical arrangement'
 
     # Viewport changes may recompose presentation, never change rules or save.
     before_resize = state_and_save(page)
