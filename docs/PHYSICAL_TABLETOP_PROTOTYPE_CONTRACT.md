@@ -1,8 +1,8 @@
 # Physical tabletop — first playable proof
 
-Status: first foundation implemented and locally verified; exact-head CI and real-device acceptance pending. The adaptive physical table remains the next implementation phase.
+Status: first foundation implemented; first candidate passed local and GitHub CI checks. Final in-match diagnostic entry candidate verification and real-device acceptance remain pending. The adaptive physical table remains the next implementation phase.
 
-Date: 2026-10-02. Repository: `blakemgray/gwent-definitive`. Reconstructed baseline: clean `main` at `8b7429d1ec6615dce5a8e6f956ceb2286647713d`. This working contract is outside the repository; it creates no release candidate.
+Date: 2026-10-02. Repository: `blakemgray/gwent-definitive`. Reconstructed baseline: clean `main` at `8b7429d1ec6615dce5a8e6f956ceb2286647713d`. Implementation branch: `feat/physical-tabletop-prototype`; draft review: PR #13. This contract records the implementation checkpoint and does not authorize release.
 
 ## Mission and starting state
 
@@ -82,13 +82,15 @@ Continuity: record this vision, replaced layout constraints, active branch/head,
 
 Exit condition: the playable proof meets automated and artifact checks and the user accepts the physical experience on the real iPhone in portrait and landscape. Release remains a separate milestone. If device access requires hosting the candidate, prepare it first and request authorization for that specific test deployment.
 
-Next action: establish the diagnostic/candidate identity seam, then implement keyed reconciliation and a single tabletop geometry owner on the new prototype branch.
+Next action: verify the final foundation candidate, then implement adaptive physical composition and direct board manipulation.
 
 ## Foundation checkpoint — 2026-10-02
 
-Implemented: runtime/worker/style diagnostics and export, exact-source packaging identity, opt-in keyed hand/board nodes, lifecycle resets, and scene-owned final positions seeded by baseline geometry. Prototype mode is `?tabletop=1`. Diagnostics are available through Settings or `?diagnostics=1` in either mode.
+Implemented: runtime/worker/style diagnostics and export, exact-source packaging identity, opt-in keyed hand/board nodes, lifecycle resets, and scene-owned final positions seeded by baseline geometry. Prototype mode is `?tabletop=1`. Diagnostics are available through the match menu, Settings or `?diagnostics=1` in either mode. The match-menu entry keeps the played board active, so a phone user can collect affected-card geometry and the retained hand comparison without leaving the match.
 
 Local evidence: all 15 Node suites pass; real-browser DOM contract passes; normal tap, drag, opponent response, Spy/draw, Decoy return, cancellation, resize and reset checks cover persistent identity and inert presentation poses. Legacy mode fails the same stable-node oracle. Diagnostics tests cover actual worker response, hand/board ancestry, export/fallback, portrait panel and restart isolation. Source art must be loaded for screenshots to qualify as visual evidence. Initial sandbox-blocked captures were rejected and rerun with public-art access.
+
+First candidate `cf390b139f3e98f2ad71f640651d880ae1b3093e` passed Main #313 / `37035002598` and Storage #26 / `37035002379`. PR deployment was skipped. The follow-up adds the active-match diagnostic button and tests that actual entry instead of relying on a developer API. Its changed head requires its own CI and artifact verification. Canonical continuity and PR #13 identify the current checkpoint.
 
 This foundation retains the baseline six-rail composition and portrait gameplay guard. Board touch rearrangement, contact physics, flexible composition, larger cards and local focus are not yet implemented. The crop defect is still open. The first foundation is an implementation checkpoint, not pass closure or release authorization.
 

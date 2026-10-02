@@ -591,7 +591,7 @@
       root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-match-menu="confirm-restart"><div class="eyebrow">RESTART MATCH</div><h2>Start this match over?</h2><p class="sub">The current match will be replaced with a fresh opening draw from the same legal decks.</p><div class="actions"><button id="match-restart-confirm" class="btn primary" data-match-command="restart-confirm">RESTART</button><button id="match-restart-cancel" class="btn" data-match-command="restart-cancel">KEEP PLAYING</button></div></aside>`;
       return;
     }
-    root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-match-menu="main"><div class="eyebrow">MATCH MENU</div><h2>Battle paused</h2><p class="sub">Your exact rules state is saved.</p><div class="actions"><button id="match-resume" class="btn primary" data-match-command="resume">RESUME</button><button id="match-restart-request" class="btn" data-match-command="restart-request">RESTART MATCH</button><button id="match-exit" class="btn" data-match-command="exit">EXIT TO MAIN MENU</button></div></aside>`;
+    root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-match-menu="main"><div class="eyebrow">MATCH MENU</div><h2>Battle paused</h2><p class="sub">Your exact rules state is saved.</p><div class="actions"><button id="match-resume" class="btn primary" data-match-command="resume">RESUME</button><button id="match-restart-request" class="btn" data-match-command="restart-request">RESTART MATCH</button><button class="btn ghost" type="button" data-open-diagnostics>DEVICE DIAGNOSTICS</button><button id="match-exit" class="btn" data-match-command="exit">EXIT TO MAIN MENU</button></div></aside>`;
   }
 
   function exitMatchToMenu(){

@@ -115,7 +115,8 @@ def check_browser(browser, name, enabled):
     assert any(item['classes'] and 'units' in item['classes'] for item in pair['board']['ancestry'])
 
     before_panel = state_and_save(page)
-    page.evaluate('window.GwentDiagnostics.open()')
+    page.locator('#match-menu').click()
+    page.locator('[data-match-menu="main"] [data-open-diagnostics]').click()
     page.wait_for_function("document.querySelector('#gwent-diagnostics-output')?.value.startsWith('{')")
     panel = page.locator('#gwent-diagnostics')
     assert panel.is_visible() and panel.get_attribute('role') == 'dialog'
@@ -143,6 +144,8 @@ def check_browser(browser, name, enabled):
     page.screenshot(path=str(QA / f'{name}-{"tabletop" if enabled else "legacy"}-diagnostics.png'))
     page.locator('[data-diagnostics-close]').click()
     assert page.locator('#gwent-diagnostics').count() == 0
+    page.locator('[data-match-menu="main"] [data-match-command="resume"]').click()
+    assert state_and_save(page) == before_panel, 'closing device report and resuming mutated engine or persistence'
 
     # The diagnostics surface itself remains usable in portrait even while the
     # baseline gameplay composition still has its explicit orientation guard.
