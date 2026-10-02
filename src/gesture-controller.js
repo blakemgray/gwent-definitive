@@ -534,6 +534,7 @@
   }
 
   function onClickCapture(e){
+    if(e.target.closest?.('#gwent-diagnostics,[data-open-diagnostics]'))return;
     const inMatch=e.target.closest?.('#match-screen');
     if(inMatch&&shouldSuppressSyntheticClick(e)){e.preventDefault();e.stopImmediatePropagation();return;}
     if(inMatch&&Queue.busy){e.preventDefault();e.stopImmediatePropagation();return;}
@@ -559,6 +560,7 @@
     }
   }
   function onKeyDown(e){
+    if(e.target.closest?.('#gwent-diagnostics'))return;
     if(e.key==='Escape'&&runtime.selectedIid){e.preventDefault();cancelSelection('escape',true);return;}
     if((e.key==='Enter'||e.key===' ')&&runtime.selectedIid){
       const target=e.target.closest?.('.dm-legal-target');
@@ -617,6 +619,7 @@
 
   window.GwentDirectManipulation={
     version:'10.4A.0',contractVersion:'1.0',intentVersion:Intent.version,
+    generation:'11.tabletop.foundation.1',
     get phase(){return runtime.phase;},
     get mode(){return runtime.mode;},
     get selectedIid(){return runtime.selectedIid;},

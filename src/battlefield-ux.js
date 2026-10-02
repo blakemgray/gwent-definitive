@@ -176,6 +176,12 @@
 
   function layoutAll(){
     if(!$('#match-screen.active')) return;
+    // Opt-in persistent bodies delegate final geometry to one scene. The
+    // baseline pack is only a seed while the foundation is being verified.
+    if(window.GwentTabletopScene?.enabled){
+      window.GwentTabletopScene.reconcile({layoutBoardRail,layoutHandRail});
+      return;
+    }
     $$('#match-screen .units').forEach(layoutBoardRail);
     const hand=$('#match-screen #hand'); if(hand) layoutHandRail(hand);
   }
@@ -206,12 +212,14 @@
     }
   }
   window.addEventListener('resize',schedule,{passive:true});
+  window.visualViewport?.addEventListener('resize',schedule,{passive:true});
   window.addEventListener('orientationchange',schedule,{passive:true});
   document.addEventListener('click',schedule,true);
   schedule();
 
   window.GwentBattlefieldUX={
     version:'10.3.0',
+    generation:'11.tabletop.foundation.1',
     contractVersion:'2.0',
     boardCardAspect:BOARD_CARD_ASPECT,
     computePack,

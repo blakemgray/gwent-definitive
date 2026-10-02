@@ -1,3 +1,20 @@
+# Active work — physical tabletop foundation
+
+**Updated:** 2026-10-02 America/Indianapolis.
+**Branch:** `feat/physical-tabletop-prototype`, created from reconciled main `8b7429d1ec6615dce5a8e6f956ceb2286647713d`.
+**Authority:** the user's new tabletop vision and explicit implementation authorization supersede the frozen presentation geometry for the opt-in prototype. Rules, semantic rows, iid identity, canonical actions, storage and classification remain authoritative.
+**Current phase:** foundation candidate preparation: diagnostics, keyed bodies and scene-owned final geometry implemented; exact-head CI pending. See `docs/PHYSICAL_TABLETOP_PROTOTYPE_CONTRACT.md`.
+**Foundation implementation:** 100%. **Foundation verified:** 60% (local machine/browser checks pass; exact-head CI and real-iPhone remain pending). **Full playable prototype:** approximately 25% implemented; adaptive composition/contact/board gestures/local focus remain. No merge/deploy authorization.
+**Locked experience:** either side can be rearranged presentation-only; portrait and landscape fully playable; whole table plus local focus; weighted and responsive. Adaptive row composition remains a prototype choice pending feedback.
+**Open defect:** the installed-iPhone crop still fails acceptance. No root cause or fixed status is inferred from the new renderer.
+**Current production:** main `8b7429d...`, verified/deployed by Run #312 / `37007918595`; runtime generation `11.golden.5`. The historical hotfix evidence below remains relevant.
+**Local evidence:** 15 Node suites, 37 real-browser DOM assertions, normal tap/drag/opponent/Spy/Decoy/cancellation/resize/reset paths, observation-only diagnostics/export and restart isolation. Legacy mode fails the same persistence oracle. Loaded public art is required for accepted screenshots; initial network-blocked screenshots were rejected.
+**Candidate modes:** ?tabletop=1 enables persistent nodes/scene; Settings → Device diagnostics or ?diagnostics=1 opens reports in either mode. Packaging stamps the exact source SHA and source fingerprint.
+**Next:** register and inspect exact-head Chromium/WebKit plus retained baseline CI, record the candidate SHA/run/artifacts, then implement adaptive territories/contact/board gestures/local focus. The six-rail composition and portrait gameplay guard still exist at this foundation checkpoint. Real-iPhone acceptance and release remain separate.
+
+The prior crop handoff below is retained as defect history. Its statements that work has not started, portrait is guarded, and old final geometry is frozen describe the production baseline, not the newly authorized prototype.
+
+---
 # Gwent Classic — Definitive Edition
 ## Canonical Running Project Continuity
 

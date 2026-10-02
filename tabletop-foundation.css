@@ -1,0 +1,6 @@
+:root{--gwent-tabletop-generation:"11.tabletop.foundation.1"}
+/* This checkpoint retains baseline composition. The scene owns persistent
+   positions in prototype mode; adaptive zones/contact arrive in the next phase. */
+html[data-tabletop-mode="foundation"] #match-screen [data-tabletop-body]{
+  touch-action:manipulation;
+}

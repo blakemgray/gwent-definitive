@@ -168,6 +168,7 @@
       p1Deck:pp.deck,p2Deck:bp.deck,handSize:10,seed:Number(ui.setup.seed)||20260910,firstPlayerId:ui.setup.firstPlayerId,
       validateDecks:true,shuffleDecks:true,mulligan:true
     });
+    window.GwentTabletopRenderer?.reset?.('new-match');
     if(lab) ui.preMatchState = G.sandboxSetTurn(ui.preMatchState,'p1');
     savePreparedMatch();
     go('mulligan-screen');
@@ -258,15 +259,21 @@
       <span class="total" id="player-total">${total('p1')}</span><span>${hearts(p1.health)}</span><span class="name-hide">N. REALMS</span><span class="faction-dot realms">NR</span>`;
 
     const rowModel=[['p2','siege','SIEGE'],['p2','ranged','RANGED'],['p2','close','CLOSE'],['weather',null,'WEATHER'],['p1','close','CLOSE'],['p1','ranged','RANGED'],['p1','siege','SIEGE']];
-    $('#board-geometry').innerHTML = rowModel.map(r=>r[0]==='weather'?renderGeometryWeather():renderGeometryLane(r[0],r[1])).join('');
-    $('#board').innerHTML = [
+    const geometryHTML = rowModel.map(r=>r[0]==='weather'?renderGeometryWeather():renderGeometryLane(r[0],r[1])).join('');
+    const boardHTML = [
       renderLane('p2','siege','SIEGE'),renderLane('p2','ranged','RANGED'),renderLane('p2','close','CLOSE'),
       renderWeatherBand(),
       renderLane('p1','close','CLOSE'),renderLane('p1','ranged','RANGED'),renderLane('p1','siege','SIEGE')
     ].join('');
 
+    const handHTML = p1.passed ? `<div class="sub" style="font-size:9px;align-self:center">PASSED · NO FURTHER ACTIONS THIS ROUND</div>` : p1.hand.map(renderHandCard).join('');
+    if(!window.GwentTabletopRenderer?.reconcile?.({boardHTML,geometryHTML,handHTML})){
+      $('#board-geometry').innerHTML = geometryHTML;
+      $('#board').innerHTML = boardHTML;
+      $('#hand').innerHTML = handHTML;
+    }
+
     $('#counts').innerHTML = `<span>DECK <b id="deck-count">${p1.deck.length}</b></span><span>GRAVE <b id="grave-count">${p1.grave.length}</b></span><span>HAND <b id="hand-count">${p1.hand.length}</b></span>`;
-    $('#hand').innerHTML = p1.passed ? `<div class="sub" style="font-size:9px;align-self:center">PASSED · NO FURTHER ACTIONS THIS ROUND</div>` : p1.hand.map(renderHandCard).join('');
 
     const badge=$('#class-badge'); badge.textContent=classificationLabel(); badge.className='badge compact-hide '+(state.classification==='classic'?'':state.classification);
     $('#pass-button').disabled = state.currentPlayerId!=='p1' || p1.passed || !!state.winner || !!state.pendingChoice;
@@ -632,6 +639,7 @@
 
   function resumeSavedMatch(){
     const saved=Store && Store.readMatch(); if(!saved) return;
+    window.GwentTabletopRenderer?.reset?.('resume-match');
     ui.setup=Object.assign({},ui.setup,saved.setup||{});ui.lab=!!saved.lab;ui.mulliganUsed=Number(saved.mulliganUsed||0);
     ui.selectedIid=null;ui.revealOpponent=false;ui.showIntent=false;
     if(saved.phase==='mulligan'){
@@ -690,12 +698,13 @@
   $('#catalog-count').textContent=catalog.length; renderCatalog(''); renderDeckScreen(); renderSetupScreen(); renderRulesMatrix();
 
   window.__GWENT_PASS10__ = {
+    generation:'11.tabletop.foundation.1',
     getState:()=>state ? G.helpers.deepClone(state) : null,
     getPreparedState:()=>ui.preMatchState ? deepClone(ui.preMatchState) : null,
     quickStart, prepareMulliganState, finalizeMatchFromPrepared, botMove, pass:passPlayer,
     selectCard, playAction, openCheats, go, maybeAutoBot, engine:G, assetResolver:Assets, storage:Store, openLeader, openMatchMenu, saveActiveMatch, renderRulesMatrix,
     swapMulligan, getMulliganUsed:()=>ui.mulliganUsed, presets:()=>deepClone(PRESETS),
-    setStateForQA:(s)=>{state=G.helpers.deepClone(s);history=new G.HistorySession(state);go('match-screen');renderMatch();},
+    setStateForQA:(s)=>{window.GwentTabletopRenderer?.reset?.('qa-state-replaced');state=G.helpers.deepClone(s);history=new G.HistorySession(state);go('match-screen');renderMatch();},
     battlefieldRowModel:[['p2','siege'],['p2','ranged'],['p2','close'],['weather',null],['p1','close'],['p1','ranged'],['p1','siege']]
   };
   window.__GWENT_PASS11__ = window.__GWENT_PASS10__;
