@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('assert');
+const Scene=require('../src/tabletop-scene.js');
+const bounds={width:460,height:40,cardWidth:21,cardHeight:38};
+assert.deepStrictEqual(Scene.constrainPose({x:140,y:1},bounds),{x:140,y:1});
+assert.deepStrictEqual(Scene.constrainPose({x:-30,y:20},bounds),{x:0,y:2});
+assert.deepStrictEqual(Scene.constrainPose({x:600,y:-5},bounds),{x:439,y:0});
+assert.strictEqual(Scene.constrainPose({x:NaN,y:1},bounds),null);
+assert.strictEqual(Scene.constrainPose({x:Infinity,y:1},bounds),null);
+assert.strictEqual(Scene.constrainPose({x:'12',y:1},bounds),null);
+assert.deepStrictEqual(Scene.constrainPose({x:1,y:1},{width:10,height:10,cardWidth:21,cardHeight:38}),{x:0,y:0});
+assert.strictEqual(Scene.setPose('unknown',{x:2,y:3}),false);
+assert.strictEqual(Scene.reconcile({}),false);
+assert.strictEqual(Scene.metrics().enabled,false);
+console.log('tabletop-scene-contract: bounds, invalid input, disabled-mode and missing-body contracts passed');

@@ -2,6 +2,13 @@
 const fs=require('fs'),path=require('path'),assert=require('assert');
 const root=path.resolve(__dirname,'..');
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'manifest.webmanifest'),'utf8'));
+const tabletopManifest=JSON.parse(fs.readFileSync(path.join(root,'manifest-tabletop.webmanifest'),'utf8'));
+assert.equal(tabletopManifest.display,'standalone');assert.equal(tabletopManifest.orientation,'any');
+for(const base of ['https://example.test/','https://example.test/gwent-definitive/']){
+  const manifestURL=new URL('manifest-tabletop.webmanifest',base),launch=new URL(tabletopManifest.start_url,manifestURL),scope=new URL(tabletopManifest.scope,manifestURL);
+  assert.equal(launch.searchParams.get('tabletop'),'1');assert.equal(launch.pathname,new URL(base).pathname);assert.equal(new URL(tabletopManifest.id,manifestURL).href,launch.href);assert(launch.href.startsWith(scope.href));
+}
+for(const icon of tabletopManifest.icons)assert(fs.existsSync(path.join(root,icon.src)),`missing tabletop manifest icon ${icon.src}`);
 assert.equal(manifest.display,'standalone');
 assert(Array.isArray(manifest.icons)&&manifest.icons.some(i=>i.sizes==='192x192')&&manifest.icons.some(i=>i.sizes==='512x512'),'PNG PWA icons missing');
 for(const icon of manifest.icons){const p=path.join(root,icon.src.replace(/^\.\//,''));assert(fs.existsSync(p),`missing manifest icon ${icon.src}`);}
@@ -9,7 +16,7 @@ assert(fs.existsSync(path.join(root,'icons/apple-touch-icon.png')),'Apple touch 
 const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
 const precache=[...sw.matchAll(/'\.\/([^']*)'/g)].map(m=>m[1]).filter(Boolean);
 for(const rel of precache){if(rel==='')continue;assert(fs.existsSync(path.join(root,rel)),`service worker precache target missing: ${rel}`);}
-assert(sw.includes("const BUILD='11.golden.5'"),'cache build version not pinned to the battlefield-card-fit shell generation');
+assert(sw.includes("const BUILD='11.tabletop.motion.2'"),'cache build version not pinned to the battlefield-card-fit shell generation');
 assert(sw.includes('cacheFirstCore')&&sw.includes('ignoreSearch:true'),'versioned core shell must be served coherently from one cache');
 assert(!sw.includes('skipWaiting'),'new service worker must not force mid-match activation');
 assert(sw.includes('raw.githubusercontent.com'),'card-art runtime caching missing');
@@ -60,4 +67,4 @@ const battlefieldIdx=html.indexOf('src/battlefield-ux.js'),readabilityIdx=html.i
 assert(battlefieldIdx>=0&&readabilityIdx>battlefieldIdx&&motionIdx>readabilityIdx,'11.2A readability must load after battlefield rendering and before interaction presentation stack');
 const choreoCss=html.indexOf('gameplay-choreography.css'),feelCss=html.indexOf('feel-polish.css'),physicalCss=html.indexOf('physical-card.css');
 assert(choreoCss>=0&&feelCss>choreoCss&&physicalCss>feelCss,'11.2 physical-card presentation overrides must load after 10.4C feel CSS');
-console.log(`pwa-validation: ${precache.length} precache paths valid with coherent Pass 11 battlefield-card-fit shell generation 11.golden.5`);
+console.log(`pwa-validation: ${precache.length} precache paths valid with coherent Pass 11 battlefield-card-fit shell generation 11.tabletop.motion.2`);

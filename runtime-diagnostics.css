@@ -1,0 +1,19 @@
+:root{
+  --gwent-diagnostics-generation:11.tabletop.diagnostics.1;
+  --gwent-diagnostics-safe-top:env(safe-area-inset-top,0px);
+  --gwent-diagnostics-safe-right:env(safe-area-inset-right,0px);
+  --gwent-diagnostics-safe-bottom:env(safe-area-inset-bottom,0px);
+  --gwent-diagnostics-safe-left:env(safe-area-inset-left,0px);
+}
+.gwent-diagnostics{position:fixed;inset:0;z-index:2147483646;display:flex;justify-content:center;align-items:center;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));background:rgba(6,5,4,.94);color:#f3eadb;font:13px/1.4 system-ui,-apple-system,sans-serif;box-sizing:border-box;overflow:auto;overscroll-behavior:contain;touch-action:pan-y}
+.gwent-diagnostics .gd-window{width:min(860px,100%);max-height:100%;display:flex;flex-direction:column;gap:9px;min-height:0;padding:12px;background:#191613;border:1px solid #806c4c;border-radius:8px;overflow:auto;box-sizing:border-box}
+.gwent-diagnostics header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.gwent-diagnostics h2{margin:0;font-size:18px;color:#f3eadb;letter-spacing:0;text-transform:none}
+.gwent-diagnostics p{margin:0;font-size:12px;letter-spacing:0;text-transform:none}
+.gwent-diagnostics pre{margin:0;padding:8px;background:#0c0b09;white-space:pre-wrap;word-break:break-word;flex:none;color:#eadbc1;font:12px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;overflow:auto}
+.gwent-diagnostics .gd-actions{display:flex;flex-wrap:wrap;gap:8px}
+.gwent-diagnostics button{appearance:none;-webkit-appearance:none;min-height:40px;padding:8px 12px;border:1px solid #9a835c;border-radius:5px;background:#30291f;color:#fff4dd;font:600 12px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:0;text-transform:none;cursor:pointer;touch-action:manipulation}
+.gwent-diagnostics button:focus-visible,.gwent-diagnostics textarea:focus-visible{outline:2px solid #e5c98d;outline-offset:2px}
+.gwent-diagnostics textarea{display:block;box-sizing:border-box;width:100%;min-height:115px;height:30vh;resize:vertical;padding:8px;border:1px solid #756448;border-radius:4px;background:#0c0b09;color:#eee4d5;font:11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;user-select:text;-webkit-user-select:text;touch-action:pan-y;flex:1 0 115px}
+.gwent-diagnostics label{font-size:12px;color:#d3c3a8}
+@media(max-height:420px){.gwent-diagnostics{align-items:flex-start}.gwent-diagnostics .gd-window{gap:6px;padding:8px}.gwent-diagnostics .gd-help{display:none}.gwent-diagnostics pre{font-size:11px}.gwent-diagnostics textarea{min-height:90px;flex-basis:90px}}

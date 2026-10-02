@@ -1,3 +1,14 @@
+# Current direction — physical tabletop
+
+Updated 2026-10-02. The user has established a larger presentation vision and authorized its first foundation. Canonical implementation status is in CONTINUITY.md and the contract is docs/PHYSICAL_TABLETOP_PROTOTYPE_CONTRACT.md.
+
+Rules/content remain classic Witcher 3 Gwent. The new experience uses persistent, larger, loosely overlapping cards, contact and gentle readability correction, borderless adaptive semantic territories, presentation-only rearrangement on either side, whole-table context with local focus, and fully playable portrait and landscape. The old locked centered rails, landscape-only gameplay target, and prohibition on broader physical motion below are superseded for the opt-in prototype.
+
+The opt-in candidate now adds adaptive composition, constrained local contact/settling, board gestures on either side, portrait gameplay, and local focus to the persistent-card diagnostics foundation. Runtime implementation `f7253e9` passed full Main #317 and Storage #30; loaded-art Chromium/WebKit frames were reviewed. Final installation review then caught a separate manifest launch that dropped tabletop mode. The `.2` successor corrects the selected manifest and adds a browser launch regression demonstrated failing on the `.1` candidate. Its exact-head verification and physical-iPhone acceptance remain the current checkpoint. Broader physical effects/audio and sensory tuning follow actual feedback; the full vision is not finished. Existing card-crop failure remains unresolved and requires actual-iPhone evidence. Neither future scope nor browser QA authorizes merge/deployment.
+
+The historical roadmap below is retained for content/access/AI/persistence requirements; its Pass-10 production and upcoming-Pass-11 status are stale. Do not infer current completion from those statements.
+
+---
 # Gwent Classic — Definitive Edition
 ## Forward Roadmap Continuity
 

@@ -158,7 +158,7 @@
     if(!cards.length){ rail.dataset.packWidth='0'; return; }
     const w=rail.clientWidth,h=rail.clientHeight;
     if(!w || !h) return;
-    const cardH=Math.max(45,Math.min(64,h-2));
+    const cardH=window.GwentTabletopScene?.enabled?Math.max(45,Math.min(96,h-2)):Math.max(45,Math.min(64,h-2));
     const cardW=cardH*0.696;
     const pack=computePack(cards.length,w,cardW,4,Math.max(17,cardW*.40));
     rail.dataset.packWidth=pack.packWidth.toFixed(2);
@@ -176,6 +176,12 @@
 
   function layoutAll(){
     if(!$('#match-screen.active')) return;
+    // Opt-in persistent bodies delegate final geometry to one scene. The
+    // baseline pack is only a seed while the foundation is being verified.
+    if(window.GwentTabletopScene?.enabled){
+      window.GwentTabletopScene.reconcile({layoutBoardRail,layoutHandRail});
+      return;
+    }
     $$('#match-screen .units').forEach(layoutBoardRail);
     const hand=$('#match-screen #hand'); if(hand) layoutHandRail(hand);
   }
@@ -206,12 +212,14 @@
     }
   }
   window.addEventListener('resize',schedule,{passive:true});
+  window.visualViewport?.addEventListener('resize',schedule,{passive:true});
   window.addEventListener('orientationchange',schedule,{passive:true});
   document.addEventListener('click',schedule,true);
   schedule();
 
   window.GwentBattlefieldUX={
     version:'10.3.0',
+    generation:'11.tabletop.motion.2',
     contractVersion:'2.0',
     boardCardAspect:BOARD_CARD_ASPECT,
     computePack,
