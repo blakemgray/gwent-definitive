@@ -14,7 +14,15 @@ const pose=(page,iid)=>page.evaluate(iid=>window.GwentTabletopScene.getPose(iid)
 function activeEffects(m){return Array.isArray(m.activeEffects)?m.activeEffects.length:Number(m.activeEffects)||0;}
 function assetLoaded(asset){return asset===true||asset==='loaded'||asset==='ready'||asset?.loaded===true||asset?.status==='loaded'||asset?.status==='ready';}
 
-async function context(browser,viewport,options={}){const c=await browser.newContext({viewport,deviceScaleFactor:3,hasTouch:true,...options});c.setDefaultTimeout(20000);c.setDefaultNavigationTimeout(40000);return c;}
+async function context(browser,viewport,options={}){
+  const c=await browser.newContext({viewport,deviceScaleFactor:3,hasTouch:true,...options});c.setDefaultTimeout(20000);c.setDefaultNavigationTimeout(40000);
+  await c.addInitScript(()=>{
+    window.__table3dShaderCompiles=[];const proto=window.WebGL2RenderingContext?.prototype;if(!proto)return;const original=proto.compileShader;
+    proto.compileShader=function(shader){const at=performance.now(),source=this.getShaderSource(shader)||'',pointLights=source.match(/uniform PointLight pointLights\[\s*(\d+)\s*\]/)?.[1]??source.match(/#define NUM_POINT_LIGHTS (\d+)/)?.[1];
+      try{return original.call(this,shader);}finally{window.__table3dShaderCompiles.push({at,pointLights:pointLights===undefined?null:Number(pointLights),cpuMs:performance.now()-at});}
+    };
+  });return c;
+}
 async function idle(page){
   await page.evaluate(()=>window.GwentDirectManipulation.waitForIdle(15000));
   await page.waitForFunction(()=>!window.GwentPresentationQueue.busy&&!document.body.dataset.gcStage&&!window.GwentTabletopScene.metrics().animating&&!(Array.isArray(window.GwentTable3D?.metrics().activeEffects)?window.GwentTable3D.metrics().activeEffects.length:window.GwentTable3D?.metrics().activeEffects),{},{timeout:20000});await frame(page);
@@ -149,6 +157,7 @@ async function ability(page,name){
   // Foltest's normal leader action guarantees a real LEADER_HORN event without
   // replacing state or directly calling the renderer's effect method.
   const before=await truth(page),beforeEffects=(await metrics(page)).effectsTriggered,expected=await page.evaluate(()=>{const A=window.__GWENT_PASS11__;return A.engine.activateLeader(A.getState(),{playerId:'p1'});});
+  const shadersBefore=await page.evaluate(()=>window.__table3dShaderCompiles.length);
   // Observe the real renderer before activation. A short effect may already
   // retire while click/overlay protocol calls return on a software GPU. This
   // recorder never changes its clock, light, duration or authoritative event.
@@ -161,7 +170,7 @@ async function ability(page,name){
         const pair=window.GwentTable3D.readbackPair({kind:'effect',floorOnly:true});
         // readbackPair restores and draws the current GPU surface before this
         // synchronous capture. It is an actual GPU frame, not a page composite.
-        probe.peak={active,pair,gpuFrame:document.querySelector('#table3d-canvas').toDataURL('image/png')};probe.done=true;return;
+        probe.peak={active,pair,shaderCompiles:window.__table3dShaderCompiles.slice(),gpuFrame:document.querySelector('#table3d-canvas').toDataURL('image/png')};probe.done=true;return;
       }
       if(active.effectsTriggered>beforeEffects&&!active.activeEffects.length){probe.done=true;return;}
       probe.raf=requestAnimationFrame(sample);
@@ -177,6 +186,7 @@ async function ability(page,name){
   fs.writeFileSync(path.join(out,name+'-ability-frames.json'),JSON.stringify(probe,null,2));
   if(captureError)throw captureError;
   assert(probe.peak,'confirmed Horn never painted a frame at 75% intensity: '+JSON.stringify(probe.samples));
+  assert.equal(probe.peak.shaderCompiles.length,shadersBefore,'first normal Horn compiled new shaders inside its short effect window: '+JSON.stringify(probe.peak.shaderCompiles.slice(shadersBefore)));
   assert(gpuFrame?.startsWith('data:image/png;base64,'));const gpuBuffer=Buffer.from(gpuFrame.split(',')[1],'base64');assertPainted(decodePNG(gpuBuffer));fs.writeFileSync(path.join(out,name+'-06-engine-ability-gpu-frame.png'),gpuBuffer);
   const {active,pair}=probe.peak;assert.equal(active.effectsTriggered-beforeEffects,1,'one authoritative Horn event emitted duplicate/missing ability light');
   assert(pair,'active canonical effect produced no GPU light readback');
@@ -260,6 +270,24 @@ async function offlineReopen(browser,name){
     assert.equal(new URL(await page.url()).searchParams.get('table3d'),'1');assert.deepEqual(build.identity,online.identity);return {browser:name,mode:'controlled-online-and-offline-reopen',savedMatchPreserved:true,cachedSourceArt:sources.length,assets:capture.m.assets,build,realInstallation:false};
   }finally{await c.setOffline(false);await c.close();}
 }
+async function reducedMotion(browser,name){
+  const c=await context(browser,{width:852,height:393},{reducedMotion:'reduce'}),page=await c.newPage();try{
+    await enter(page);assert(await page.evaluate(()=>matchMedia('(prefers-reduced-motion: reduce)').matches));
+    const a=await choose(page),expected=await expectedAction(page,a),point=await handPoint(page,a.iid);assert(point);
+    await page.touchscreen.tap(point.x,point.y);const key=await page.evaluate(a=>window.GwentDirectManipulation.actionKey(a),a);await page.locator(`[data-dm-action-key="${key}"]`).tap();await idle(page);await loaded(page);
+    assert.deepEqual((await truth(page)).state,expected,'reduced motion changed the canonical card action');
+    const before=await truth(page),rest=(await metrics(page)).cards.find(c=>c.iid===a.iid);await beginMove(page,a.iid,12,0);await page.waitForTimeout(250);
+    const held=(await metrics(page)).cards.find(c=>c.iid===a.iid),lift=held.worldHeight-rest.worldHeight;assert(lift>=.8&&lift<=1.2,'reduced motion did not retain its restrained held height: '+lift);await snapshot(page,name+'-15-reduced-held');
+    await page.mouse.up();await idle(page);assert.deepEqual(await truth(page),before,'reduced-motion rearrangement changed engine/save');
+    await bot(page);
+    const beforeHorn=await truth(page),count=(await metrics(page)).effectsTriggered,hornExpected=await page.evaluate(()=>{const A=window.__GWENT_PASS11__;return A.engine.activateLeader(A.getState(),{playerId:'p1'});});
+    await page.locator('#leader-button').click();await page.locator('#activate-leader').click();await page.evaluate(()=>window.__GWENT_PASS11__.closeOverlay());await idle(page);await loaded(page);
+    const final=await metrics(page),effect=final.effectHistory.find(e=>e.id>count&&e.type.includes('HORN'));assert.equal(final.effectsTriggered-count,1);assert(effect&&effect.duration===260&&effect.reason==='complete','normal reduced-motion Horn did not use its finite lifecycle');
+    assert.deepEqual((await truth(page)).state,hornExpected);assert((await truth(page)).state.eventLog.slice(beforeHorn.state.eventLog.length).some(e=>e.type==='LEADER_HORN'));await assertClean(page);
+    const settled=final.frameCount;await page.waitForTimeout(220);assert.equal((await metrics(page)).frameCount,settled,'reduced motion kept an idle draw loop');
+    return {browser:name,mode:'reduced-motion-normal-actions',heldLift:lift,effect,authorityPreserved:true};
+  }finally{await c.close();}
+}
 async function missingUpload(browser,name){
   // Disable SW only for this fault-injection test so routes can discriminate
   // the GPU's CORS upload from the readable native image request.
@@ -299,6 +327,7 @@ async function main(){
       if(!focus||focus==='normal')for(const [label,v] of [['landscape',{width:852,height:393}],['portrait',{width:393,height:852}]])record(await normal(browser,`${name}-${label}`,v,label==='landscape'));
       if(!focus||focus==='dense')for(const [label,v] of [['landscape',{width:852,height:393}],['portrait',{width:393,height:852}]])record(await density(browser,`${name}-${label}`,v));
       if(!focus||focus==='install')record(await installedEntry(browser,name));
+      if(!focus||focus==='reduced')record(await reducedMotion(browser,name));
       if(!focus||focus==='offline')record(await offlineReopen(browser,name));
       // sec-fetch-mode is a Chromium header; WebKit's lifecycle is covered by
       // the offline/context gates, and this targeted transport fault by Chrome.

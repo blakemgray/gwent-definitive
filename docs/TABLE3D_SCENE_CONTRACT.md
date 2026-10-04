@@ -49,6 +49,8 @@ Internal phases: reconstruction/contract; asset blockout and review; renderer an
 
 Automated: preserve all retained engine/PWA/storage/motion/UI gates; add layout and adapter contracts and a real normal-action 3D gate. Demonstrate that known-bad `4d96af5` lacks the rendered mesh/lighting behavior. Use frame/pixel evidence of shadow movement and ability illumination, not only desired property assertions.
 
+First-effect regression: preserved `91623c1` dynamically rebuilds lighting programs during normal Horn activation and fails the native shader-count gate; Linux CI also fails to paint a real frame at the unchanged 75% effect criterion. The corrected candidate must compile no new shaders during that normal action and must pass the existing actual-frame, causal floor-brightening, canonical engine-result and finite-retirement gates. Verify the reduced-motion UI path separately with its 260 ms lifecycle and reduced physical lift.
+
 Integration/visual/temporal: inspect hand -> held -> committed -> landing -> ability -> settle frames, both orientations, dense access, frontmost exact-target picking, interruption, resize, background and context loss. Inspect the GLB in the actual runtime as well as the Blender render. Runtime source art must load/decode before accepted screenshots.
 
 Artifacts: exact source/tree SHA, pinned dependency integrity/license, plugin project/revision and material provenance, local asset hashes, normal-path screenshots/frame sequences, browser reports, workflow IDs/results, deployable archive and phone diagnostics/feedback.

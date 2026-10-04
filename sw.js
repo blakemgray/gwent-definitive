@@ -1,4 +1,4 @@
-const BUILD='11.table3d.scene.1';
+const BUILD='11.table3d.scene.2';
 const CORE=`gwent-definitive-core-${BUILD}`;
 const RUNTIME=`gwent-definitive-runtime-${BUILD}`;
 const PRECACHE=[

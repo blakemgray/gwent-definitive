@@ -3,11 +3,11 @@ import {GLTFLoader} from '../vendor/three/addons/loaders/GLTFLoader.js';
 import {elementGeometry,screenToWorld,pointInQuad} from './table3d-math.js';
 
 const root=window,doc=root.document;
-const VERSION='table3d.scene.1';
+const VERSION='table3d.scene.2';
 const enabled=new URL(root.location.href).searchParams.get('table3d')==='1';
 const CARD_SELECTOR='#match-screen .hand-card[data-card-iid],#match-screen .unit[data-inspect-board],.dm-drag-proxy,.dm-flight-proxy,.gc-snapshot-ghost,.te-target-actor';
 const MAX_TEXTURES=48,DPR_CAP=1.75;
-const meshes=new Map(),textures=new Map(),effects=[],effectHistory=[],props=[],importedTextures=new Set(),cpuTimes=[],intervals=[],errors=[];
+const meshes=new Map(),textures=new Map(),effects=[],effectHistory=[],effectLights=[],props=[],importedTextures=new Set(),cpuTimes=[],intervals=[],errors=[];
 const assets={wood:{status:'pending',loaded:false},table:{status:'pending',loaded:false}};
 let renderer,scene,camera,keyLight,canvas,screen,viewport={x:0,y:0,width:0,height:0},woodTexture,woodSurfaceTexture,environmentTarget,tableModel,fallbackTable;
 let observer,startObserver,resizeObserver,raf=0,disposed=false,initialized=false,isReady=false,contextLost=false,shaderFailed=false,status='disabled';
@@ -300,23 +300,26 @@ function toLocal(iid,point){
   const box=rail?.getBoundingClientRect();return box?{x:point.x-box.left,y:point.y-box.top}:null;
 }
 function effect(event,signal=null){
-  if(!enabled||disposed||!initialized||contextLost||doc.hidden||signal?.aborted)return false;
+  if(!enabled||disposed||!initialized||contextLost||doc.hidden||signal?.aborted||!effectLights.length)return false;
   const type=String(event?.type||event?.hook||event?.name||'').toUpperCase();
   const color=type.includes('HORN')?0xffb74f:type.includes('SCORCH')?0xff6337:type.includes('MEDIC')?0x92dc84:type.includes('WEATHER')||type.includes('SPY')?0x91bded:null;
   if(color===null)return false;
   const point=event.iid?projectCard(event.iid):projectDestination({kind:'row',playerId:event.playerId||event.pid||'p1',row:event.row||'close'});
   const center=point?{x:point.x+point.width/2,y:point.y+point.height/2}:{x:viewport.x+viewport.width/2,y:viewport.y+viewport.height*.65};
-  const world=screenToWorld(center,viewport,65),light=new THREE.PointLight(color,0,420,1.6);light.position.set(world.x,world.y,world.z);scene.add(light);
+  // Keep the shader's light count fixed. Creating the first PointLight during
+  // its short effect window otherwise compiles new material programs at play.
+  while(effects.length>=effectLights.length)finishEffect(effects[0],'capacity');
+  const world=screenToWorld(center,viewport,65),light=effectLights.find(light=>!effects.some(item=>item.light===light));
+  if(!light)return false;light.color.setHex(color);light.intensity=0;light.position.set(world.x,world.y,world.z);
   const item={id:++effectSequence,type,light,started:now(),duration:reduced()?260:1450,intensity:1100,signal,abort:null};
   item.abort=()=>{finishEffect(item,'aborted');invalidate('effect-aborted');};signal?.addEventListener('abort',item.abort,{once:true});
   effects.push(item);effectHistory.push({id:item.id,type,transactionId:event.transactionId||null,eventSeq:event.seq??null,started:item.started,duration:item.duration,completedAt:null,reason:null});
   if(effectHistory.length>32)effectHistory.shift();effectsTriggered++;
-  while(effects.length>3)finishEffect(effects[0],'capacity');
   invalidate('confirmed-effect');return true;
 }
 function finishEffect(item,reason){
   const index=effects.indexOf(item);if(index<0)return;
-  item.signal?.removeEventListener('abort',item.abort);item.light.removeFromParent();item.light.dispose();effects.splice(index,1);
+  item.signal?.removeEventListener('abort',item.abort);item.light.intensity=0;effects.splice(index,1);
   const history=effectHistory.find(entry=>entry.id===item.id);if(history){history.completedAt=now();history.reason=reason;}
   if(reason!=='complete')effectsCancelled++;
 }
@@ -325,12 +328,12 @@ function reset(){clearEffects();for(const body of [...meshes.values()])retireBod
 function readbackPair({kind='effect',floorOnly=true,includePixels=false}={}){
   if(!isReady||contextLost)return {available:false,reason:status};
   const width=kind==='shadow'?128:64,height=width/2,target=new THREE.WebGLRenderTarget(width,height),withPixels=new Uint8Array(width*height*4),withoutPixels=new Uint8Array(width*height*4);
-  const previous=renderer.getRenderTarget(),visibility=effects.map(item=>item.light.visible);
+  const previous=renderer.getRenderTarget(),intensities=effects.map(item=>item.light.intensity);
   const shadowFlags=[...meshes.values()].map(body=>({body,value:body.edge.castShadow}));
   try{
     renderer.setRenderTarget(target);renderer.render(scene,camera);renderer.readRenderTargetPixels(target,0,0,width,height,withPixels);
     if(kind==='shadow')shadowFlags.forEach(({body})=>body.edge.castShadow=false);
-    else effects.forEach(item=>item.light.visible=false);
+    else effects.forEach(item=>item.light.intensity=0);
     renderer.render(scene,camera);renderer.readRenderTargetPixels(target,0,0,width,height,withoutPixels);
     const included=[],polygons=[...meshes.values()].filter(body=>body.group.visible&&body.projected).map(body=>body.projected.corners);
     for(let pixel=0;pixel<width*height;pixel++){
@@ -353,13 +356,13 @@ function readbackPair({kind='effect',floorOnly=true,includePixels=false}={}){
       meanAbsoluteDifference:absolute/(samples*3),changedPixels:changed,changedRatio:changed/samples,maxChannelDifference:max,darkerPixels:darker,brighterPixels:brighter,
       ...(includePixels?{rawPixels:{with:Array.from(withPixels),without:Array.from(withoutPixels),includedOffsets:included}}:{})};
   }catch(error){noteError('readback',error);return {available:false,reason:String(error?.message||error)};}
-  finally{effects.forEach((item,index)=>item.light.visible=visibility[index]);shadowFlags.forEach(({body,value})=>body.edge.castShadow=value);
+  finally{effects.forEach((item,index)=>item.light.intensity=intensities[index]);shadowFlags.forEach(({body,value})=>body.edge.castShadow=value);
     renderer.setRenderTarget(previous);target.dispose();renderer.render(scene,camera);}
 }
 function metrics(){
   const timings=values=>({mean:values.length?values.reduce((sum,value)=>sum+value,0)/values.length:0,p95:percentile(values,.95),max:Math.max(0,...values),samples:values.length});
   return {version:VERSION,enabled,ready:isReady,status,fallback:enabled&&!isReady,contextLost,disposed,dpr:renderer?.getPixelRatio()||null,dprCap:DPR_CAP,
-    camera:'orthographic-overhead',gpuBackend:gpuBackend&&structuredClone(gpuBackend),viewport:{...viewport},frameCount,renderCalls:renderer?.info.render.calls||0,triangles:renderer?.info.render.triangles||0,
+    camera:'orthographic-overhead',gpuBackend:gpuBackend&&structuredClone(gpuBackend),programCount:renderer?.info.programs?.length||0,effectLightCount:effectLights.length,viewport:{...viewport},frameCount,renderCalls:renderer?.info.render.calls||0,triangles:renderer?.info.render.triangles||0,
     textureCount:textures.size,gpuTextureCount:renderer?.info.memory.textures||0,textureLimit:MAX_TEXTURES,
     textureBudget:{residentTarget:MAX_TEXTURES,activeCannotEvict:true,activeUnique:[...new Set([...meshes.values()].map(body=>body.source))].length,
       retainedInactive:[...textures.keys()].filter(source=>![...meshes.values()].some(body=>body.source===source)).length},textureRequests,textureFailures,textureEvictions,
@@ -376,6 +379,7 @@ function dispose(){
   const disposeModel=model=>model?.traverse(node=>{if(node.isMesh){node.geometry.dispose();for(const material of Array.isArray(node.material)?node.material:[node.material])material.dispose();}});
   disposeModel(tableModel);props.forEach(item=>disposeModel(item.group));props.length=0;
   geometryBox?.dispose();geometryFace?.dispose();bodyMaterial?.dispose();fallbackTable?.material.dispose();renderer?.dispose();canvas?.remove();setReady(false);status='disposed';
+  for(const light of effectLights){light.removeFromParent();light.dispose();}effectLights.length=0;
 }
 function initialize(){
   if(!enabled){resolveReady(false);return;}
@@ -392,6 +396,7 @@ function initialize(){
     camera.position.set(0,2000,0);camera.up.set(0,0,-1);camera.lookAt(0,0,0);
     const ambient=new THREE.HemisphereLight(0xfff1da,0x302b26,1.1);scene.add(ambient);
     keyLight=new THREE.DirectionalLight(0xffe6c2,1.1);keyLight.castShadow=true;keyLight.shadow.mapSize.set(1024,1024);keyLight.shadow.bias=-.0002;keyLight.shadow.normalBias=.25;scene.add(keyLight);scene.add(keyLight.target);
+    for(let index=0;index<3;index++){const light=new THREE.PointLight(0xffffff,0,420,1.6);effectLights.push(light);scene.add(light);}
     createEnvironment();
     geometryBox=new THREE.BoxGeometry(1,1,1);geometryFace=new THREE.PlaneGeometry(1,1);
     bodyMaterial=new THREE.MeshStandardMaterial({color:0xd8cbb3,roughness:.93,metalness:0});
