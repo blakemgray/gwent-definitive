@@ -1,0 +1,67 @@
+:root{--gwent-table3d-generation:"11.table3d.scene.2"}
+
+/* The canvas paints physical objects; these semantic elements retain focus,
+   accessibility and the canonical gesture controller's targets. */
+html[data-table3d-mode="true"] #table3d-canvas{
+  position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;
+}
+html[data-table3d-mode="true"] #match-screen .battle-shell{
+  position:absolute;inset:0;isolation:isolate;
+  grid-template-rows:calc(40px + env(safe-area-inset-top)) minmax(0,1fr) calc(80px + env(safe-area-inset-bottom));
+}
+html[data-table3d-ready="true"] #match-screen .battle-shell{background:transparent}
+html[data-table3d-ready="true"] #match-screen .battle-shell::before{display:none}
+html[data-table3d-mode="true"] #match-screen #board{
+  width:calc(100% - 32px - env(safe-area-inset-left) - env(safe-area-inset-right));
+}
+html[data-table3d-mode="true"] #match-screen .lane::before,
+html[data-table3d-mode="true"] #match-screen .lane.weathered .units::before{display:none}
+html[data-table3d-mode="true"] #match-screen .lane .units{left:38px;right:38px;top:3px;bottom:2px}
+html[data-table3d-mode="true"] #match-screen .lane .rlabel{
+  left:2px;top:0;height:14px;font-size:8px;opacity:.76;letter-spacing:.1em;text-shadow:0 1px 3px #000;
+}
+html[data-table3d-mode="true"] #match-screen .lane .rscore{
+  right:2px;top:0;height:16px;min-width:25px;font-size:15px;text-shadow:0 1px 4px #000;
+}
+html[data-table3d-mode="true"] #match-screen .rscore::after{font-size:6px}
+html[data-table3d-mode="true"] #match-screen .special-slot-wrap{left:22px;top:17px;bottom:auto;transform:none}
+html[data-table3d-mode="true"] #match-screen .special-slot{width:18px;height:18px}
+html[data-table3d-mode="true"] #match-screen .battle-top{min-height:40px;background:linear-gradient(#120d09c4,#120d0955);border:0;padding-top:max(2px,env(safe-area-inset-top));padding-bottom:2px}
+html[data-table3d-mode="true"] #match-screen .battle-icon{width:34px;height:34px;background:#1e1711b8;border-color:#ddbd8040;border-radius:50%}
+html[data-table3d-mode="true"] #match-screen .battle-bottom{
+  min-height:80px;grid-template-columns:44px minmax(0,1fr) 64px;align-items:end;
+  background:linear-gradient(transparent 84%,#110b087d);border:0;padding-top:0;
+}
+html[data-table3d-mode="true"] #match-screen .hand{height:74px;max-width:780px}
+html[data-table3d-mode="true"] #match-screen .leader-mini{bottom:auto;left:auto;width:34px;height:64px;align-self:end}
+html[data-table3d-mode="true"] #match-screen .passbtn{height:36px;min-width:60px;padding:5px 8px;background:#562b24d9;border-color:#c89c684f}
+html[data-table3d-mode="true"] #match-screen .badge.compact-hide{font-size:6px;background:#17120da3;border-color:#e0ba7140}
+html[data-table3d-mode="true"] #match-screen .hc-name{display:none}
+html[data-table3d-mode="true"] #match-screen .hand-card{rotate:var(--table3d-hand-angle,0deg);transform-origin:50% 85%}
+html[data-table3d-mode="true"] #match-screen .lane.is-empty:not(.dm-legal-target) .rlabel{opacity:.3}
+html[data-table3d-mode="true"] #match-screen .lane.is-empty:not(.dm-legal-target) .rscore{visibility:hidden}
+html[data-table3d-mode="true"] #match-screen .weather:not(.active){visibility:hidden}
+
+/* Never hide a shell's visibility/opacity: choreography leases those properties.
+   Art that fails to upload remains a visible DOM fallback for that body. */
+html[data-table3d-ready="true"] [data-table3d-paint="mesh"]{
+  background:transparent!important;border-color:transparent!important;box-shadow:none!important;
+}
+html[data-table3d-ready="true"] [data-table3d-paint="mesh"]>img{opacity:0!important}
+html[data-table3d-ready="true"] [data-table3d-paint="mesh"] .u-mark,
+html[data-table3d-ready="true"] [data-table3d-paint="mesh"] .hc-name{visibility:hidden}
+html[data-table3d-ready="true"] [data-table3d-paint="mesh"] .u-score{
+  box-shadow:0 1px 3px #0009!important;background:#efdec3;color:#17110c;
+}
+html[data-table3d-mode="true"] #match-screen .unit:focus-visible{outline:2px solid #f0d9a0;outline-offset:3px}
+@media(orientation:portrait){
+  html[data-table3d-mode="true"] #match-screen .battle-shell{grid-template-rows:calc(54px + env(safe-area-inset-top)) minmax(0,1fr) calc(114px + env(safe-area-inset-bottom))}
+  html[data-table3d-mode="true"] #match-screen .battle-top{min-height:54px}
+  html[data-table3d-mode="true"] #match-screen .battle-bottom{min-height:114px;grid-template-columns:38px minmax(0,1fr) 58px}
+  html[data-table3d-mode="true"] #match-screen .hand{height:104px}
+  html[data-table3d-mode="true"] #match-screen .leader-mini{height:72px;width:32px;bottom:auto;left:auto}
+  html[data-table3d-mode="true"] #match-screen .lane .units{left:17px;right:22px}
+  html[data-table3d-mode="true"] #match-screen .special-slot-wrap{left:0;top:18px}
+  html[data-table3d-mode="true"] #match-screen .lane .rlabel{font-size:7px}
+  html[data-table3d-mode="true"] #match-screen #board{width:calc(100% - 16px - env(safe-area-inset-left) - env(safe-area-inset-right))}
+}

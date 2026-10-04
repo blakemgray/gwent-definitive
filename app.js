@@ -168,6 +168,7 @@
       p1Deck:pp.deck,p2Deck:bp.deck,handSize:10,seed:Number(ui.setup.seed)||20260910,firstPlayerId:ui.setup.firstPlayerId,
       validateDecks:true,shuffleDecks:true,mulligan:true
     });
+    window.GwentTabletopRenderer?.reset?.('new-match');
     if(lab) ui.preMatchState = G.sandboxSetTurn(ui.preMatchState,'p1');
     savePreparedMatch();
     go('mulligan-screen');
@@ -258,15 +259,21 @@
       <span class="total" id="player-total">${total('p1')}</span><span>${hearts(p1.health)}</span><span class="name-hide">N. REALMS</span><span class="faction-dot realms">NR</span>`;
 
     const rowModel=[['p2','siege','SIEGE'],['p2','ranged','RANGED'],['p2','close','CLOSE'],['weather',null,'WEATHER'],['p1','close','CLOSE'],['p1','ranged','RANGED'],['p1','siege','SIEGE']];
-    $('#board-geometry').innerHTML = rowModel.map(r=>r[0]==='weather'?renderGeometryWeather():renderGeometryLane(r[0],r[1])).join('');
-    $('#board').innerHTML = [
+    const geometryHTML = rowModel.map(r=>r[0]==='weather'?renderGeometryWeather():renderGeometryLane(r[0],r[1])).join('');
+    const boardHTML = [
       renderLane('p2','siege','SIEGE'),renderLane('p2','ranged','RANGED'),renderLane('p2','close','CLOSE'),
       renderWeatherBand(),
       renderLane('p1','close','CLOSE'),renderLane('p1','ranged','RANGED'),renderLane('p1','siege','SIEGE')
     ].join('');
 
+    const handHTML = p1.passed ? `<div class="sub" style="font-size:9px;align-self:center">PASSED · NO FURTHER ACTIONS THIS ROUND</div>` : p1.hand.map(renderHandCard).join('');
+    if(!window.GwentTabletopRenderer?.reconcile?.({boardHTML,geometryHTML,handHTML})){
+      $('#board-geometry').innerHTML = geometryHTML;
+      $('#board').innerHTML = boardHTML;
+      $('#hand').innerHTML = handHTML;
+    }
+
     $('#counts').innerHTML = `<span>DECK <b id="deck-count">${p1.deck.length}</b></span><span>GRAVE <b id="grave-count">${p1.grave.length}</b></span><span>HAND <b id="hand-count">${p1.hand.length}</b></span>`;
-    $('#hand').innerHTML = p1.passed ? `<div class="sub" style="font-size:9px;align-self:center">PASSED · NO FURTHER ACTIONS THIS ROUND</div>` : p1.hand.map(renderHandCard).join('');
 
     const badge=$('#class-badge'); badge.textContent=classificationLabel(); badge.className='badge compact-hide '+(state.classification==='classic'?'':state.classification);
     $('#pass-button').disabled = state.currentPlayerId!=='p1' || p1.passed || !!state.winner || !!state.pendingChoice;
@@ -344,7 +351,7 @@
   }
 
   function selectCard(iid){ ui.selectedIid=iid; renderOverlay(); }
-  function closeOverlay(){ ui.selectedIid=null;ui.matchMenuOpen=false;ui.matchMenuStep='menu';$('#overlay-root').innerHTML='';maybeAutoBot(); }
+  function closeOverlay(){ const focusIid=$('.tabletop-focus')?.dataset.focusIid;ui.selectedIid=null;ui.matchMenuOpen=false;ui.matchMenuStep='menu';$('#overlay-root').innerHTML='';if(focusIid)[...document.querySelectorAll('[data-inspect-board]')].find(el=>el.dataset.inspectBoard===focusIid)?.focus({preventScroll:true});maybeAutoBot(); }
 
   function renderOverlay(){
     const root=$('#overlay-root');
@@ -353,6 +360,15 @@
     if(!ui.selectedIid){ root.innerHTML=''; return; }
     const found=findInst(ui.selectedIid); if(!found){ui.selectedIid=null;root.innerHTML='';return;}
     const d=def(found.inst.cardId); const img=assetFor(found.inst.cardId);
+    if(window.GwentTabletopScene?.enabled&&found.zone==='board'){
+      const siblings=state.players[found.pid].board[found.row],index=siblings.findIndex(c=>c.iid===found.inst.iid);
+      const power=G.helpers.effectiveCardPower(state,found.pid,found.row,found.inst);
+      root.innerHTML=`<div class="shade tabletop-focus-shade" data-close-overlay></div><aside class="side-panel tabletop-focus" id="card-inspector" data-focus-iid="${esc(found.inst.iid)}" role="dialog" aria-modal="true" aria-labelledby="tabletop-focus-title"><button class="panel-x" aria-label="Close card detail" data-close-overlay>×</button><div class="inspector-grid">${img?`<img class="inspect-art" src="${img}" alt="${esc(d?.name)}">`:''}<div class="inspect-copy"><div class="eyebrow">${found.pid==='p1'?'YOUR':'OPPONENT'} · ${esc(found.row)}</div><h2 id="tabletop-focus-title">${esc(d?.name)}</h2><span class="badge">POWER ${power}</span><p>${esc(d?.abilities.join(' · ')||'UNIT')}</p><p>${esc(descriptionFor(d))}</p></div></div><div class="tabletop-focus-nav"><button class="btn ghost" aria-label="Previous card in territory" data-focus-step="-1" ${siblings.length<2?'disabled':''}>←</button><span>${index+1} / ${siblings.length} in ${esc(found.row)}</span><button class="btn ghost" aria-label="Next card in territory" data-focus-step="1" ${siblings.length<2?'disabled':''}>→</button></div></aside>`;
+      root.querySelectorAll('[data-close-overlay]').forEach(x=>x.onclick=closeOverlay);
+      root.querySelectorAll('[data-focus-step]').forEach(btn=>btn.onclick=()=>selectCard(siblings[(index+Number(btn.dataset.focusStep)+siblings.length)%siblings.length].iid));
+      window.GwentTabletopScene.positionFocus(root.querySelector('.tabletop-focus'),found.inst.iid);
+      root.querySelector('.panel-x').focus({preventScroll:true});return;
+    }
     const actions = found.zone==='hand' ? G.legalActions(state,'p1').filter(a=>a.iid===found.inst.iid) : [];
     const actionHtml = actions.length ? actions.map((a,i)=>`<button class="btn primary" data-play-index="${i}">${esc(actionLabel(a,d))}</button>`).join('') : `<button class="btn" disabled>${state.currentPlayerId==='p1'?'NO LEGAL PLAY':'WAIT FOR YOUR TURN'}</button>`;
     root.innerHTML=`<div class="shade" data-close-overlay></div><aside class="side-panel" id="card-inspector"><button class="panel-x" data-close-overlay>×</button><div class="inspector-grid">${img?`<img class="inspect-art" src="${img}" alt="${esc(d?.name)}">`:''}<div class="inspect-copy"><div class="eyebrow">${esc(d?.faction)} · ${esc(d?.row || d?.type)}</div><h2>${esc(d?.name)}</h2><span class="badge">${esc(d?.abilities.join(' · ') || 'UNIT')}</span><p>${esc(descriptionFor(d))}</p><div class="actions">${actionHtml}</div></div></div></aside>`;
@@ -444,6 +460,7 @@
     catch(e){console.error(e);} }
 
   function commit(next,label){
+    window.GwentDirectManipulation?.interruptTable?.('engine-commit');
     state = history.commit(next);
     saveActiveMatch();
     renderMatch();
@@ -584,7 +601,7 @@
       root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-match-menu="confirm-restart"><div class="eyebrow">RESTART MATCH</div><h2>Start this match over?</h2><p class="sub">The current match will be replaced with a fresh opening draw from the same legal decks.</p><div class="actions"><button id="match-restart-confirm" class="btn primary" data-match-command="restart-confirm">RESTART</button><button id="match-restart-cancel" class="btn" data-match-command="restart-cancel">KEEP PLAYING</button></div></aside>`;
       return;
     }
-    root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-match-menu="main"><div class="eyebrow">MATCH MENU</div><h2>Battle paused</h2><p class="sub">Your exact rules state is saved.</p><div class="actions"><button id="match-resume" class="btn primary" data-match-command="resume">RESUME</button><button id="match-restart-request" class="btn" data-match-command="restart-request">RESTART MATCH</button><button id="match-exit" class="btn" data-match-command="exit">EXIT TO MAIN MENU</button></div></aside>`;
+    root.innerHTML=`<div class="shade"></div><aside class="side-panel" data-match-menu="main"><div class="eyebrow">MATCH MENU</div><h2>Battle paused</h2><p class="sub">Your exact rules state is saved.</p><div class="actions"><button id="match-resume" class="btn primary" data-match-command="resume">RESUME</button><button id="match-restart-request" class="btn" data-match-command="restart-request">RESTART MATCH</button><button class="btn ghost" type="button" data-open-diagnostics>DEVICE DIAGNOSTICS</button><button id="match-exit" class="btn" data-match-command="exit">EXIT TO MAIN MENU</button></div></aside>`;
   }
 
   function exitMatchToMenu(){
@@ -632,6 +649,7 @@
 
   function resumeSavedMatch(){
     const saved=Store && Store.readMatch(); if(!saved) return;
+    window.GwentTabletopRenderer?.reset?.('resume-match');
     ui.setup=Object.assign({},ui.setup,saved.setup||{});ui.lab=!!saved.lab;ui.mulliganUsed=Number(saved.mulliganUsed||0);
     ui.selectedIid=null;ui.revealOpponent=false;ui.showIntent=false;
     if(saved.phase==='mulligan'){
@@ -690,12 +708,13 @@
   $('#catalog-count').textContent=catalog.length; renderCatalog(''); renderDeckScreen(); renderSetupScreen(); renderRulesMatrix();
 
   window.__GWENT_PASS10__ = {
+    generation:'11.table3d.scene.2',
     getState:()=>state ? G.helpers.deepClone(state) : null,
     getPreparedState:()=>ui.preMatchState ? deepClone(ui.preMatchState) : null,
     quickStart, prepareMulliganState, finalizeMatchFromPrepared, botMove, pass:passPlayer,
-    selectCard, playAction, openCheats, go, maybeAutoBot, engine:G, assetResolver:Assets, storage:Store, openLeader, openMatchMenu, saveActiveMatch, renderRulesMatrix,
+    selectCard, closeOverlay, playAction, openCheats, go, maybeAutoBot, engine:G, assetResolver:Assets, storage:Store, openLeader, openMatchMenu, saveActiveMatch, renderRulesMatrix,
     swapMulligan, getMulliganUsed:()=>ui.mulliganUsed, presets:()=>deepClone(PRESETS),
-    setStateForQA:(s)=>{state=G.helpers.deepClone(s);history=new G.HistorySession(state);go('match-screen');renderMatch();},
+    setStateForQA:(s)=>{window.GwentTabletopRenderer?.reset?.('qa-state-replaced');state=G.helpers.deepClone(s);history=new G.HistorySession(state);go('match-screen');renderMatch();},
     battlefieldRowModel:[['p2','siege'],['p2','ranged'],['p2','close'],['weather',null],['p1','close'],['p1','ranged'],['p1','siege']]
   };
   window.__GWENT_PASS11__ = window.__GWENT_PASS10__;

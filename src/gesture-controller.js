@@ -31,6 +31,8 @@
     targets:[],
     candidate:null,
     drag:null,
+    table:null,
+    cancelledTablePointer:null,
     dragRaf:0,
     suppressedClick:null,
     lastTransaction:null,
@@ -262,8 +264,11 @@
     for(const t of runtime.targets)t.el?.classList.toggle('dm-active-target',t===target);
     if(runtime.drag)runtime.drag.activeTarget=target||null;
   }
-  function intentDescriptors(){
+  function intentDescriptors(point){
+    const scene=window.GwentTabletopScene;
+    const exposed=scene?.enabled&&point?scene.exposedAt(point):null;
     return runtime.targets.map(t=>{
+      if(exposed&&t.dest?.kind==='target'&&t.dest.targetIid!==exposed)return null;
       const r=t.el?.getBoundingClientRect();
       if(!r||!r.width||!r.height)return null;
       return {key:t.key,kind:t.dest?.kind||'',rect:plainRect(r)};
@@ -275,7 +280,7 @@
       point:{x,y},
       previousPoint:d?.previousPoint||null,
       velocity:velocityFresh?(d?.velocity||{vx:0,vy:0}):{vx:0,vy:0},
-      candidates:intentDescriptors()
+      candidates:intentDescriptors({x,y})
     });
     const target=decision.candidate?runtime.targets.find(t=>t.key===decision.candidate.key)||null:null;
     runtime.lastIntent={
@@ -491,7 +496,50 @@
     cancelSelection(reason,true);runtime.phase='idle';window.GwentBattlefieldUX?.reconcile?.();
   }
 
+  function tableCandidate(e){
+    const scene=window.GwentTabletopScene,card=e.target.closest?.('#match-screen.active .unit[data-inspect-board]');
+    if(scene?.enabled&&card)runtime.lastTableAttempt={iid:card.dataset.inspectBoard,selected:runtime.selectedIid,busy:Queue.busy,stage:document.body.dataset.gcStage||null,overlay:$('#overlay-root')?.children.length,exposed:scene.exposedAt({x:e.clientX,y:e.clientY})};
+    if(!scene?.enabled||!card||runtime.selectedIid||runtime.drag||runtime.table||Queue.busy||document.body.dataset.gcStage||$('#overlay-root')?.children.length||e.isPrimary===false||(e.pointerType==='mouse'&&e.button!==0))return false;
+    const state=getState();if(!state||state.pendingChoice||state.winner)return false;
+    const iid=card.dataset.inspectBoard,pose=scene.getPose(iid);if(!pose)return false;
+    // Native hit-testing and the scene's frontmost exposed body must agree.
+    if(scene.exposedAt({x:e.clientX,y:e.clientY})!==iid)return false;
+    runtime.table={iid,card,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,pose,lastX:e.clientX,lastY:e.clientY,lastT:performance.now(),velocity:{vx:0,vy:0},active:false};
+    runtime.lastTableAttempt.accepted=true;
+    e.preventDefault();
+    try{card.setPointerCapture?.(e.pointerId);}catch(_){}
+    return true;
+  }
+  function moveTable(e){
+    const t=runtime.table;if(!t||t.pointerId!==e.pointerId)return false;
+    if(!t.active&&Math.hypot(e.clientX-t.startX,e.clientY-t.startY)>=DRAG_THRESHOLD){
+      if(!window.GwentTabletopScene.beginGrab(t.iid)){finishTable(true);return true;}
+      t.active=true;runtime.phase='table_dragging';dismissStaleToast();
+    }
+    if(t.active){
+      e.preventDefault();const now=performance.now(),dt=Math.max(1,now-t.lastT);
+      t.velocity={vx:(e.clientX-t.lastX)/dt*1000,vy:(e.clientY-t.lastY)/dt*1000};t.lastX=e.clientX;t.lastY=e.clientY;t.lastT=now;
+      window.GwentTabletopScene.moveGrab({x:t.pose.x+e.clientX-t.startX,y:t.pose.y+e.clientY-t.startY});
+    }
+    return true;
+  }
+  function finishTable(cancelled=false,e=null){
+    const t=runtime.table;if(!t)return false;runtime.table=null;
+    runtime.lastTableFinish={cancelled,event:e?.type||'internal',active:t.active};
+    try{t.card.releasePointerCapture?.(t.pointerId);}catch(_){}
+    if(t.active){
+      if(cancelled)runtime.cancelledTablePointer={pointerId:t.pointerId};
+      if(cancelled)window.GwentTabletopScene.cancelGrab();
+      else window.GwentTabletopScene.endGrab(performance.now()-t.lastT<=VELOCITY_FRESH_MS?t.velocity:{vx:0,vy:0});
+      armSyntheticClickSuppression(cancelled?t.lastX:e?.clientX??t.lastX,cancelled?t.lastY:e?.clientY??t.lastY,240);
+      if(e){e.preventDefault();e.stopPropagation();}runtime.phase='idle';
+    }
+    return true;
+  }
   function onPointerDown(e){
+    if(e.isPrimary===false)return;
+    runtime.cancelledTablePointer=null;
+    if(tableCandidate(e))return;
     const card=e.target.closest?.('#match-screen .hand-card[data-card-iid]');
     if(!card||Queue.busy||e.isPrimary===false||(e.pointerType==='mouse'&&e.button!==0))return;
     dismissStaleToast();
@@ -506,6 +554,7 @@
     runtime.candidate=candidate;
   }
   function onPointerMove(e){
+    if(moveTable(e))return;
     const c=runtime.candidate;
     if(c&&c.pointerId===e.pointerId&&!runtime.drag){
       const dist=Math.hypot(e.clientX-c.startX,e.clientY-c.startY);
@@ -518,6 +567,8 @@
     if(runtime.drag&&runtime.drag.pointerId===e.pointerId){e.preventDefault();scheduleDragFrame(e.clientX,e.clientY);}
   }
   function onPointerUp(e){
+    if(runtime.cancelledTablePointer?.pointerId===e.pointerId){runtime.cancelledTablePointer=null;e.preventDefault();e.stopPropagation();armSyntheticClickSuppression(e.clientX,e.clientY,240);return;}
+    if(runtime.table?.pointerId===e.pointerId){finishTable(false,e);return;}
     if(runtime.drag&&runtime.drag.pointerId===e.pointerId){
       e.preventDefault();e.stopPropagation();armSyntheticClickSuppression(e.clientX,e.clientY,180);
       scheduleDragFrame(e.clientX,e.clientY);if(runtime.dragRaf){cancelAnimationFrame(runtime.dragRaf);runtime.dragRaf=0;renderDragFrame();}
@@ -529,11 +580,13 @@
     const c=runtime.candidate;if(c&&c.pointerId===e.pointerId)clearCandidate();
   }
   function onPointerCancel(e){
+    if(runtime.table?.pointerId===e.pointerId){finishTable(true,e);return;}
     if(runtime.drag&&runtime.drag.pointerId===e.pointerId){e.preventDefault();armSyntheticClickSuppression(e.clientX,e.clientY,120);abortDrag('pointercancel',true);announce('Drag cancelled.');}
     clearCandidate();
   }
 
   function onClickCapture(e){
+    if(e.target.closest?.('#gwent-diagnostics,[data-open-diagnostics]'))return;
     const inMatch=e.target.closest?.('#match-screen');
     if(inMatch&&shouldSuppressSyntheticClick(e)){e.preventDefault();e.stopImmediatePropagation();return;}
     if(inMatch&&Queue.busy){e.preventDefault();e.stopImmediatePropagation();return;}
@@ -559,6 +612,14 @@
     }
   }
   function onKeyDown(e){
+    if(e.target.closest?.('#gwent-diagnostics'))return;
+    if(e.key==='Escape'&&runtime.table){e.preventDefault();finishTable(true);return;}
+    if(e.key==='Escape'&&$('.tabletop-focus')){e.preventDefault();api.closeOverlay?.();return;}
+    if(e.key==='Tab'&&$('.tabletop-focus')){
+      const buttons=$$('button:not(:disabled)',$('.tabletop-focus')),first=buttons[0],last=buttons[buttons.length-1];
+      if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}
+      else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}return;
+    }
     if(e.key==='Escape'&&runtime.selectedIid){e.preventDefault();cancelSelection('escape',true);return;}
     if((e.key==='Enter'||e.key===' ')&&runtime.selectedIid){
       const target=e.target.closest?.('.dm-legal-target');
@@ -570,6 +631,8 @@
   }
 
   function handleViewportInterruption(reason){
+    finishTable(true);
+    window.GwentTabletopScene?.pause?.(reason);
     Queue.cancel(reason);
     if(runtime.drag)abortDrag(reason,true);
     clearCandidate();
@@ -601,37 +664,47 @@
     document.addEventListener('pointermove',onPointerMove,{capture:true,passive:false});
     document.addEventListener('pointerup',onPointerUp,{capture:true,passive:false});
     document.addEventListener('pointercancel',onPointerCancel,{capture:true,passive:false});
+    document.addEventListener('lostpointercapture',e=>{if(runtime.table?.pointerId===e.pointerId)finishTable(true,e);},true);
     document.addEventListener('click',onClickCapture,true);
     document.addEventListener('dblclick',onDblClick,true);
     document.addEventListener('keydown',onKeyDown,true);
     window.addEventListener('orientationchange',()=>handleViewportInterruption('orientationchange'),{passive:true});
     let lastW=innerWidth,lastH=innerHeight;
     window.addEventListener('resize',()=>{
-      if(runtime.drag&&(Math.abs(innerWidth-lastW)>20||Math.abs(innerHeight-lastH)>20))handleViewportInterruption('resize');
+      if((runtime.drag||runtime.table)&&(Math.abs(innerWidth-lastW)>20||Math.abs(innerHeight-lastH)>20))handleViewportInterruption('resize');
       lastW=innerWidth;lastH=innerHeight;
     },{passive:true});
     document.addEventListener('visibilitychange',()=>{if(document.hidden)handleViewportInterruption('visibilitychange');});
+    window.addEventListener('pagehide',()=>handleViewportInterruption('pagehide'));
+    window.addEventListener('gwent:tabletop-reset',()=>handleViewportInterruption('match-reset'));
+    Queue.subscribe((type,transaction)=>{
+      if(type==='start'){finishTable(true);window.GwentTabletopScene?.pause?.('authored-presentation');}
+      if(type==='complete'&&transaction.meta?.afterLocation?.zone==='board')window.GwentTabletopScene?.impact?.(transaction.meta.iid);
+    });
   }
 
   install();
 
   window.GwentDirectManipulation={
     version:'10.4A.0',contractVersion:'1.0',intentVersion:Intent.version,
+    generation:'11.table3d.scene.2',
     get phase(){return runtime.phase;},
     get mode(){return runtime.mode;},
     get selectedIid(){return runtime.selectedIid;},
+    get tableInteraction(){return {iid:runtime.table?.iid||null,active:!!runtime.table?.active,lastAttempt:runtime.lastTableAttempt||null,lastFinish:runtime.lastTableFinish||null};},
+    interruptTable:(reason='interruption')=>{finishTable(true);window.GwentTabletopScene?.pause?.(reason);},
     get lastTransaction(){return runtime.lastTransaction?JSON.parse(JSON.stringify(runtime.lastTransaction)):null;},
     get lastSettlement(){return runtime.lastSettlement?JSON.parse(JSON.stringify(runtime.lastSettlement)):null;},
     get lastIntent(){return runtime.lastIntent?JSON.parse(JSON.stringify(runtime.lastIntent)):null;},
     get stats(){return JSON.parse(JSON.stringify(runtime.stats));},
     setMode,
     select:(iid)=>selectIid(iid),
-    cancel:(reason='qa')=>{Queue.cancel(reason);if(runtime.drag)abortDrag(reason,true);clearCandidate();cancelSelection(reason);runtime.suppressedClick=null;window.GwentBattlefieldUX?.reconcile?.();},
+    cancel:(reason='qa')=>{finishTable(true);window.GwentTabletopScene?.pause?.(reason);Queue.cancel(reason);if(runtime.drag)abortDrag(reason,true);clearCandidate();cancelSelection(reason);runtime.suppressedClick=null;window.GwentBattlefieldUX?.reconcile?.();},
     actionsFor:(iid)=>actionsFor(iid).map(a=>JSON.parse(JSON.stringify(a))),
     normalizeDestination:(action)=>normalizeDestination(action),
     actionKey,
     targets:()=>runtime.targets.map(t=>({key:t.key,dest:{...t.dest},action:{...t.action},box:t.el?.getBoundingClientRect()||null})),
-    waitForIdle:(timeout=3000)=>new Promise((resolve,reject)=>{const start=performance.now();const tick=()=>{if(!Queue.busy&&!runtime.drag&&runtime.phase!=='committing'&&runtime.phase!=='returning')resolve(true);else if(performance.now()-start>timeout)reject(new Error('Direct manipulation did not become idle'));else requestAnimationFrame(tick);};tick();}),
+    waitForIdle:(timeout=3000)=>new Promise((resolve,reject)=>{const start=performance.now();const tick=()=>{if(!Queue.busy&&!runtime.drag&&!runtime.table&&runtime.phase!=='committing'&&runtime.phase!=='returning')resolve(true);else if(performance.now()-start>timeout)reject(new Error('Direct manipulation did not become idle'));else requestAnimationFrame(tick);};tick();}),
     reduced:(value)=>Motion.setReducedOverride(value),
     constants:{DRAG_THRESHOLD,LONG_PRESS_MS,VELOCITY_FRESH_MS}
   };

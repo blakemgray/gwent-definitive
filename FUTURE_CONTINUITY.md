@@ -1,3 +1,24 @@
+# Current direction — first lit 3D table (2026-10-03)
+
+The user has now explicitly authorized the first real 3D scene with connected Higgsfield and Adobe assets. Contract: `docs/TABLE3D_SCENE_CONTRACT.md`; actual state is canonical in `CONTINUITY.md`. The earlier proposal and `.2` installation checkpoint below are superseded as the active next action. Keep their defect history.
+
+Use the proven Gwent engine and persistent interaction foundation. The current narrow scene adds actual card/table meshes, coherent real-time shadows, authored tavern props/materials and confirmed Horn/Spy light, through an overhead orthographic camera that preserves canonical touch geometry. Native/PWA/Capacitor selection and a cinematic perspective camera remain later decisions after iPhone17Pro evidence, not commitments made by this prototype. No new release authorization is implied.
+
+The larger vision remains substantially broader: natural composition at full density, sensory tuning, ability/SFX coherence, richer materials/camera/atmosphere and physics. Dense landscape size is still a tradeoff exposed by inspection. Browser screenshots and seven reference images do not close the original production clipping defect or phone acceptance. Device procedure: `docs/TABLE3D_DEVICE_ACCEPTANCE.md`.
+
+---
+
+# Current direction — physical tabletop
+
+Updated 2026-10-02. The user has established a larger presentation vision and authorized its first foundation. Canonical implementation status is in CONTINUITY.md and the contract is docs/PHYSICAL_TABLETOP_PROTOTYPE_CONTRACT.md.
+
+Rules/content remain classic Witcher 3 Gwent. The new experience uses persistent, larger, loosely overlapping cards, contact and gentle readability correction, borderless adaptive semantic territories, presentation-only rearrangement on either side, whole-table context with local focus, and fully playable portrait and landscape. The old locked centered rails, landscape-only gameplay target, and prohibition on broader physical motion below are superseded for the opt-in prototype.
+
+The opt-in candidate now adds adaptive composition, constrained local contact/settling, board gestures on either side, portrait gameplay, and local focus to the persistent-card diagnostics foundation. Runtime implementation `f7253e9` passed full Main #317 and Storage #30; loaded-art Chromium/WebKit frames were reviewed. Final installation review then caught a separate manifest launch that dropped tabletop mode. The `.2` successor corrects the selected manifest and adds a browser launch regression demonstrated failing on the `.1` candidate. Its exact-head verification and physical-iPhone acceptance remain the current checkpoint. Broader physical effects/audio and sensory tuning follow actual feedback; the full vision is not finished. Existing card-crop failure remains unresolved and requires actual-iPhone evidence. Neither future scope nor browser QA authorizes merge/deployment.
+
+The historical roadmap below is retained for content/access/AI/persistence requirements; its Pass-10 production and upcoming-Pass-11 status are stale. Do not infer current completion from those statements.
+
+---
 # Gwent Classic — Definitive Edition
 ## Forward Roadmap Continuity
 
