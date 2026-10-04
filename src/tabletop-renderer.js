@@ -5,12 +5,15 @@
 })(typeof window!=='undefined'?window:null,function(root){
   'use strict';
 
-  const enabled=!!root&&new URLSearchParams(root.location?.search||'').get('tabletop')==='1';
+  const flags=new URLSearchParams(root?.location?.search||'');
+  const table3d=!!root&&flags.get('table3d')==='1';
+  const enabled=!!root&&(flags.get('tabletop')==='1'||table3d);
   // Installation must preserve the opted-in mode. The default manifest starts
   // at ./ and would otherwise silently reopen the baseline renderer.
   if(enabled){
-    root.document?.querySelector?.('link[rel="manifest"]')?.setAttribute('href','manifest-tabletop.webmanifest');
-    root.document?.querySelector?.('meta[name="apple-mobile-web-app-title"]')?.setAttribute('content','Gwent Tabletop');
+    root.document?.querySelector?.('link[rel="manifest"]')?.setAttribute('href',table3d?'manifest-table3d.webmanifest':'manifest-tabletop.webmanifest');
+    root.document?.querySelector?.('meta[name="apple-mobile-web-app-title"]')?.setAttribute('content',table3d?'Gwent Table 3D':'Gwent Tabletop');
+    if(table3d&&root.document?.documentElement)root.document.documentElement.dataset.table3dMode='true';
   }
   const bodies=new Map();
   const stats={generation:0,reconciliations:0,created:0,reused:0,moved:0,retired:0,errors:0,lastReset:null};
@@ -31,7 +34,7 @@
   }
   function isTransientClass(name){return /^(dm-|te-|gc-|tabletop-)/.test(name);}
   function isRuntimeAttribute(name){
-    return name==='style'||/^data-(tabletop-|continuity-|presentation-)/.test(name);
+    return name==='style'||/^data-(tabletop-|table3d-|continuity-|presentation-)/.test(name);
   }
   function zoneOf(node,context){
     const lane=node.closest('.lane[data-pid][data-row]');
@@ -130,5 +133,5 @@
   function snapshot(){
     return {enabled,...stats,liveCount:bodies.size,live:[...bodies].map(([iid,body])=>({iid,zone:body.zone,token:body.token}))};
   }
-  return Object.freeze({version:'tabletop.foundation.1',enabled,reconcile,reset,snapshot});
+  return Object.freeze({version:'tabletop.foundation.1',enabled,table3d,reconcile,reset,snapshot});
 });

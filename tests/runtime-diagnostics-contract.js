@@ -55,9 +55,9 @@ async function main(){
   const api=createDiagnostics(first.env);
   const response=await api.queryWorker(worker,{timeoutMs:40});
   eq(response.diagnostics.status,'ok','actual worker responds through channel');
-  eq(response.diagnostics.build,'11.tabletop.motion.2','active build is provided by queried worker');
-  eq(response.diagnostics.coreCache,'gwent-definitive-core-11.tabletop.motion.2','actual worker reports its coherent core cache');
-  eq(response.diagnostics.runtimeCache,'gwent-definitive-runtime-11.tabletop.motion.2','actual worker reports its runtime generation');
+  eq(response.diagnostics.build,'11.table3d.scene.1','active build is provided by queried worker');
+  eq(response.diagnostics.coreCache,'gwent-definitive-core-11.table3d.scene.1','actual worker reports its coherent core cache');
+  eq(response.diagnostics.runtimeCache,'gwent-definitive-runtime-11.table3d.scene.1','actual worker reports its runtime generation');
   eq(effects,[],'diagnostics protocol makes no network/cache/lifecycle mutations');
   ok(first.channels[0].port1.closed&&first.channels[0].port2.closed,'completed queries close both ports');
   let invalidMessages=0;
@@ -89,7 +89,7 @@ async function main(){
 
   // The same card changes semantic location; its preplay control is retained with its full ancestry.
   const fixture=harness();
-  fixture.doc.match=node('SECTION',{id:'match-screen',styles:{'--gwent-tabletop-generation':'11.tabletop.motion.2'}});
+  fixture.doc.match=node('SECTION',{id:'match-screen',styles:{'--gwent-tabletop-generation':'11.table3d.scene.1'}});
   const rail=node('DIV',{className:'hand',styles:{'overflow':'hidden','overflow-x':'hidden'}});
   rail.parentElement=fixture.doc.match;fixture.doc.match.parentElement=fixture.doc.documentElement;
   const image=node('IMG',{naturalWidth:410,naturalHeight:775,currentSrc:'https://art.test/same-card.jpg',src:'https://art.test/same-card.jpg',complete:true});
@@ -97,7 +97,7 @@ async function main(){
     matches(selector){return selector==='.hand-card'?this.role==='hand':selector==='.unit[data-inspect-board]'&&this.role==='board';},
     querySelector:selector=>selector==='img'?image:null});
   image.parentElement=card;fixture.doc.cards.push(card);
-  fixture.env.GwentBuildIdentity={releaseId:'11.tabletop.motion.2',sourceCommit:null,packaged:false};
+  fixture.env.GwentBuildIdentity={releaseId:'11.table3d.scene.1',sourceCommit:null,packaged:false};
   fixture.env.GwentTabletopRenderer={version:'tabletop.foundation.1',snapshot:()=>({enabled:true,liveCount:1})};
   fixture.env.GwentTabletopScene={version:'tabletop.foundation.1',metrics:()=>({enabled:true,poses:[{iid:'match-1-card-7',x:12,y:0}]})};
   const cardApi=createDiagnostics(fixture.env);fixture.env.GwentDiagnostics=cardApi;
@@ -107,16 +107,16 @@ async function main(){
   card.styles={'padding-left':'0px','padding-right':'0px','transform':'matrix(1, 0, 0, 1, 12, 0)'};
   fixture.env.navigator.serviceWorker={controller:worker,getRegistration:async()=>({scope:'https://example.test/gwent/',active:worker,waiting:legacy,installing:null})};
   const cacheEffects=[];
-  fixture.env.caches={keys:async()=>['gwent-definitive-core-11.golden.5','gwent-definitive-core-11.tabletop.motion.2'],
+  fixture.env.caches={keys:async()=>['gwent-definitive-core-11.golden.5','gwent-definitive-core-11.table3d.scene.1'],
     open:()=>cacheEffects.push('open'),delete:()=>cacheEffects.push('delete')};
   // Legacy timeout still resolves collect; the geometry snapshot precedes asynchronous metadata collection.
   const collecting=cardApi.collect();
   card.styles['padding-left']='99px';
   const report=await collecting;
   eq(report.runtimeIdentity.sourceCommit,null,'unstamped local source is not given a fabricated commit');
-  eq(report.serviceWorkers.controller.diagnostics.build,'11.tabletop.motion.2','collection exposes actual controller build');
+  eq(report.serviceWorkers.controller.diagnostics.build,'11.table3d.scene.1','collection exposes actual controller build');
   eq(report.serviceWorkers.registration.waiting.diagnostics.build,'unknown','legacy waiting worker remains unknown');
-  eq(report.caches.names,['gwent-definitive-core-11.golden.5','gwent-definitive-core-11.tabletop.motion.2'],'cache names preserve evidence of multiple generations');
+  eq(report.caches.names,['gwent-definitive-core-11.golden.5','gwent-definitive-core-11.table3d.scene.1'],'cache names preserve evidence of multiple generations');
   eq(cacheEffects,[],'collection never reads cache content or alters caches');
   eq(report.handBoardComparisons.length,1,'normal identity relocation retains a hand/board comparison');
   const comparison=report.handBoardComparisons[0];

@@ -159,7 +159,7 @@
     const w=rail.clientWidth,h=rail.clientHeight;
     if(!w || !h) return;
     const cardH=window.GwentTabletopScene?.enabled?Math.max(45,Math.min(96,h-2)):Math.max(45,Math.min(64,h-2));
-    const cardW=cardH*0.696;
+    const cardW=cardH*(window.GwentTabletopRenderer?.table3d?16.1/30.4:0.696);
     const pack=computePack(cards.length,w,cardW,4,Math.max(17,cardW*.40));
     rail.dataset.packWidth=pack.packWidth.toFixed(2);
     rail.dataset.cardWidth=cardW.toFixed(2);
@@ -171,6 +171,10 @@
       card.style.top=`${Math.max(0,h-cardH).toFixed(2)}px`;
       card.style.zIndex=String(i+2);
       card.dataset.packIndex=String(i);
+      if(window.GwentTabletopRenderer?.table3d){
+        const fan=cards.length>1?(i/(cards.length-1)-.5)*9:0;
+        card.style.setProperty('--table3d-hand-angle',fan.toFixed(2)+'deg');
+      }
     });
   }
 
@@ -219,7 +223,7 @@
 
   window.GwentBattlefieldUX={
     version:'10.3.0',
-    generation:'11.tabletop.motion.2',
+    generation:'11.table3d.scene.1',
     contractVersion:'2.0',
     boardCardAspect:BOARD_CARD_ASPECT,
     computePack,

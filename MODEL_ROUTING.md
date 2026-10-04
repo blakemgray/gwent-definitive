@@ -7,6 +7,8 @@
 
 **Last updated:** 2026-09-11
 
+**Current scene checkpoint (2026-10-03):** the user selected High and authorized the first lit3Dtable. Recommend the available GPT-6.1Sol / High for cross-system render/input/actor ownership and failure diagnosis. Return to Medium for routine exact-head QA, packaging and documentation once the seams are proven. Historic model names below preserve policy rather than requiring an obsolete default. Escalate only for a narrowed, instrumented unresolved conflict; stronger-model availability alone is not a reason.
+
 ---
 
 # 1. Core rule

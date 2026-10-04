@@ -1,3 +1,13 @@
+# Current direction — first lit 3D table (2026-10-03)
+
+The user has now explicitly authorized the first real 3D scene with connected Higgsfield and Adobe assets. Contract: `docs/TABLE3D_SCENE_CONTRACT.md`; actual state is canonical in `CONTINUITY.md`. The earlier proposal and `.2` installation checkpoint below are superseded as the active next action. Keep their defect history.
+
+Use the proven Gwent engine and persistent interaction foundation. The current narrow scene adds actual card/table meshes, coherent real-time shadows, authored tavern props/materials and confirmed Horn/Spy light, through an overhead orthographic camera that preserves canonical touch geometry. Native/PWA/Capacitor selection and a cinematic perspective camera remain later decisions after iPhone17Pro evidence, not commitments made by this prototype. No new release authorization is implied.
+
+The larger vision remains substantially broader: natural composition at full density, sensory tuning, ability/SFX coherence, richer materials/camera/atmosphere and physics. Dense landscape size is still a tradeoff exposed by inspection. Browser screenshots and seven reference images do not close the original production clipping defect or phone acceptance. Device procedure: `docs/TABLE3D_DEVICE_ACCEPTANCE.md`.
+
+---
+
 # Current direction — physical tabletop
 
 Updated 2026-10-02. The user has established a larger presentation vision and authorized its first foundation. Canonical implementation status is in CONTINUITY.md and the contract is docs/PHYSICAL_TABLETOP_PROTOTYPE_CONTRACT.md.

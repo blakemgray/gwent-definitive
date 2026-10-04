@@ -4,7 +4,7 @@ const Build=require('../scripts/stamp-build.js');
 const sandbox=fs.mkdtempSync(path.join(os.tmpdir(),'gwent-build-'));
 try{
   fs.mkdirSync(path.join(sandbox,'src'));
-  fs.writeFileSync(path.join(sandbox,'sw.js'),"const BUILD='11.tabletop.motion.2';const PRECACHE=['./','./index.html','./app.js','./src/build-identity.js'];");
+  fs.writeFileSync(path.join(sandbox,'sw.js'),"const BUILD='11.table3d.scene.1';const PRECACHE=['./','./index.html','./app.js','./src/build-identity.js'];");
   fs.writeFileSync(path.join(sandbox,'index.html'),'first shell');
   fs.writeFileSync(path.join(sandbox,'app.js'),'first runtime');
   fs.writeFileSync(path.join(sandbox,'src/build-identity.js'),'template');

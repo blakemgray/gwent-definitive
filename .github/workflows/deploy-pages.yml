@@ -67,6 +67,11 @@ jobs:
           GWENT_TEST_URL: http://127.0.0.1:4173/
           GWENT_QA_DIR: qa/tabletop_motion
         run: node tests/tabletop-motion-ui.js
+      - name: Lit 3D table, normal actions, painted shadows and ability light
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+          GWENT_QA_DIR: qa/table3d_scene
+        run: node tests/table3d-scene-ui.js
       - name: Battlefield density, centering, and geometry gate
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
@@ -223,6 +228,7 @@ jobs:
             qa/runtime_diagnostics
             qa/tabletop_abilities
             qa/tabletop_motion
+            qa/table3d_scene
           if-no-files-found: warn
           retention-days: 30
       - name: Archive Pass 11 Golden Match end-to-end QA
@@ -285,6 +291,9 @@ jobs:
           cp icons/apple-touch-icon.png icons/icon-192.png icons/icon-512.png _site/icons/
           cp runtime-diagnostics.css tabletop-foundation.css _site/
           cp src/runtime-diagnostics.js src/build-identity.js src/tabletop-renderer.js src/tabletop-scene.js src/tabletop-physics.js _site/src/
+          cp table3d.css manifest-table3d.webmanifest _site/
+          cp src/table3d-renderer.js src/table3d-math.js _site/src/
+          cp -R vendor assets _site/
           node scripts/stamp-build.js --sha "$GITHUB_SHA" --out _site/src/build-identity.js
       - name: Configure Pages
         uses: actions/configure-pages@v5

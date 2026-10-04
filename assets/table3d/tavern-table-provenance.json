@@ -1,0 +1,19 @@
+{
+  "provider": "Higgsfield 3D Jutsu",
+  "projectId": "76aa4f34-1eab-4244-85d4-1c7bb26c43bc",
+  "revision": 3,
+  "sceneSequence": 0,
+  "projectURL": "https://higgsfield.ai/3d-jutsu/76aa4f34-1eab-4244-85d4-1c7bb26c43bc",
+  "file": "tavern-table.glb",
+  "sha256": "b1478daeb53ea9cf70a1a11008ef04e5d84cc0e4c76b31e12a73924d13f2ab59",
+  "bytes": 1778608,
+  "dimensionsMetres": {
+    "width": 1.3,
+    "depth": 1.9,
+    "tableSurfaceY": 0
+  },
+  "meshes": 31,
+  "triangles": 15032,
+  "textureURIs": "embedded",
+  "runtimeLighting": "Replace exported preview lights; runtime owns lighting."
+}

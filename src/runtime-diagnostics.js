@@ -6,7 +6,7 @@
   'use strict';
 
   const VERSION='11.tabletop.diagnostics.1';
-  const STYLE_KEYS=['--gwent-diagnostics-generation','--gwent-tabletop-generation','--gwent-style-generation','--gwent-physical-card-generation'];
+  const STYLE_KEYS=['--gwent-diagnostics-generation','--gwent-tabletop-generation','--gwent-style-generation','--gwent-physical-card-generation','--gwent-table3d-generation'];
   const STYLE_PROPERTIES=[
     'width','height','min-width','max-width','min-height','max-height','padding-top','padding-right','padding-bottom','padding-left',
     'border-top-width','border-right-width','border-bottom-width','border-left-width','box-sizing','overflow','overflow-x','overflow-y',
@@ -164,7 +164,7 @@
     return {directManipulation:{phase:env.GwentDirectManipulation?.phase||null,selectedIid:env.GwentDirectManipulation?.selectedIid||null,table:clean(env.GwentDirectManipulation?.tableInteraction)||null},
       presentation:{busy:env.GwentPresentationQueue?.busy??null,bodyStage:doc?.body?.dataset?.gcStage||null},
       continuity:{guardedIids:safe(()=>env.GwentCardContinuity?.guardedIids?.(),[])},
-      tabletop:{renderer:readStatus('GwentTabletopRenderer','snapshot'),scene:readStatus('GwentTabletopScene','metrics')}};
+      tabletop:{renderer:readStatus('GwentTabletopRenderer','snapshot'),scene:readStatus('GwentTabletopScene','metrics'),lighting:readStatus('GwentTable3D','metrics')}};
   }
   async function collect(){
     const epoch=matchEpoch;

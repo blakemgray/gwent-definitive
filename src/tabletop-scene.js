@@ -21,6 +21,7 @@
       for(const [key,value] of [['--tabletop-angle',(pose.angle||0).toFixed(2)+'deg'],['--tabletop-lift',(pose.lift||0).toFixed(2)+'px'],['--tabletop-z',String(pose.z||20)]])if(card.style.getPropertyValue(key)!==value)card.style.setProperty(key,value);
     }
     if(card.dataset.tabletopBody!=='true')card.dataset.tabletopBody='true';
+    root.GwentTable3D?.invalidate?.('pose');
   }
   function remember(p){p.u=p.railWidth>p.width?p.x/(p.railWidth-p.width):.5;p.v=p.railHeight>p.height?p.y/(p.railHeight-p.height):.5;}
   function boardPoses(){return [...poses.values()].filter(p=>p.zoneKey!=='p1:hand'&&p.element.isConnected);}
@@ -43,7 +44,8 @@
   function layoutTerritories(){
     const board=root.document.querySelector('#match-screen #board');if(!board)return;
     const lanes=all('#match-screen .lane'),counts={};lanes.forEach(l=>counts[`${l.dataset.pid}:${l.dataset.row}`]=l.querySelectorAll('.unit[data-inspect-board]').length);
-    for(const r of Physics.territories(board.clientWidth,board.clientHeight,counts)){
+    const territories=root.GwentTabletopRenderer?.table3d?Physics.tableTerritories:Physics.territories;
+    for(const r of territories(board.clientWidth,board.clientHeight,counts)){
       const lane=lanes.find(l=>l.dataset.pid===r.pid&&l.dataset.row===r.row);if(!lane)continue;
       for(const [key,val] of Object.entries({left:r.x,top:r.y,width:r.width,height:r.height})){const text=val.toFixed(2)+'px';if(lane.style[key]!==text)lane.style[key]=text;}
     }
@@ -63,7 +65,7 @@
         const resized=same&&(Math.abs(old.railWidth-rail.clientWidth)>.5||Math.abs(old.railHeight-rail.clientHeight)>.5||Math.abs(old.width-pack.width)>.5||Math.abs(old.height-pack.height)>.5);
         const position=same?(resized?{x:old.u*Math.max(0,rail.clientWidth-pack.width),y:old.v*Math.max(0,rail.clientHeight-pack.height)}:{x:old.x,y:old.y}):pack.positions[i];
         const bounded=constrainPose(position,{width:rail.clientWidth,height:rail.clientHeight,cardWidth:pack.width,cardHeight:pack.height});
-        const pose={iid,zoneKey,...bounded,width:pack.width,height:pack.height,railWidth:rail.clientWidth,railHeight:rail.clientHeight,angle:same?old.angle:pack.positions[i].angle,z:same?old.z:++zOrder,
+        const pose={iid,zoneKey,...bounded,width:pack.width,height:pack.height,railWidth:rail.clientWidth,railHeight:rail.clientHeight,angle:same?old.angle:pack.positions[i].angle*(root.GwentTabletopRenderer?.table3d?2:1),z:same?old.z:++zOrder,
           userPlaced:same?old.userPlaced:false,vx:same&&!resized?old.vx||0:0,vy:same&&!resized?old.vy||0:0,lift:same?old.lift||0:0,
           minX:Math.min(pack.width*.44,Math.max(8,pack.step*.85)),minY:Math.min(pack.height*.38,Math.max(12,pack.rowStep*.85||pack.height*.38)),element:card,rail};
         remember(pose);poses.set(iid,pose);write(card,pose);
@@ -74,7 +76,7 @@
       const iid=identity(card);seen.add(iid);const p={iid,zoneKey:'p1:hand',x:parseFloat(card.style.left)||0,y:parseFloat(card.style.top)||0,width:parseFloat(card.style.width)||0,height:parseFloat(card.style.height)||0,railWidth:hand.clientWidth,railHeight:hand.clientHeight,userPlaced:false,element:card,rail:hand};remember(p);poses.set(iid,p);write(card,p);
     }}
     for(const iid of poses.keys())if(!seen.has(iid)){if(grab?.iid===iid)cancelGrab('retired');poses.delete(iid);}
-    reconciliations++;positionFocus();return true;
+    reconciliations++;positionFocus();root.GwentTable3D?.invalidate?.('reconcile');return true;
   }
   function serializable(p){if(!p)return null;const {element,rail,...data}=p;return {...data};}
   function setPose(iid,position){
@@ -101,6 +103,7 @@
     grab=null;if(raf)root.cancelAnimationFrame?.(raf);raf=0;lastFrame=0;return true;
   }
   function exposedAt(point,eligible=null){
+    if(root.GwentTable3D?.metrics?.().status==='ready')return root.GwentTable3D.pick(point,eligible);
     for(const p of boardPoses().sort((a,b)=>(b.z||0)-(a.z||0))){const r=p.rail.getBoundingClientRect();if(Physics.pointInside({x:point.x-r.left,y:point.y-r.top},{...p,y:p.y-(p.lift||0)}))return !eligible||eligible.has(p.iid)?p.iid:null;}
     return null;
   }

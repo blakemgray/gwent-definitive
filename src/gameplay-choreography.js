@@ -177,6 +177,9 @@
   }
   async function presentStage(stage,tx,signal,visuals){
     runtime.stage=stage.kind;root.document.body.dataset.gcStage=stage.kind;abortCheck(signal);
+    // Only the committed, public presentation event can illuminate the table.
+    // The renderer does not inspect decks, choose outcomes or trigger effects.
+    if(['spy','horn'].includes(stage.kind)&&stage.event)root.GwentTable3D?.effect?.({...stage.event,transactionId:tx.id||tx.action?.iid||null},signal);
     switch(stage.kind){
       case 'leader':await cue('LEADER','leader',leaderEl(),signal,'abilityFast');await pulse(leaderEl(),'leader-card','routineFast',signal);break;
       case 'medic':await presentMedic(stage,signal,visuals);break;

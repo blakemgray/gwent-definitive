@@ -28,6 +28,22 @@
     });
     return {width:cardW,height:cardH,step,rowStep,positions};
   }
+  // Facing players keep their three formations in depth. Empty formations are
+  // only a label strip; occupied formations share the available space. These
+  // rectangles constrain placement, never determine a legal destination.
+  function tableTerritories(width,height,counts={}){
+    if(!Number.isFinite(width)||!Number.isFinite(height)||width<=0||height<=0)return [];
+    const center=Math.min(18,height*.06),half=(height-center)/2,out=[];
+    for(const [pid,start,order] of [['p2',0,['siege','ranged','close']],['p1',half+center,rows]]){
+      const empty=Math.min(10,half/6),active=order.filter(r=>Number(counts[`${pid}:${r}`])>0);
+      const room=half-empty*(3-active.length),weight=r=>1+Math.min(2,Math.sqrt(Math.max(0,Number(counts[`${pid}:${r}`])||0)))*.18;
+      const sum=active.reduce((s,r)=>s+weight(r),0);let y=start;
+      for(const row of order){const occupied=active.includes(row),h=active.length?(occupied?room*weight(row)/sum:empty):half/3;
+        out.push({pid,row,x:0,y,width,height:h});y+=h;
+      }
+    }
+    return out;
+  }
   function bound(body){
     const x=clamp(body.x,0,Math.max(0,body.railWidth-body.width)),y=clamp(body.y,0,Math.max(0,body.railHeight-body.height));
     if(x!==body.x)body.vx=0;if(y!==body.y)body.vy=0;body.x=x;body.y=y;
@@ -66,5 +82,5 @@
     const x=dx*Math.cos(angle)-dy*Math.sin(angle),y=dx*Math.sin(angle)+dy*Math.cos(angle);
     return Math.abs(x)<=body.width/2&&Math.abs(y)<=body.height/2;
   }
-  return Object.freeze({version:'tabletop.motion.1',territories,pack,step,bound,pointInside});
+  return Object.freeze({version:'tabletop.motion.1',territories,tableTerritories,pack,step,bound,pointInside});
 });
