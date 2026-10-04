@@ -137,7 +137,8 @@ async function shadow(page,name,iid){
   const heldPose=await pose(page,iid);assert(Math.abs(heldPose.x-original.x)<.5&&Math.abs(heldPose.y-original.y)<.5,'shadow pair accidentally moved the planar card');assert(heldPose.lift>0,'held card lacks physical lift');
   await page.waitForTimeout(250);
   const held=await snapshot(page,name+'-02-shadow-held'),restMesh=rest.m.cards.find(c=>c.iid===iid),heldMesh=held.m.cards.find(c=>c.iid===iid);assert(heldMesh.worldHeight-restMesh.worldHeight>=15,'GPU held-body height decayed while the pointer still held it');
-  const causal=await page.evaluate(()=>window.GwentTable3D.readbackPair({kind:'shadow',floorOnly:true}));
+  const {rawPixels,...causal}=await page.evaluate(()=>window.GwentTable3D.readbackPair({kind:'shadow',floorOnly:true,includePixels:true}));
+  fs.writeFileSync(path.join(out,name+'-shadow-held-raw-pixels.json'),JSON.stringify({summary:causal,gpuBackend:held.m.gpuBackend,rawPixels}));
   fs.writeFileSync(path.join(out,name+'-shadow-readbacks.json'),JSON.stringify({restingShadows,causalHeldShadows:causal},null,2));
   assert.equal(causal.available,true);assert.equal(causal.kind,'shadow');assert.equal(causal.floorOnly,true);assert(causal.sampledPixels>0&&causal.excludedCardPixels>0,'shadow readback did not isolate table floor');
   assert(causal.changedPixels>=8&&causal.meanAbsoluteDifference>.005,'turning actual card shadows off did not change rendered floor pixels: '+JSON.stringify(causal));assert(causal.withShadows.meanLuminance<causal.withoutShadows.meanLuminance,'actual card shadows did not darken table floor: '+JSON.stringify(causal));
@@ -147,14 +148,42 @@ async function shadow(page,name,iid){
 async function ability(page,name){
   // Foltest's normal leader action guarantees a real LEADER_HORN event without
   // replacing state or directly calling the renderer's effect method.
-  const before=await truth(page),beforeEffects=(await metrics(page)).effectsTriggered,expected=await page.evaluate(()=>{const A=window.__GWENT_PASS11__;return A.engine.activateLeader(A.getState(),{playerId:'p1'});});await page.locator('#leader-button').click();await page.locator('#activate-leader').click();await page.evaluate(()=>window.__GWENT_PASS11__.closeOverlay());
-  await page.waitForFunction(()=>window.GwentTable3D.metrics().activeEffects.some(e=>e.type.includes('HORN')&&e.intensity>=e.maxIntensity*.75),{},{timeout:10000});
-  const active=await metrics(page),pair=await page.evaluate(()=>window.GwentTable3D.readbackPair({kind:'effect',floorOnly:true}));assert.equal(active.effectsTriggered-beforeEffects,1,'one authoritative Horn event emitted duplicate/missing ability light');
+  const before=await truth(page),beforeEffects=(await metrics(page)).effectsTriggered,expected=await page.evaluate(()=>{const A=window.__GWENT_PASS11__;return A.engine.activateLeader(A.getState(),{playerId:'p1'});});
+  // Observe the real renderer before activation. A short effect may already
+  // retire while click/overlay protocol calls return on a software GPU. This
+  // recorder never changes its clock, light, duration or authoritative event.
+  await page.evaluate(beforeEffects=>{
+    const probe={done:false,samples:[],peak:null,raf:0};window.__table3dAbilityProbe=probe;
+    const sample=time=>{
+      const active=window.GwentTable3D.metrics(),horn=active.activeEffects.find(e=>e.type.includes('HORN'));
+      probe.samples.push({time,effectsTriggered:active.effectsTriggered,horn:horn||null});
+      if(horn&&horn.intensity>=horn.maxIntensity*.75){
+        const pair=window.GwentTable3D.readbackPair({kind:'effect',floorOnly:true});
+        // readbackPair restores and draws the current GPU surface before this
+        // synchronous capture. It is an actual GPU frame, not a page composite.
+        probe.peak={active,pair,gpuFrame:document.querySelector('#table3d-canvas').toDataURL('image/png')};probe.done=true;return;
+      }
+      if(active.effectsTriggered>beforeEffects&&!active.activeEffects.length){probe.done=true;return;}
+      probe.raf=requestAnimationFrame(sample);
+    };probe.raf=requestAnimationFrame(sample);
+  },beforeEffects);
+  let captureError=null;
+  try{await page.locator('#leader-button').click();await page.locator('#activate-leader').click();await page.evaluate(()=>window.__GWENT_PASS11__.closeOverlay());
+    await page.waitForFunction(()=>window.__table3dAbilityProbe.done,{},{timeout:10000});
+  }catch(error){captureError=error;
+  }finally{await page.evaluate(()=>cancelAnimationFrame(window.__table3dAbilityProbe.raf));}
+  const probe=await page.evaluate(()=>window.__table3dAbilityProbe),gpuFrame=probe.peak?.gpuFrame;
+  if(probe.peak)delete probe.peak.gpuFrame;
+  fs.writeFileSync(path.join(out,name+'-ability-frames.json'),JSON.stringify(probe,null,2));
+  if(captureError)throw captureError;
+  assert(probe.peak,'confirmed Horn never painted a frame at 75% intensity: '+JSON.stringify(probe.samples));
+  assert(gpuFrame?.startsWith('data:image/png;base64,'));const gpuBuffer=Buffer.from(gpuFrame.split(',')[1],'base64');assertPainted(decodePNG(gpuBuffer));fs.writeFileSync(path.join(out,name+'-06-engine-ability-gpu-frame.png'),gpuBuffer);
+  const {active,pair}=probe.peak;assert.equal(active.effectsTriggered-beforeEffects,1,'one authoritative Horn event emitted duplicate/missing ability light');
   assert(pair,'active canonical effect produced no GPU light readback');
   assert.equal(pair.available,true,'GPU effect readback is unavailable');assert.equal(pair.kind,'effect');assert.equal(pair.floorOnly,true);assert(pair.sampledPixels>0&&pair.excludedCardPixels>0,'ability readback failed to exclude all card faces');assert(pair.activeEffects.some(e=>e.type.includes('HORN')),'light pair lacks the confirmed Horn effect');
   assert(Number.isFinite(pair.changedPixels)&&pair.changedPixels>=24&&Number.isFinite(pair.meanAbsoluteDifference)&&pair.meanAbsoluteDifference>.02,'ability light readback did not change painted pixels: '+JSON.stringify(pair));
   assert(pair.withEffects.meanLuminance>pair.withoutEffects.meanLuminance,'ability light did not brighten the rendered scene');const evidence=pair;
-  await snapshot(page,name+'-06-engine-ability-light');
+  await snapshot(page,name+'-06-engine-ability-followup');
   const after=await truth(page),events=after.state.eventLog.slice(before.state.eventLog.length);assert.deepEqual(after.state,expected,'ability rendering changed canonical leader result');assert(events.some(e=>e.type==='LEADER_HORN'&&e.data.playerId==='p1'&&e.data.row==='siege'),'illumination lacks corresponding confirmed engine event');assert.equal(after.state.players.p1.board.leaderHorn.siege,true);
   await page.evaluate(()=>window.__GWENT_PASS11__.closeOverlay());await idle(page);assert.equal(activeEffects(await metrics(page)),0,'ability light failed to retire');await assertClean(page);return {event:'LEADER_HORN',row:'siege',normalUI:true,active,pixels:evidence};
 }

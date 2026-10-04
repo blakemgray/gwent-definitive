@@ -12,7 +12,7 @@ const assets={wood:{status:'pending',loaded:false},table:{status:'pending',loade
 let renderer,scene,camera,keyLight,canvas,screen,viewport={x:0,y:0,width:0,height:0},woodTexture,woodSurfaceTexture,environmentTarget,tableModel,fallbackTable;
 let observer,startObserver,resizeObserver,raf=0,disposed=false,initialized=false,isReady=false,contextLost=false,shaderFailed=false,status='disabled';
 let frameCount=0,lastFrame=0,lastFrameContinuous=false,dirty=true,textureRequests=0,textureFailures=0,textureEvictions=0,effectSequence=0,effectsTriggered=0,effectsCancelled=0,nextMeshToken=0;
-let geometryBox,geometryFace,bodyMaterial,latestCandidates=[],lastReason='install',readbackCount=0;
+let geometryBox,geometryFace,bodyMaterial,latestCandidates=[],lastReason='install',readbackCount=0,gpuBackend=null;
 let resolveReady;
 const ready=new Promise(resolve=>resolveReady=resolve);
 const now=()=>root.performance.now();
@@ -322,7 +322,7 @@ function finishEffect(item,reason){
 }
 function clearEffects(){for(const item of [...effects])finishEffect(item,'cleared');}
 function reset(){clearEffects();for(const body of [...meshes.values()])retireBody(body);latestCandidates=[];clearDOMMarks();invalidate('match-reset');}
-function readbackPair({kind='effect',floorOnly=true}={}){
+function readbackPair({kind='effect',floorOnly=true,includePixels=false}={}){
   if(!isReady||contextLost)return {available:false,reason:status};
   const width=kind==='shadow'?128:64,height=width/2,target=new THREE.WebGLRenderTarget(width,height),withPixels=new Uint8Array(width*height*4),withoutPixels=new Uint8Array(width*height*4);
   const previous=renderer.getRenderTarget(),visibility=effects.map(item=>item.light.visible);
@@ -338,16 +338,20 @@ function readbackPair({kind='effect',floorOnly=true}={}){
       const point={x:viewport.x+(pixel%width+.5)*viewport.width/width,y:viewport.y+(height-Math.floor(pixel/width)-.5)*viewport.height/height};
       if(!floorOnly||!polygons.some(corners=>pointInQuad(point,corners)))included.push(pixel*4);
     }
-    let absolute=0,changed=0,max=0;
+    let absolute=0,changed=0,max=0,darker=0,brighter=0;
     const aggregate=pixels=>{let r=0,g=0,b=0;for(const index of included){r+=pixels[index];g+=pixels[index+1];b+=pixels[index+2];}const divisor=Math.max(1,included.length);return {meanRgb:[r/divisor,g/divisor,b/divisor],meanLuminance:(.2126*r+.7152*g+.0722*b)/divisor};};
     for(const index of included){let pixelChanged=false;for(let channel=0;channel<3;channel++){
       const delta=Math.abs(withPixels[index+channel]-withoutPixels[index+channel]);absolute+=delta;max=Math.max(max,delta);if(delta>1)pixelChanged=true;
-    }if(pixelChanged)changed++;}
+    }if(pixelChanged)changed++;
+      const signed=.2126*(withPixels[index]-withoutPixels[index])+.7152*(withPixels[index+1]-withoutPixels[index+1])+.0722*(withPixels[index+2]-withoutPixels[index+2]);
+      if(signed<-1)darker++;else if(signed>1)brighter++;
+    }
     readbackCount++;
     const withValue=aggregate(withPixels),withoutValue=aggregate(withoutPixels),samples=Math.max(1,included.length);
     return {available:true,kind,floorOnly,width,height,sampledPixels:included.length,excludedCardPixels:width*height-included.length,frameNumber:frameCount,activeEffects:effects.map(item=>({id:item.id,type:item.type})),
       withEffects:withValue,withoutEffects:withoutValue,...(kind==='shadow'?{withShadows:withValue,withoutShadows:withoutValue}:{}),
-      meanAbsoluteDifference:absolute/(samples*3),changedPixels:changed,changedRatio:changed/samples,maxChannelDifference:max};
+      meanAbsoluteDifference:absolute/(samples*3),changedPixels:changed,changedRatio:changed/samples,maxChannelDifference:max,darkerPixels:darker,brighterPixels:brighter,
+      ...(includePixels?{rawPixels:{with:Array.from(withPixels),without:Array.from(withoutPixels),includedOffsets:included}}:{})};
   }catch(error){noteError('readback',error);return {available:false,reason:String(error?.message||error)};}
   finally{effects.forEach((item,index)=>item.light.visible=visibility[index]);shadowFlags.forEach(({body,value})=>body.edge.castShadow=value);
     renderer.setRenderTarget(previous);target.dispose();renderer.render(scene,camera);}
@@ -355,7 +359,7 @@ function readbackPair({kind='effect',floorOnly=true}={}){
 function metrics(){
   const timings=values=>({mean:values.length?values.reduce((sum,value)=>sum+value,0)/values.length:0,p95:percentile(values,.95),max:Math.max(0,...values),samples:values.length});
   return {version:VERSION,enabled,ready:isReady,status,fallback:enabled&&!isReady,contextLost,disposed,dpr:renderer?.getPixelRatio()||null,dprCap:DPR_CAP,
-    camera:'orthographic-overhead',viewport:{...viewport},frameCount,renderCalls:renderer?.info.render.calls||0,triangles:renderer?.info.render.triangles||0,
+    camera:'orthographic-overhead',gpuBackend:gpuBackend&&structuredClone(gpuBackend),viewport:{...viewport},frameCount,renderCalls:renderer?.info.render.calls||0,triangles:renderer?.info.render.triangles||0,
     textureCount:textures.size,gpuTextureCount:renderer?.info.memory.textures||0,textureLimit:MAX_TEXTURES,
     textureBudget:{residentTarget:MAX_TEXTURES,activeCannotEvict:true,activeUnique:[...new Set([...meshes.values()].map(body=>body.source))].length,
       retainedInactive:[...textures.keys()].filter(source=>![...meshes.values()].some(body=>body.source===source)).length},textureRequests,textureFailures,textureEvictions,
@@ -379,6 +383,8 @@ function initialize(){
     screen=doc.querySelector('#match-screen');if(!screen)throw new Error('Match screen is unavailable.');
     canvas=doc.createElement('canvas');canvas.id='table3d-canvas';canvas.setAttribute('aria-hidden','true');canvas.hidden=true;screen.prepend(canvas);
     renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+    const gl=renderer.getContext(),debug=gl.getExtension('WEBGL_debug_renderer_info');
+    gpuBackend={version:gl.getParameter(gl.VERSION),shadingLanguage:gl.getParameter(gl.SHADING_LANGUAGE_VERSION),vendor:gl.getParameter(debug?.UNMASKED_VENDOR_WEBGL||gl.VENDOR),renderer:gl.getParameter(debug?.UNMASKED_RENDERER_WEBGL||gl.RENDERER),contextAttributes:gl.getContextAttributes()};
     renderer.debug.onShaderError=gl=>{shaderFailed=true;noteError('shader','A table shader failed to compile or link.');status='fallback';setReady(false);resolveReady(false);};
     renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1;
     renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
