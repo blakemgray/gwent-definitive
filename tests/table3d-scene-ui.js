@@ -100,9 +100,14 @@ async function beginMove(page,iid,dx,dy){
 }
 async function snapshot(page,label){
   const m=await loaded(page),canvas=page.locator(canvasSelector),box=await canvas.boundingBox();assert(box&&box.width>100&&box.height>100);
+  const viewport=page.viewportSize(),scale=await page.evaluate(()=>devicePixelRatio);assert(viewport&&box.x>=-.5&&box.y>=-.5&&box.x+box.width<=viewport.width+.5&&box.y+box.height<=viewport.height+.5,'canvas capture bounds leave the actual viewport');
   await page.waitForFunction(()=>[...document.querySelectorAll('#hand [data-card-iid] img,#board [data-inspect-board] img,.tabletop-focus .inspect-art')].every(i=>i.complete&&i.naturalWidth>0),{},{timeout:20000});
   await page.locator('.tabletop-focus .inspect-art').evaluateAll(images=>Promise.all(images.map(i=>i.decode())));await frame(page);
-  const buffer=await canvas.screenshot({path:path.join(out,label+'-canvas.png')}),image=decodePNG(buffer),paint=assertPainted(image);await page.screenshot({path:path.join(out,label+'.png')});
+  // Capture the actual composite at the known canvas bounds. An element
+  // screenshot first scrolls/waits for actionability, which can consume the
+  // held/effect frame on a software GPU; that is not the interaction under test.
+  const buffer=await page.screenshot({clip:box,path:path.join(out,label+'-canvas.png')}),image=decodePNG(buffer),paint=assertPainted(image);await page.screenshot({path:path.join(out,label+'.png')});
+  assert(Math.abs(image.width-box.width*scale)<=1&&Math.abs(image.height-box.height*scale)<=1,'capture dimensions do not preserve the canvas-to-pixel mapping');
   const tablePaint=pixelSummary(image,{x:image.width*.2,y:image.height*.3,width:image.width*.6,height:image.height*.35});
   assert(tablePaint.mean>10&&tablePaint.variance>8,'scene reports GPU readiness but its central table is absent from the actual page capture: '+JSON.stringify(tablePaint));
   fs.writeFileSync(path.join(out,label+'-metrics.json'),JSON.stringify(m,null,2));return {image,paint,box,m};
