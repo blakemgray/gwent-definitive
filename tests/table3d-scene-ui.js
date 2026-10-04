@@ -138,8 +138,9 @@ async function shadow(page,name,iid){
   await page.waitForTimeout(250);
   const held=await snapshot(page,name+'-02-shadow-held'),restMesh=rest.m.cards.find(c=>c.iid===iid),heldMesh=held.m.cards.find(c=>c.iid===iid);assert(heldMesh.worldHeight-restMesh.worldHeight>=15,'GPU held-body height decayed while the pointer still held it');
   const causal=await page.evaluate(()=>window.GwentTable3D.readbackPair({kind:'shadow',floorOnly:true}));
+  fs.writeFileSync(path.join(out,name+'-shadow-readbacks.json'),JSON.stringify({restingShadows,causalHeldShadows:causal},null,2));
   assert.equal(causal.available,true);assert.equal(causal.kind,'shadow');assert.equal(causal.floorOnly,true);assert(causal.sampledPixels>0&&causal.excludedCardPixels>0,'shadow readback did not isolate table floor');
-  assert(causal.changedPixels>=8&&causal.meanAbsoluteDifference>.005,'turning actual card shadows off did not change rendered floor pixels: '+JSON.stringify(causal));assert(causal.withShadows.meanLuminance<causal.withoutShadows.meanLuminance,'actual card shadows did not darken table floor');
+  assert(causal.changedPixels>=8&&causal.meanAbsoluteDifference>.005,'turning actual card shadows off did not change rendered floor pixels: '+JSON.stringify(causal));assert(causal.withShadows.meanLuminance<causal.withoutShadows.meanLuminance,'actual card shadows did not darken table floor: '+JSON.stringify(causal));
   const localFloor=imageRect(rest,restMesh.projected,22),delta=assertChangedPixels(rest.image,held.image,localFloor,{exclude:[...faceMasks(rest),...faceMasks(held)],minimumPixels:16,minimumMeanDelta:.01});assert(delta.darkened>8&&delta.brightened>8,'lift must move nearby painted floor shadow, not merely brighten a card face/HUD: '+JSON.stringify(delta));
   await page.mouse.up();await idle(page);assert.deepEqual(await truth(page),authoritative,'physical lift changed engine/save');await assertClean(page);return {samePlanarPose:true,worldHeightBefore:restMesh.worldHeight,worldHeightHeld:heldMesh.worldHeight,floorPixels:delta,restingShadows,causalHeldShadows:causal};
 }

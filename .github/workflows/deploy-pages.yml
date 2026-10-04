@@ -67,11 +67,6 @@ jobs:
           GWENT_TEST_URL: http://127.0.0.1:4173/
           GWENT_QA_DIR: qa/tabletop_motion
         run: node tests/tabletop-motion-ui.js
-      - name: Lit 3D table, normal actions, painted shadows and ability light
-        env:
-          GWENT_TEST_URL: http://127.0.0.1:4173/
-          GWENT_QA_DIR: qa/table3d_scene
-        run: node tests/table3d-scene-ui.js
       - name: Battlefield density, centering, and geometry gate
         env:
           GWENT_TEST_URL: http://127.0.0.1:4173/
@@ -228,7 +223,6 @@ jobs:
             qa/runtime_diagnostics
             qa/tabletop_abilities
             qa/tabletop_motion
-            qa/table3d_scene
           if-no-files-found: warn
           retention-days: 30
       - name: Archive Pass 11 Golden Match end-to-end QA
@@ -272,9 +266,50 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
+  table3d:
+    name: Lit 3D table (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Stamp exact candidate runtime identity
+        run: node scripts/stamp-build.js --sha "$GITHUB_SHA"
+      - name: Install browser QA tooling
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Start static test server
+        run: |
+          python -m http.server 4173 >/tmp/gwent-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/gwent-http.log
+          exit 1
+      - name: Normal actions, painted shadows, ability light and offline reopen
+        env:
+          GWENT_TEST_URL: http://127.0.0.1:4173/
+          GWENT_QA_DIR: qa/table3d_scene
+          GWENT_BROWSERS: ${{ matrix.browser }}
+        run: node tests/table3d-scene-ui.js
+      - name: Archive 3D painted and temporal QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: table3d-${{ matrix.browser }}-qa
+          path: qa/table3d_scene
+          if-no-files-found: warn
+          retention-days: 30
+
   deploy:
     if: github.event_name != 'pull_request'
-    needs: verify
+    needs: [verify, table3d]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
